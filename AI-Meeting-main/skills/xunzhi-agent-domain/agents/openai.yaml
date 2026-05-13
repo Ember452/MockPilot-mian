@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职通用 Agent"
+  short_description: "处理通用 Agent 会话、聊天、历史消息与场景路由。"
+  default_prompt: "使用 $xunzhi-agent-domain 帮我分析或修改通用 Agent 会话与路由逻辑。"
+
+policy:
+  allow_implicit_invocation: true
