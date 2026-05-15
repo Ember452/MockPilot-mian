@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职 AI 运行时"
+  short_description: "治理模型绑定、限流、Guard、SingleFlight 与线程池。"
+  default_prompt: "使用 $xunzhi-ai-runtime 帮我分析或修改 AI 绑定、并发、超时、重试或重复执行相关逻辑。"
+
+policy:
+  allow_implicit_invocation: true
