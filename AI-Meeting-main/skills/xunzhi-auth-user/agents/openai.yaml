@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职鉴权与用户"
+  short_description: "处理用户身份、登录态、权限和 WebSocket 鉴权。"
+  default_prompt: "使用 $xunzhi-auth-user 帮我分析或修改当前用户注入、权限或 WebSocket 鉴权逻辑。"
+
+policy:
+  allow_implicit_invocation: true
