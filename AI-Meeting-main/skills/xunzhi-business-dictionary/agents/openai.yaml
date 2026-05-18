@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职业务词典"
+  short_description: "统一跨域名词、真相源、对象层级与不变量。"
+  default_prompt: "使用 $xunzhi-business-dictionary 帮我先统一这个仓库里的对象语义和真相源。"
+
+policy:
+  allow_implicit_invocation: true
