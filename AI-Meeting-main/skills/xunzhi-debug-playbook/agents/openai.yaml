@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职排障剧本"
+  short_description: "用于面试、运行时保护和媒体链路的跨层问题诊断。"
+  default_prompt: "使用 $xunzhi-debug-playbook 帮我诊断这个仓库里的跨层故障。"
+
+policy:
+  allow_implicit_invocation: true
