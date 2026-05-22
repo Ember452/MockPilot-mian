@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职面试业务"
+  short_description: "处理面试生命周期、状态机与 workflow 契约。"
+  default_prompt: "使用 $xunzhi-interview-domain 帮我分析或修改这个仓库里的面试业务逻辑。"
+
+policy:
+  allow_implicit_invocation: true
