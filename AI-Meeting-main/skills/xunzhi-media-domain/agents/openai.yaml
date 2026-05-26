@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职媒体与实时通信"
+  short_description: "处理实时转写、WebSocket 推送和讯飞 TTS 流程。"
+  default_prompt: "使用 $xunzhi-media-domain 帮我分析或修改实时转写、WebSocket 或 TTS 相关逻辑。"
+
+policy:
+  allow_implicit_invocation: true
