@@ -1,0 +1,7 @@
+interface:
+  display_name: "寻职仓库路由"
+  short_description: "为 AI-Meeting 任务定位模块与入口文件。"
+  default_prompt: "使用 $xunzhi-repo-map 帮我判断这个需求应该先看哪个模块和哪些文件。"
+
+policy:
+  allow_implicit_invocation: true
