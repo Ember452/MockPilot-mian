@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" fill="none">
+  <rect width="1280" height="720" fill="#0E1726"/>
+  <rect x="48" y="48" width="1184" height="624" rx="32" fill="#111B2E" stroke="#2B3C5A" stroke-width="2"/>
+  <circle cx="118" cy="112" r="10" fill="#FF6B6B"/>
+  <circle cx="152" cy="112" r="10" fill="#FFD166"/>
+  <circle cx="186" cy="112" r="10" fill="#06D6A0"/>
+  <text x="96" y="188" fill="#F8FAFC" font-size="54" font-family="Segoe UI, Arial, sans-serif" font-weight="700">讯智 AI 智能助手后端</text>
+  <text x="96" y="236" fill="#94A3B8" font-size="24" font-family="Segoe UI, Arial, sans-serif">展示级开源收尾版：工程化、可部署、可演示、可扩展</text>
+
+  <rect x="96" y="296" width="320" height="146" rx="24" fill="#183153"/>
+  <text x="124" y="342" fill="#F8FAFC" font-size="26" font-family="Segoe UI, Arial, sans-serif" font-weight="700">AI / 智能体</text>
+  <text x="124" y="382" fill="#C7D2FE" font-size="20" font-family="Segoe UI, Arial, sans-serif">SSE 流式聊天</text>
+  <text x="124" y="412" fill="#C7D2FE" font-size="20" font-family="Segoe UI, Arial, sans-serif">多模型接入</text>
+
+  <rect x="448" y="296" width="320" height="146" rx="24" fill="#173B3F"/>
+  <text x="476" y="342" fill="#F8FAFC" font-size="26" font-family="Segoe UI, Arial, sans-serif" font-weight="700">面试编排</text>
+  <text x="476" y="382" fill="#CCFBF1" font-size="20" font-family="Segoe UI, Arial, sans-serif">简历抽题</text>
+  <text x="476" y="412" fill="#CCFBF1" font-size="20" font-family="Segoe UI, Arial, sans-serif">回放与雷达图</text>
+
+  <rect x="800" y="296" width="336" height="146" rx="24" fill="#3F2D17"/>
+  <text x="828" y="342" fill="#F8FAFC" font-size="26" font-family="Segoe UI, Arial, sans-serif" font-weight="700">语音能力</text>
+  <text x="828" y="382" fill="#FDE68A" font-size="20" font-family="Segoe UI, Arial, sans-serif">实时转写</text>
+  <text x="828" y="412" fill="#FDE68A" font-size="20" font-family="Segoe UI, Arial, sans-serif">长文本 TTS</text>
+
+  <rect x="96" y="484" width="1040" height="120" rx="24" fill="#0F2139" stroke="#274472"/>
+  <text x="128" y="528" fill="#E2E8F0" font-size="22" font-family="Segoe UI, Arial, sans-serif">Spring Boot 3  ·  MySQL / Redis / MongoDB  ·  Docker Compose  ·  GitHub Actions  ·  MIT License</text>
+  <text x="128" y="566" fill="#94A3B8" font-size="20" font-family="Segoe UI, Arial, sans-serif">运行时目录外置、健康检查可用、仓库门面完整、适合作为答辩 / 面试展示项目</text>
+</svg>
