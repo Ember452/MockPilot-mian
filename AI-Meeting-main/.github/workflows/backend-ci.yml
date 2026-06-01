@@ -1,0 +1,40 @@
+name: backend-ci
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - "codex/**"
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  pull_request:
+    branches:
+      - "**"
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x ./mvnw
+
+      - name: Verify repository
+        run: ./mvnw -B -ntp clean verify -Dmaven.test.skip=true

@@ -1,0 +1,23 @@
+name: Feature Request
+description: 提交功能建议或工程优化建议
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你想解决的问题
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: 预期收益
+      description: 说明它对展示、工程化、功能体验或维护成本的影响
