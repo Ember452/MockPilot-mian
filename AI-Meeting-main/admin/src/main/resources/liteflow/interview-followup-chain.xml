@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow>
+    <chain name="default_followup_chain">
+        THEN(loadFollowUpContext,completedStateGuard,followUpLimitGuard,aiSuggestionJudge,lowScoreJudge,missingPointsJudge,followUpDecisionFinalize);
+    </chain>
+</flow>

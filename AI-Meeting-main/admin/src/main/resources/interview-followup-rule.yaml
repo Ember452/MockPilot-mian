@@ -1,0 +1,20 @@
+liteflow:
+  rule-source: classpath:liteflow/interview-followup-chain.xml,classpath:liteflow/rag-chat-chain.xml
+
+xunzhi-agent:
+  interview:
+    rule-engine:
+      enable: true
+      default-chain-id: default_followup_chain
+      fail-open: true
+      rule-version: v1.0.0
+      default-max-follow-up: 2
+      default-low-score-threshold: 60
+  rag:
+    rule-engine:
+      enable: true
+      default-chain-id: default_rag_chain
+      fail-open: true
+      default-top-k: 5
+      default-rerank-top-n: 3
+      enable-web-search: true

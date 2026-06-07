@@ -1,0 +1,260 @@
+server:
+  port: ${SERVER_PORT:8002}
+
+spring:
+  application:
+    name: xunzhi-agent-admin
+  config:
+    import: optional:classpath:interview-followup-rule.yaml
+  profiles:
+    include: satoken,sse
+  servlet:
+    multipart:
+      location: ${XUNZHI_MULTIPART_TEMP_DIR:${xunzhi-agent.storage.upload-temp-dir}}
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:192.168.100.129}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mainshi_agent}?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=${APP_TIMEZONE:Asia/Shanghai}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:123456}
+  data:
+    mongodb:
+      host: ${MONGODB_HOST:192.168.100.129}
+      port: ${MONGODB_PORT:27017}
+      database: ${MONGODB_DATABASE:xunzhi_agent}
+      # username: ${MONGODB_USERNAME:}
+      # password: ${MONGODB_PASSWORD:}
+    redis:
+      host: ${REDIS_HOST:192.168.100.129}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+        shutdown-timeout: 100ms
+      timeout: 10000ms
+  task:
+    scheduling:
+      pool:
+        size: 2
+      thread-name-prefix: redis-session-task-
+    execution:
+      pool:
+        core-size: 4
+        max-size: 8
+        queue-capacity: 100
+        thread-name-prefix: redis-session-async-
+#  ai:
+#    openai:
+#      api-key: ${SPRING_AI_OPENAI_API_KEY:sk-xxxxxxxxxxxxx}
+#      base-url: ${SPRING_AI_OPENAI_BASE_URL:https://api.openai.com}
+#      chat:
+#        options:
+#          model: ${SPRING_AI_OPENAI_MODEL:gpt-4o-mini}
+#          temperature: ${SPRING_AI_OPENAI_TEMPERATURE:0.7}
+#      embedding:
+#        options:
+#          model: ${SPRING_AI_OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY:sk-74d06f098d3a4e0fa56ca5a971fa1a49}
+      base-url: ${SPRING_AI_OPENAI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      chat:
+        options:
+          model: ${SPRING_AI_OPENAI_MODEL:qwen3.6-plus}
+          temperature: ${SPRING_AI_OPENAI_TEMPERATURE:0.7}
+      embedding:
+        options:
+          model: ${SPRING_AI_OPENAI_EMBEDDING_MODEL:text-embedding-v4}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    defaults:
+      enabled: true
+
+logging:
+  file:
+    path: ${XUNZHI_LOG_DIR:${xunzhi-agent.storage.log-dir}}
+
+collection:
+  vector:
+    similarity-threshold: 0.9
+
+elasticsearch:
+  host: ${ES_HOST:192.168.100.129}
+  port: ${ES_PORT:9200}
+  index-prefix: xunzhi_kb_
+
+xunfei:
+  lat-key:
+    app-id: ${XUNFEI_APP_ID:a2c21df4}
+    api-key: ${XUNFEI_API_KEY:0bd0dc2c7ba9e391e36242c676cf0901}
+    api-secret: ${XUNFEI_API_SECRET:ZmFmYzRmNmMzOWMxMzFlOWI2MzQyNmQ1}
+    rta-api-key: ${XUNFEI_RTA_API_KEY:0bd0dc2c7ba9e391e36242c676cf0901}
+
+xunzhi-agent:
+  security:
+    require-xunfei-secrets: true
+  storage:
+    base-dir: ${XUNZHI_STORAGE_BASE_DIR:${user.home}/.xunzhi-agent}
+    upload-temp-dir: ${XUNZHI_MULTIPART_TEMP_DIR:${xunzhi-agent.storage.base-dir}/temp/upload}
+    audio-temp-dir: ${XUNZHI_AUDIO_TEMP_DIR:${xunzhi-agent.storage.base-dir}/temp/audio}
+    log-dir: ${XUNZHI_LOG_DIR:${xunzhi-agent.storage.base-dir}/logs}
+  thread-pool:
+    general:
+      core-pool-size: 50
+      max-pool-size: 200
+      queue-capacity: 1000
+      keep-alive-seconds: 300
+      thread-name-prefix: xunzhi-async-
+    ai-io:
+      core-pool-size: 24
+      max-pool-size: 64
+      queue-capacity: 400
+      keep-alive-seconds: 120
+      thread-name-prefix: xunzhi-ai-io-
+    cpu:
+      core-pool-size: 8
+      max-pool-size: 16
+      queue-capacity: 256
+      keep-alive-seconds: 60
+      thread-name-prefix: xunzhi-cpu-
+    query:
+      core-pool-size: 16
+      max-pool-size: 48
+      queue-capacity: 600
+      keep-alive-seconds: 120
+      thread-name-prefix: xunzhi-query-
+    scheduled-pool-size: 8
+    scheduled-thread-name-prefix: xunzhi-schedule-
+  agent-binding:
+    general-agent-chat: ${XUNZHI_AGENT_GENERAL_CHAT:通用智能体}
+    interview-question-extraction: ${XUNZHI_AGENT_INTERVIEW_QUESTION_EXTRACTION:面试出题官}
+    interview-answer-evaluation: ${XUNZHI_AGENT_INTERVIEW_ANSWER_EVALUATION:用户答案评分官}
+    interview-demeanor: ${XUNZHI_AGENT_INTERVIEW_DEMEANOR:神态分析官}
+    interview-question-asking: ${XUNZHI_AGENT_INTERVIEW_QUESTION_ASKING:面试提问官}
+  flow-limit:
+    enable: true
+    time-window-seconds: 1
+    max-access-count: 20
+    requested-tokens: 1
+    interview-answer-time-window-seconds: 1
+    interview-answer-max-access-count: 8
+    interview-heavy-time-window-seconds: 1
+    interview-heavy-max-access-count: 2
+    interview-read-time-window-seconds: 1
+    interview-read-max-access-count: 15
+    interview-ai-call-time-window-seconds: 1
+    interview-ai-call-max-access-count: 6
+  ai-guard:
+    enable: true
+    circuit-sliding-window-size: 50
+    circuit-failure-rate-threshold: 50
+    circuit-permitted-calls-in-half-open-state: 10
+    circuit-open-state-wait-millis: 30000
+    executor-threads: 32
+    stages:
+      interview-evaluation:
+        timeout-millis: 20000
+        max-concurrent-calls: 30
+        retry-count: 1
+        retry-wait-millis: 100
+      interview-followup:
+        timeout-millis: 20000
+        max-concurrent-calls: 20
+        retry-count: 1
+        retry-wait-millis: 100
+      interview-extraction:
+        timeout-millis: 60000
+        max-concurrent-calls: 8
+        retry-count: 0
+        retry-wait-millis: 0
+      interview-demeanor:
+        timeout-millis: 20000
+        max-concurrent-calls: 6
+        retry-count: 0
+        retry-wait-millis: 0
+  ai-singleflight:
+    enable: true
+    mode: hybrid
+    distributed-enabled: true
+    ttl-millis: 65000
+    wait-timeout-millis: 65000
+    stream-block-timeout-millis: 3000
+    poll-fallback-interval-millis: 2000
+    follower-max-wait-millis: 20000
+    l1-cache-max-size: 1000
+    cleanup-threshold: 256
+    heavy-lock-expire-seconds: 90
+    heavy-lock-wait-millis: 0
+    stage-policies:
+      interview-evaluation:
+        heartbeat-interval-millis: 3000
+        running-ttl-millis: 15000
+        takeover-detect-millis: 10000
+        result-ttl-millis: 600000
+        failed-result-ttl-millis: 60000
+        compression-threshold-bytes: 4096
+        compression-codec: gzip
+        l1-cache-enabled: true
+        l1-cache-ttl-millis: 30000
+      interview-followup:
+        heartbeat-interval-millis: 2500
+        running-ttl-millis: 12000
+        takeover-detect-millis: 8000
+        result-ttl-millis: 180000
+        failed-result-ttl-millis: 30000
+        compression-threshold-bytes: 2048
+        compression-codec: gzip
+        l1-cache-enabled: true
+        l1-cache-ttl-millis: 15000
+      interview-extraction:
+        heartbeat-interval-millis: 4000
+        running-ttl-millis: 20000
+        takeover-detect-millis: 12000
+        result-ttl-millis: 1800000
+        failed-result-ttl-millis: 60000
+        compression-threshold-bytes: 1024
+        compression-codec: gzip
+        l1-cache-enabled: true
+        l1-cache-ttl-millis: 60000
+      interview-demeanor:
+        heartbeat-interval-millis: 5000
+        running-ttl-millis: 30000
+        takeover-detect-millis: 15000
+        result-ttl-millis: 900000
+        failed-result-ttl-millis: 60000
+        compression-threshold-bytes: 2048
+        compression-codec: gzip
+        l1-cache-enabled: false
+  interview:
+    answer-guard:
+      lock-expire-seconds: -1
+      lock-watchdog-enabled: true
+      processing-expire-seconds: 120
+      processing-long-tail-expire-seconds: 300
+      replay-expire-hours: 24
+      lock-wait-millis: 0
+    turn-repair:
+      enable: true
+      fixed-delay-millis: 3000
+      batch-size: 50
+      max-retries: 6
+  redis-session:
+    enable: true
+    message-expire-seconds: 604800
+    sync-delay-seconds: 30
+    batch-sync-size: 100
+    max-queue-size: 10000
+    clean-interval-seconds: 300
