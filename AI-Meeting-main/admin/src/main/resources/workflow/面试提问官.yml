@@ -1,0 +1,691 @@
+flowMeta:
+  name: 面试提问官
+  description: '1'
+  avatarIcon: https://oss-beijing-m8.openstorage.cn/SparkBotProd/icon/common/emojiitem_00_10@2x.png
+  avatarColor: '#FFEAD5'
+  advancedConfig: '{"prologue":{"enabled":true,"inputExample":["","",""]},"needGuide":false}'
+  category: 14
+  dslVersion: v1
+flowData:
+  nodes:
+  - id: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+    dragging: false
+    selected: false
+    width: 361
+    height: 73
+    position:
+      x: -217.49677554460823
+      y: 40.6309193555021
+    positionAbsolute:
+      x: -217.49677554460823
+      y: 40.6309193555021
+    type: 开始节点
+    data:
+      allowInputReference: false
+      allowOutputReference: true
+      label: 开始
+      status: ''
+      nodeMeta:
+        aliasName: 开始节点
+        nodeType: 基础节点
+      inputs: [
+        ]
+      outputs:
+      - id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+        name: AGENT_USER_INPUT
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: 用户本轮对话输入内容
+        required: true
+        deleteDisabled: true
+      - id: 0ceea1fc-f04b-4d06-9ab5-c74523dec346
+        name: mode
+        nameErrMsg: ''
+        schema:
+          type: string
+          properties: [
+            ]
+          default: 是否追问
+        required: false
+        customParameterType: xfyun-file
+      - id: 60c1c2cf-d112-4d79-bb3a-65ff5793c7bb
+        name: follow_up_count
+        nameErrMsg: ''
+        schema:
+          type: number
+          properties: [
+            ]
+          default: ''
+        required: false
+        customParameterType: xfyun-file
+      - id: 042a5987-d224-4f65-8f1f-ff594a7399ce
+        name: resume_context
+        nameErrMsg: ''
+        schema:
+          type: string
+          properties: [
+            ]
+          default: ''
+        required: false
+        customParameterType: xfyun-file
+      - id: 4491b992-d324-43a0-b911-09227ec8a992
+        name: max_follow_up
+        nameErrMsg: ''
+        schema:
+          type: number
+          properties: [
+            ]
+          default: ''
+        required: false
+        customParameterType: xfyun-file
+      - id: f11a139e-ccce-4d61-9ddf-b6da99200bdc
+        name: question
+        nameErrMsg: ''
+        schema:
+          type: string
+          properties: [
+            ]
+          default: ''
+        required: false
+        customParameterType: xfyun-file
+      nodeParam: {
+        }
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/start-node-icon.png
+      description: 工作流的开启节点，用于定义流程调用所需的业务变量信息。
+      updatable: false
+  - id: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    dragging: false
+    selected: true
+    width: 361
+    height: 73
+    position:
+      x: 1142.1052681850474
+      y: 17.92692200241254
+    positionAbsolute:
+      x: 1142.1052681850474
+      y: 17.92692200241254
+    type: 结束节点
+    data:
+      allowInputReference: true
+      allowOutputReference: false
+      label: 结束
+      references:
+      - children:
+        - references:
+          - originId: spark-llm::3d610bd9-1432-4746-96dc-384cafb89313
+            children: [
+              ]
+            id: 130c78aa-7296-4615-81d7-d619ba5ec911
+            label: score
+            type: integer
+            value: score
+            fileType: ''
+          label: ''
+          value: ''
+        label: 大模型_1
+        parentNode: true
+        value: spark-llm::3d610bd9-1432-4746-96dc-384cafb89313
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 结束节点
+        nodeType: 基础节点
+      inputs:
+      - id: ec69b1f5-4037-4736-a711-5b0724f267ee
+        name: end_interview
+        nameErrMsg: ''
+        schema:
+          type: boolean
+          value:
+            type: ref
+            content:
+              name: end_interview
+              id: 0d772236-3087-43a5-96df-ea7fd40444ff
+              nodeId: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+            contentErrMsg: ''
+        fileType: ''
+      - id: d40f9291-e446-45ce-940e-43928c0ad350
+        name: question_id
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: question_id
+              id: 76e4cd12-43d6-42e4-beb6-eb0ec4255e8e
+              nodeId: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+            contentErrMsg: ''
+        fileType: ''
+      - id: a0390532-15c4-416a-a616-09dc8018f699
+        name: is_follow_up
+        nameErrMsg: ''
+        schema:
+          type: boolean
+          value:
+            type: ref
+            content:
+              name: is_follow_up
+              id: e8d016b4-1b0e-4e05-ba5e-2b71e3cbed31
+              nodeId: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+            contentErrMsg: ''
+        fileType: ''
+      - id: 07604fe2-d449-4778-af5f-8229219a486b
+        name: target_skill
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: target_skill
+              id: b1f86e32-add0-4d7a-be9d-60d89d36755c
+              nodeId: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+            contentErrMsg: ''
+        fileType: ''
+      - id: 6dca7c4b-d3bb-4e76-bf9f-ae6e640b0d01
+        name: difficulty
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: target_skill
+              id: b1f86e32-add0-4d7a-be9d-60d89d36755c
+              nodeId: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+            contentErrMsg: ''
+        fileType: ''
+      - id: a5f55200-ac19-4300-b015-c75ae18bf982
+        name: ask_to_user
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: ask_to_user
+              id: c15f166c-c759-4902-a5bf-ce5373f30d03
+              nodeId: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+            contentErrMsg: ''
+        fileType: ''
+      outputs: [
+        ]
+      nodeParam:
+        template: |
+          {{result}}
+        streamOutput: false
+        templateErrMsg: ''
+        outputMode: 0
+        reasoningTemplate: "把output 内部的json提取出来 output {{output}} \n"
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/end-node-icon.png
+      description: 工作流的结束节点，用于输出工作流运行后的最终结果。
+      updatable: false
+  - id: spark-llm::3d610bd9-1432-4746-96dc-384cafb89313
+    dragging: false
+    selected: false
+    width: 361
+    height: 123
+    position:
+      x: 265.9524468280931
+      y: 13.68459822094951
+    positionAbsolute:
+      x: 265.9524468280931
+      y: 13.68459822094951
+    type: 大模型
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 大模型_1
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 大模型
+        nodeType: 基础节点
+      inputs:
+      - id: 7a40cf96-7e02-471b-81bc-2d04903592f2
+        name: mode
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: mode
+              id: 0ceea1fc-f04b-4d06-9ab5-c74523dec346
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: ab4703cb-2a83-4549-9a2f-3e01d72f3f5f
+        name: follow_up_count
+        nameErrMsg: ''
+        schema:
+          type: number
+          value:
+            type: ref
+            content:
+              name: follow_up_count
+              id: 60c1c2cf-d112-4d79-bb3a-65ff5793c7bb
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: 1757e467-90b4-4cfb-a240-3f337287c8f8
+        name: AGENT_USER_INPUT
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: AGENT_USER_INPUT
+              id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: 845c10aa-63f2-4fb3-8ca8-dc2c070b6be0
+        name: max_follow_up
+        nameErrMsg: ''
+        schema:
+          type: number
+          value:
+            type: ref
+            content:
+              name: max_follow_up
+              id: 4491b992-d324-43a0-b911-09227ec8a992
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: 7c6260ec-1e38-4deb-833f-2ff6260c0f6d
+        name: resume_context
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: resume_context
+              id: 042a5987-d224-4f65-8f1f-ff594a7399ce
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: e5e6fa4d-3411-4393-8002-ce7d14bdd7f2
+        name: question
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: question
+              id: f11a139e-ccce-4d61-9ddf-b6da99200bdc
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: 48b5d6ef-cf81-46ae-9a10-cf3c4eee5dc4
+        name: output
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: ''
+      nodeParam:
+        topK: 4
+        template: |+
+          mode={{mode}}
+          follow_up_count={{follow_up_count}}
+          max_follow_up={{max_follow_up}}
+          question={{question}}
+          AGENT_USER_INPUT={{AGENT_USER_INPUT}}
+          resume_context={{resume_context}}
+
+          请严格按系统规则直接输出结果。
+
+
+
+        modelId: 10000021
+        enableChatHistoryV2:
+          isEnabled: false
+          rounds: 1
+        auditing: default
+        llmId: 10000021
+        url: wss://maas-api.cn-huabei-1.xf-yun.com/v1.1/chat
+        multiMode: false
+        uid: '19496768956'
+        modelName: Qwen3-Next-80B-A3B-Instruct
+        patchId: '0'
+        isThink: false
+        templateErrMsg: ''
+        domain: xop3qwen80bnext
+        appId: 12a0a7e2
+        maxTokens: 2048
+        temperature: 0.5
+        systemTemplate: |+
+          你是技术面试追问官。你的唯一任务是：基于“当前题目 + 候选人回答 + 简历上下文”生成下一条追问。
+
+          【输出要求】
+          - 只输出一行纯文本。
+          - 不输出JSON、不输出解释、不输出Markdown、不换行。
+          - 仅允许两种输出：
+            1) 一条追问句（中文，40-60字，必须以“？”结尾）
+            2) __FINISH__
+
+          【输入变量】
+          - mode
+          - follow_up_count
+          - max_follow_up
+          - question
+          - AGENT_USER_INPUT
+          - resume_context
+
+          【决策规则】
+          1) 若 mode=FINISH，输出 __FINISH__
+          2) 若 mode!=FOLLOW_UP，输出 __FINISH__
+          3) 若 follow_up_count >= max_follow_up，输出 __FINISH__
+          4) 若 question 为空 或 AGENT_USER_INPUT 为空，输出 __FINISH__
+          5) 其余情况，输出1条追问，并严格满足：
+             - 必须紧扣 question 与 AGENT_USER_INPUT 的具体表述，禁止泛问
+             - 可结合 resume_context 做岗位/项目定向追问
+             - 只追一个维度：实现细节 / 边界条件 / 性能指标 / 故障排查 / 技术取舍（五选一）
+             - 不评分、不总结、不回答、不建议
+             - 不复述整段原回答，避免冗长
+
+          【兜底规则】
+          - 如果信息不足以形成有效追问，输出：
+          请结合该题说明关键实现细节、边界处理与技术取舍，并给出可量化结果？
+
+        model: spark
+        setAnswerContentErrMsg: ''
+        modelEnabled: true
+        serviceId: xop3qwen80bnext
+        respFormat: 0
+        llmIdErrMsg: ''
+      retryConfig:
+        customOutput: |-
+          {
+            "output": ""
+          }
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/largeModelIcon.png
+      description: 根据输入的提示词，调用选定的大模型，对提示词作出回答
+      updatable: false
+  - id: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+    dragging: false
+    selected: false
+    width: 361
+    height: 99
+    position:
+      x: 701.1828588007677
+      y: 19.59618765758657
+    positionAbsolute:
+      x: 701.1828588007677
+      y: 19.59618765758657
+    type: 代码
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 代码_1
+      labelEdit: false
+      references: [
+        ]
+      status: ''
+      nodeMeta:
+        aliasName: 代码
+        nodeType: 工具
+      inputs:
+      - id: c6834e1a-1a7e-4f26-a662-e2a6faa3b2b2
+        name: raw_text
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: output
+              id: 48b5d6ef-cf81-46ae-9a10-cf3c4eee5dc4
+              nodeId: spark-llm::3d610bd9-1432-4746-96dc-384cafb89313
+            contentErrMsg: ''
+        fileType: ''
+      - id: c955f280-98fb-4bf3-b009-b4a4c6a5a906
+        name: mode
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: mode
+              id: 0ceea1fc-f04b-4d06-9ab5-c74523dec346
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: 3c97e3ab-1347-44bf-81b2-557316d19fb2
+        name: follow_up_count
+        nameErrMsg: ''
+        schema:
+          type: number
+          value:
+            type: ref
+            content:
+              name: follow_up_count
+              id: 60c1c2cf-d112-4d79-bb3a-65ff5793c7bb
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: 8fb2e079-f6a6-4429-a734-d8bf3d7b430c
+        name: max_follow_up
+        nameErrMsg: ''
+        schema:
+          type: number
+          value:
+            type: ref
+            content:
+              name: max_follow_up
+              id: 4491b992-d324-43a0-b911-09227ec8a992
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      - id: 470ec7c8-aaad-472e-b0e9-ff0c634919d1
+        name: question
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: question
+              id: f11a139e-ccce-4d61-9ddf-b6da99200bdc
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: 0d772236-3087-43a5-96df-ea7fd40444ff
+        name: end_interview
+        nameErrMsg: ''
+        schema:
+          type: boolean
+          properties: [
+            ]
+          default: ''
+      - id: 76e4cd12-43d6-42e4-beb6-eb0ec4255e8e
+        name: question_id
+        nameErrMsg: ''
+        schema:
+          type: string
+          properties: [
+            ]
+          default: ''
+      - id: e8d016b4-1b0e-4e05-ba5e-2b71e3cbed31
+        name: is_follow_up
+        nameErrMsg: ''
+        schema:
+          type: boolean
+          properties: [
+            ]
+          default: ''
+        required: false
+      - id: c15f166c-c759-4902-a5bf-ce5373f30d03
+        name: ask_to_user
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: ''
+        required: false
+      - id: b1f86e32-add0-4d7a-be9d-60d89d36755c
+        name: target_skill
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: ''
+        required: false
+      - id: 8e0c043f-f4a1-4b2b-9083-074c1169bb71
+        name: difficulty
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: ''
+        required: false
+      nodeParam:
+        uid: '19496768956'
+        code: |
+          import json
+          import re
+
+          def _s(v):
+              return "" if v is None else str(v).strip()
+
+          def _to_int(v, default=0):
+              try:
+                  return int(str(v).strip())
+              except Exception:
+                  return default
+
+          def _finish():
+              return {
+                  "end_interview": True,
+                  "question_id": "",
+                  "is_follow_up": False,
+                  "target_skill": "",
+                  "difficulty": "",
+                  "ask_to_user": ""
+              }
+
+          def _extract_text(raw_text):
+              s = _s(raw_text)
+              if not s:
+                  return ""
+
+              if s.startswith("```"):
+                  s = re.sub(r"^```[a-zA-Z]*\n?", "", s)
+                  s = re.sub(r"\n?```$", "", s).strip()
+
+              # 兼容 JSON 输出
+              try:
+                  obj = json.loads(s)
+                  if isinstance(obj, dict):
+                      if isinstance(obj.get("json"), str):
+                          try:
+                              inner = json.loads(obj["json"])
+                              if isinstance(inner, dict):
+                                  obj = inner
+                          except Exception:
+                              pass
+                      return _s(obj.get("ask_to_user") or obj.get("follow_up_question") or obj.get("question") or obj.get("output"))
+                  if isinstance(obj, str):
+                      return _s(obj)
+              except Exception:
+                  pass
+
+              # 纯文本输出
+              return s.replace("\r\n", "\n").split("\n")[0].strip()
+
+          def main(raw_text, mode, follow_up_count, max_follow_up, question):
+              m = _s(mode).upper()
+              c = _to_int(follow_up_count, 0)
+              mx = _to_int(max_follow_up, 2)
+
+              # 流程控制
+              if m != "FOLLOW_UP" or m == "FINISH":
+                  return _finish()
+              if c >= mx:
+                  return _finish()
+              if _s(question) == "":
+                  return _finish()
+
+              ask = _extract_text(raw_text)
+
+              # 模型没有有效追问则结束
+              if _s(ask) == "" or _s(ask).upper() == "__FINISH__":
+                  return _finish()
+
+              if len(ask) > 100:
+                  ask = ask[:100].strip()
+              if ask and not ask.endswith(("？", "?")):
+                  ask += "？"
+
+              return {
+                  "end_interview": False,
+                  "question_id": f"follow_up_{c}",
+                  "is_follow_up": True,
+                  "target_skill": "General",
+                  "difficulty": "MEDIUM",
+                  "ask_to_user": ask
+              }
+        appId: 12a0a7e2
+        codeErrMsg: ''
+      icon: https://oss-beijing-m8.openstorage.cn/SparkBotProd/icon/icon-wrapper-question.svg
+      description: 面向开发者提供代码开发能力，目前仅支持python语言，允许使用该节点已定义的变量作为参数传入，返回语句用于输出函数的结果
+      updatable: false
+  edges:
+  - source: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+    target: spark-llm::3d610bd9-1432-4746-96dc-384cafb89313
+    type: customEdge
+    id: reactflow__edge-node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783-spark-llm::3d610bd9-1432-4746-96dc-384cafb89313
+    markerEnd:
+      color: '#6356EA'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: spark-llm::3d610bd9-1432-4746-96dc-384cafb89313
+    target: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+    type: customEdge
+    id: reactflow__edge-spark-llm::3d610bd9-1432-4746-96dc-384cafb89313-ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+    markerEnd:
+      color: '#6356EA'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535
+    target: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    type: customEdge
+    id: reactflow__edge-ifly-code::4167dc00-5e15-43e2-9afe-3631aa498535-node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    markerEnd:
+      color: '#6356EA'
+      type: arrow
+    data:
+      edgeType: curve

@@ -1,0 +1,350 @@
+flowMeta:
+  name: 表情分析面试官
+  description: 对用户的行为进行表情分析
+  avatarIcon: https://oss-beijing-m8.openstorage.cn/SparkBotProd/icon/common/emojiitem_00_10@2x.png
+  avatarColor: '#FFEAD5'
+  advancedConfig: '{"prologue":{"enabled":true,"inputExample":["","",""]},"needGuide":false}'
+  category: 10
+  dslVersion: v1
+flowData:
+  nodes:
+  - id: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+    dragging: false
+    selected: false
+    width: 303
+    height: 73
+    position:
+      x: -383.84730876650633
+      y: 606.6804067029565
+    positionAbsolute:
+      x: -383.84730876650633
+      y: 606.6804067029565
+    type: 开始节点
+    data:
+      allowInputReference: false
+      allowOutputReference: true
+      label: 开始
+      status: ''
+      nodeMeta:
+        aliasName: 开始节点
+        nodeType: 基础节点
+      inputs: [
+        ]
+      outputs:
+      - id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+        name: AGENT_USER_INPUT
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: 用户本轮对话输入内容
+        required: true
+        deleteDisabled: true
+      - id: 699a91ff-23f5-4961-a405-a759d8d9699b
+        name: USER_FILE
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: 用户的表情信息
+        allowedFileType:
+        - image
+        fileType: file
+        required: false
+        customParameterType: xfyun-file
+      nodeParam: {
+        }
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/start-node-icon.png
+      description: 工作流的开启节点，用于定义流程调用所需的业务变量信息。
+      updatable: false
+  - id: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    dragging: false
+    selected: true
+    width: 361
+    height: 73
+    position:
+      x: 881.6651491514251
+      y: 608.6867899384198
+    positionAbsolute:
+      x: 881.6651491514251
+      y: 608.6867899384198
+    type: 结束节点
+    data:
+      allowInputReference: true
+      allowOutputReference: false
+      label: 结束
+      references:
+      - children:
+        - references:
+          - originId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            children: [
+              ]
+            id: a0f659bf-5c41-4990-9aa1-b74fd95ebdf0
+            label: panicLevel
+            type: integer
+            value: panicLevel
+            fileType: ''
+          - originId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            children: [
+              ]
+            id: ed74d59c-e8a8-442b-a6e8-fe83dafca002
+            label: seriousnessLevel
+            type: integer
+            value: seriousnessLevel
+            fileType: ''
+          - originId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            children: [
+              ]
+            id: 66d78bdb-102c-4470-b25e-095d761efad6
+            label: emoticonHandling
+            type: integer
+            value: emoticonHandling
+            fileType: ''
+          - originId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            children: [
+              ]
+            id: 1a0408d6-9558-4805-9478-be5c5cfad9bb
+            label: compositeScore
+            type: integer
+            value: compositeScore
+            fileType: ''
+          label: ''
+          value: ''
+        label: 大模型_1
+        parentNode: true
+        value: spark-llm::28388754-8311-42e8-9813-a37db969e407
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 699a91ff-23f5-4961-a405-a759d8d9699b
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: image
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 结束节点
+        nodeType: 基础节点
+      inputs:
+      - id: 82de2b42-a059-4c98-bffb-b6b4800fcac9
+        name: panicLevel
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content:
+              name: panicLevel
+              id: a0f659bf-5c41-4990-9aa1-b74fd95ebdf0
+              nodeId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            contentErrMsg: ''
+        fileType: ''
+      - id: a546bfe4-ba07-48f2-a95b-b0d434afdfc6
+        name: seriousnessLevel
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content:
+              name: seriousnessLevel
+              id: ed74d59c-e8a8-442b-a6e8-fe83dafca002
+              nodeId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            contentErrMsg: ''
+        fileType: ''
+      - id: a9801515-ca67-437f-a8cc-20b53546dbff
+        name: emoticonHandling
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content:
+              name: emoticonHandling
+              id: 66d78bdb-102c-4470-b25e-095d761efad6
+              nodeId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            contentErrMsg: ''
+        fileType: ''
+      - id: 8b140f70-f798-4a6d-9b5c-414bc0ac0d2c
+        name: compositeScore
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content:
+              name: compositeScore
+              id: 1a0408d6-9558-4805-9478-be5c5cfad9bb
+              nodeId: spark-llm::28388754-8311-42e8-9813-a37db969e407
+            contentErrMsg: ''
+        fileType: ''
+      outputs: [
+        ]
+      nodeParam:
+        template: '{{output}}'
+        streamOutput: true
+        templateErrMsg: ''
+        outputMode: 0
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/end-node-icon.png
+      description: 工作流的结束节点，用于输出工作流运行后的最终结果。
+      updatable: false
+  - id: spark-llm::28388754-8311-42e8-9813-a37db969e407
+    dragging: false
+    selected: false
+    width: 361
+    height: 123
+    position:
+      x: 397.61573091286266
+      y: 592.2074727751295
+    positionAbsolute:
+      x: 397.61573091286266
+      y: 592.2074727751295
+    type: 大模型
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 大模型_1
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 699a91ff-23f5-4961-a405-a759d8d9699b
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: image
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 大模型
+        nodeType: 基础节点
+      inputs:
+      - id: a8fcbf57-fd85-4ae3-a12f-39d8aa061f5a
+        name: SYSTEM_IMAGE
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: USER_FILE
+              id: 699a91ff-23f5-4961-a405-a759d8d9699b
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: image
+        customParameterType: image_understanding
+      - id: 4c767049-71b6-476f-9dc6-1cbd57ceca4f
+        name: input
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: USER_FILE
+              id: 699a91ff-23f5-4961-a405-a759d8d9699b
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: image
+      outputs:
+      - id: a0f659bf-5c41-4990-9aa1-b74fd95ebdf0
+        name: panicLevel
+        nameErrMsg: ''
+        schema:
+          type: integer
+          properties: [
+            ]
+          default: 慌乱度
+      - id: ed74d59c-e8a8-442b-a6e8-fe83dafca002
+        name: seriousnessLevel
+        nameErrMsg: ''
+        schema:
+          type: integer
+          properties: [
+            ]
+          default: 严肃程度
+        required: false
+      - id: 66d78bdb-102c-4470-b25e-095d761efad6
+        name: emoticonHandling
+        nameErrMsg: ''
+        schema:
+          type: integer
+          properties: [
+            ]
+          default: 表情处理
+        required: false
+      - id: 1a0408d6-9558-4805-9478-be5c5cfad9bb
+        name: compositeScore
+        nameErrMsg: ''
+        schema:
+          type: integer
+          properties: [
+            ]
+          default: 综合得分
+        required: false
+      nodeParam:
+        topK: 4
+        template: 根据用户的表情来分析当前他在面试中的表情管理，最后把用户的表情得分以四个维度来输出成json，全部使用int类型，分别是慌乱度panicLevel，严肃程度seriousnessLevel，表情处理emoticonHandling，综合得分compositeScore，
+        modelId: 13
+        enableChatHistoryV2:
+          isEnabled: false
+          rounds: 1
+        auditing: default
+        llmId: 13
+        url: wss://spark-api.cn-huabei-1.xf-yun.com/v2.1/image
+        multiMode: true
+        uid: '19496768956'
+        patchId: '0'
+        isThink: false
+        templateErrMsg: ''
+        domain: image
+        appId: 12a0a7e2
+        maxTokens: 2048
+        temperature: 0.5
+        systemTemplate: 你现在是面试官对表情识别助手，你需要识别面试候选人的表情，并对他的面试表情进行简单的评估，以帮助面试官来综合评估面试表现
+        model: spark
+        serviceId: image_understanding
+        respFormat: 2
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/largeModelIcon.png
+      description: 根据输入的提示词，调用选定的大模型，对提示词作出回答
+      updatable: false
+  edges:
+  - source: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+    target: spark-llm::28388754-8311-42e8-9813-a37db969e407
+    type: customEdge
+    id: reactflow__edge-node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783-spark-llm::28388754-8311-42e8-9813-a37db969e407
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: spark-llm::28388754-8311-42e8-9813-a37db969e407
+    target: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    targetHandle: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    type: customEdge
+    id: reactflow__edge-spark-llm::28388754-8311-42e8-9813-a37db969e407-node-end::cda617af-551e-462e-b3b8-3bb9a041bf88node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve

@@ -1,0 +1,1325 @@
+flowMeta:
+  name: 面试题出题官
+  description: 专门出面试题
+  avatarIcon: https://oss-beijing-m8.openstorage.cn/SparkBotProd/icon/common/emojiitem_00_10@2x.png
+  avatarColor: '#FFEAD5'
+  advancedConfig: '{"prologue":{"enabled":true,"inputExample":["","",""]},"needGuide":false,"speechToText":{"enabled":false}}'
+  category: 10
+  dslVersion: v1
+flowData:
+  nodes:
+  - id: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+    dragging: false
+    selected: false
+    width: 303
+    height: 73
+    position:
+      x: -2470.423509766664
+      y: 259.1699458055797
+    positionAbsolute:
+      x: -2470.423509766664
+      y: 259.1699458055797
+    type: 开始节点
+    data:
+      allowInputReference: false
+      allowOutputReference: true
+      label: 开始
+      status: ''
+      nodeMeta:
+        aliasName: 开始节点
+        nodeType: 基础节点
+      inputs: [
+        ]
+      outputs:
+      - id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+        name: AGENT_USER_INPUT
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: 用户本轮对话输入内容
+        required: true
+        deleteDisabled: true
+      - id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+        name: USER_FILE
+        nameErrMsg: ''
+        schema:
+          type: string
+          properties: [
+            ]
+          default: 用户简历
+        allowedFileType:
+        - pdf
+        fileType: file
+        required: false
+        customParameterType: xfyun-file
+      nodeParam: {
+        }
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/start-node-icon.png
+      description: 工作流的开启节点，用于定义流程调用所需的业务变量信息。
+      updatable: false
+  - id: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    dragging: false
+    selected: false
+    width: 361
+    height: 73
+    position:
+      x: 601.9356839329625
+      y: 358.22576507944234
+    positionAbsolute:
+      x: 601.9356839329625
+      y: 358.22576507944234
+    type: 结束节点
+    data:
+      allowInputReference: true
+      allowOutputReference: false
+      label: 结束
+      references:
+      - children:
+        - references:
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 00aa98ab-761e-4671-be24-4ce6f9b65d87
+            label: score
+            type: integer
+            value: score
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: beebd6b6-9cda-4491-b5c8-3b8f8df64419
+            label: resumeSuggest
+            type: array-string
+            value: resumeSuggest
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: d075c3e8-2c2c-4815-b45b-6553b2ad7750
+            label: resumeQuestion
+            type: array-string
+            value: resumeQuestion
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 3116859e-6819-4765-b2a4-57bf4df251b0
+            label: resumeType
+            type: string
+            value: resumeType
+            fileType: ''
+          label: ''
+          value: ''
+        label: 简历评分面试官_2
+        parentNode: true
+        value: flow::02e07f98-ce73-46fc-a811-be4d91331435
+      - children:
+        - references:
+          - originId: spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b
+            children: [
+              ]
+            id: 7242676d-3438-4356-a515-c1e5c44a47ff
+            label: questions
+            type: array-string
+            value: questions
+            fileType: ''
+          label: ''
+          value: ''
+        label: 抽题模型
+        parentNode: true
+        value: spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b
+      - children:
+        - references:
+          - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+            children:
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: 2b422460-face-4a8f-9922-62c633372148
+              label: score
+              type: number
+              value: results.score
+              parentType: array-object
+              fileType: ''
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: 4c1ee9cf-01ac-4d64-adf0-1527f122fd37
+              label: docId
+              type: string
+              value: results.docId
+              parentType: array-object
+              fileType: ''
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: b76276f7-d446-4f88-b35e-9fccdbf76678
+              label: content
+              type: string
+              value: results.content
+              parentType: array-object
+              fileType: ''
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: 5123a1e6-8b19-475e-b1eb-6b5a9f607aff
+              label: references
+              type: object
+              value: results.references
+              parentType: array-object
+              fileType: ''
+            id: 8d18bdd7-6211-4415-bb28-60b18969d553
+            label: results
+            type: array-object
+            value: results
+            fileType: ''
+          label: ''
+          value: ''
+        label: 知识库_1
+        parentNode: true
+        value: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+      - children:
+        - references:
+          - originId: decision-making::25544163-3345-433a-be62-f17f25a94405
+            id: 6cd61b76-7375-49f1-9c80-c78a86390550
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_1
+        parentNode: true
+        value: decision-making::25544163-3345-433a-be62-f17f25a94405
+      - children:
+        - references:
+          - originId: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+            id: edf4eecb-6bc9-49b5-99e0-1699c320a70c
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_2
+        parentNode: true
+        value: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            children: [
+              ]
+            id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      - children:
+        - references:
+          - originId: spark-llm::197af189-2808-46e5-9c41-69e6930ded5a
+            id: ad2edde5-fa47-423b-a566-546c42e7958a
+            label: output
+            type: string
+            value: output
+            fileType: ''
+          label: ''
+          value: ''
+        label: 兜底闲聊
+        parentNode: true
+        value: spark-llm::197af189-2808-46e5-9c41-69e6930ded5a
+      status: ''
+      nodeMeta:
+        aliasName: 结束节点
+        nodeType: 基础节点
+      inputs:
+      - id: 82de2b42-a059-4c98-bffb-b6b4800fcac9
+        name: questions
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          value:
+            type: ref
+            content:
+              name: questions
+              id: 7242676d-3438-4356-a515-c1e5c44a47ff
+              nodeId: spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b
+            contentErrMsg: ''
+        fileType: ''
+      - id: 3f445f2a-f79a-4f1d-b3e9-8d158472631d
+        name: sugest
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          value:
+            type: ref
+            content:
+              name: resumeSuggest
+              id: c18c3bf4-fe74-4dbf-aad3-6d524361d06a
+              nodeId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            contentErrMsg: ''
+        fileType: ''
+      - id: c0b05665-edac-4831-9e12-e4b0eea6859e
+        name: type
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: resumeType
+              id: cea3404f-8d3e-4503-8d29-147a3a66e2d8
+              nodeId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            contentErrMsg: ''
+        fileType: ''
+      - id: bfd02ada-5385-4fe8-8871-d8dd33911c80
+        name: smallTalk
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: output
+              id: ad2edde5-fa47-423b-a566-546c42e7958a
+              nodeId: spark-llm::197af189-2808-46e5-9c41-69e6930ded5a
+            contentErrMsg: ''
+        fileType: ''
+      - id: 6d17c505-91da-4737-8b4b-d980853acf5c
+        name: resumeScore
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content:
+              name: score
+              id: b37725fa-e7c7-4b89-8cf6-4036060fe570
+              nodeId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            contentErrMsg: ''
+        fileType: ''
+      outputs: [
+        ]
+      nodeParam:
+        template: |-
+          定制面试题
+          {{question}}
+          简历建议
+          {{sugest}}
+        streamOutput: true
+        templateErrMsg: ''
+        outputMode: 0
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/end-node-icon.png
+      description: 工作流的结束节点，用于输出工作流运行后的最终结果。
+      updatable: false
+  - id: flow::02e07f98-ce73-46fc-a811-be4d91331435
+    dragging: false
+    selected: true
+    width: 361
+    height: 99
+    position:
+      x: -1217.8913284369328
+      y: 188.5905196046533
+    positionAbsolute:
+      x: -1217.8913284369328
+      y: 188.5905196046533
+    type: 工作流
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 简历评分面试官_2
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+            id: edf4eecb-6bc9-49b5-99e0-1699c320a70c
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_2
+        parentNode: true
+        value: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            children: [
+              ]
+            id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 工作流
+        nodeType: 工具
+      inputs:
+      - id: a0646269-9262-4a0e-bd2e-20fdb3ff4587
+        name: AGENT_USER_INPUT
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: AGENT_USER_INPUT
+              id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        required: true
+      - id: bd3dce0e-8859-411b-b8de-43bab0aad1f4
+        name: USER_RESUME
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: USER_FILE
+              id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        required: true
+      outputs:
+      - id: b37725fa-e7c7-4b89-8cf6-4036060fe570
+        name: score
+        nameErrMsg: ''
+        schema:
+          type: integer
+      - id: c18c3bf4-fe74-4dbf-aad3-6d524361d06a
+        name: resumeSuggest
+        nameErrMsg: ''
+        schema:
+          type: array-string
+      - id: b1297df9-1602-488f-ad51-3b2dfae3eaa9
+        name: resumeQuestion
+        nameErrMsg: ''
+        schema:
+          type: array-string
+      - id: cea3404f-8d3e-4503-8d29-147a3a66e2d8
+        name: resumeType
+        nameErrMsg: ''
+        schema:
+          type: string
+      - id: c330e933-d8f3-4ca1-9075-5dce63ee8e8e
+        name: ragQuery
+        nameErrMsg: ''
+        schema:
+          type: array-string
+      nodeParam:
+        uid: '19496768956'
+        toolDescription: 对用户的简历进行评分
+        appId: 12a0a7e2
+        flowId: '7335939657312624642'
+        version: v4.0
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/flow-icon.png
+      updatable: false
+      isLatest: true
+  - id: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    dragging: false
+    selected: false
+    width: 255
+    height: 123
+    position:
+      x: -255.18467933353966
+      y: -147.05990521583
+    positionAbsolute:
+      x: -255.18467933353966
+      y: -147.05990521583
+    type: 知识库
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 知识库_1
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: decision-making::25544163-3345-433a-be62-f17f25a94405
+            id: 6cd61b76-7375-49f1-9c80-c78a86390550
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_1
+        parentNode: true
+        value: decision-making::25544163-3345-433a-be62-f17f25a94405
+      - children:
+        - references:
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 00aa98ab-761e-4671-be24-4ce6f9b65d87
+            label: score
+            type: integer
+            value: score
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: beebd6b6-9cda-4491-b5c8-3b8f8df64419
+            label: resumeSuggest
+            type: array-string
+            value: resumeSuggest
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: d075c3e8-2c2c-4815-b45b-6553b2ad7750
+            label: resumeQuestion
+            type: array-string
+            value: resumeQuestion
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 3116859e-6819-4765-b2a4-57bf4df251b0
+            label: resumeType
+            type: string
+            value: resumeType
+            fileType: ''
+          label: ''
+          value: ''
+        label: 简历评分面试官_2
+        parentNode: true
+        value: flow::02e07f98-ce73-46fc-a811-be4d91331435
+      - children:
+        - references:
+          - originId: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+            id: edf4eecb-6bc9-49b5-99e0-1699c320a70c
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_2
+        parentNode: true
+        value: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            children: [
+              ]
+            id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 知识库
+        nodeType: 工具
+      inputs:
+      - id: c0336137-0547-4771-bd9f-fa2da75c2bb6
+        name: query
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: ragQuery
+              id: c330e933-d8f3-4ca1-9075-5dce63ee8e8e
+              nodeId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: 8d18bdd7-6211-4415-bb28-60b18969d553
+        name: results
+        nameErrMsg: ''
+        schema:
+          type: array-object
+          properties:
+          - id: 2b422460-face-4a8f-9922-62c633372148
+            name: score
+            required: true
+            type: number
+          - id: 4c1ee9cf-01ac-4d64-adf0-1527f122fd37
+            name: docId
+            required: true
+            type: string
+          - id: b76276f7-d446-4f88-b35e-9fccdbf76678
+            name: content
+            required: true
+            type: string
+          - id: 5123a1e6-8b19-475e-b1eb-6b5a9f607aff
+            name: references
+            required: true
+            type: object
+        required: true
+      nodeParam:
+        repoId:
+        - 6bb6f71f98e4470fa76b3aa731d2900f
+        uid: '19496768956'
+        score: 0.1
+        search_mode: direct
+        appId: 12a0a7e2
+        repos:
+        - repoId: 6bb6f71f98e4470fa76b3aa731d2900f
+          name: 后端题库
+          description: ''
+          docIds:
+          - 10928bb73a274d6ab075785d1f79aea6
+        enableChatHistoryV2:
+          isEnabled: false
+          rounds: 3
+        repoList:
+        - outerRepoId: 6bb6f71f98e4470fa76b3aa731d2900f
+          address: https://oss-beijing-m8.openstorage.cn/SparkBotProd/
+          charCount: 7399
+          visibility: 0
+          icon: sparkBot/sparkBot_1691136308772_i讯飞图片.png
+          description: ''
+          updateTime: '2025-07-11T10:19:35.000+08:00'
+          source: 0
+          userId: '19496768956'
+          fileCount: 1
+          coreRepoId: 6bb6f71f98e4470fa76b3aa731d2900f
+          deleted: false
+          createTime: '2025-07-11T10:19:35.000+08:00'
+          isTop: false
+          enableAudit: false
+          name: 后端题库
+          id: 34105
+          tag: CBG-RAG
+          status: 1
+        repoIdErrMsg: ''
+        flowId: '7349266146860527618'
+        ragType: CBG-RAG
+        topN: 5
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/knowledgeIcon.png
+      description: 调用知识库，可以指定知识库进行知识检索和答复
+      updatable: false
+  - id: decision-making::25544163-3345-433a-be62-f17f25a94405
+    dragging: false
+    selected: false
+    width: 255
+    height: 243
+    position:
+      x: -823.1899146299771
+      y: -152.67497760097405
+    positionAbsolute:
+      x: -823.1899146299771
+      y: -152.67497760097405
+    type: 决策
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 决策_1
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 00aa98ab-761e-4671-be24-4ce6f9b65d87
+            label: score
+            type: integer
+            value: score
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: beebd6b6-9cda-4491-b5c8-3b8f8df64419
+            label: resumeSuggest
+            type: array-string
+            value: resumeSuggest
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: d075c3e8-2c2c-4815-b45b-6553b2ad7750
+            label: resumeQuestion
+            type: array-string
+            value: resumeQuestion
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 3116859e-6819-4765-b2a4-57bf4df251b0
+            label: resumeType
+            type: string
+            value: resumeType
+            fileType: ''
+          label: ''
+          value: ''
+        label: 简历评分面试官_2
+        parentNode: true
+        value: flow::02e07f98-ce73-46fc-a811-be4d91331435
+      - children:
+        - references:
+          - originId: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+            id: edf4eecb-6bc9-49b5-99e0-1699c320a70c
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_2
+        parentNode: true
+        value: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            children: [
+              ]
+            id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 决策
+        nodeType: 基础节点
+      inputs:
+      - id: 50174108-ce8e-418b-a73d-3a1cfbc5bbbf
+        name: Query
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          value:
+            type: ref
+            content:
+              name: ragQuery
+              id: c330e933-d8f3-4ca1-9075-5dce63ee8e8e
+              nodeId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: 6cd61b76-7375-49f1-9c80-c78a86390550
+        name: class_name
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: ''
+      nodeParam:
+        topK: 4
+        modelId: 10000008
+        enableChatHistoryV2:
+          isEnabled: false
+          rounds: 1
+        reasonMode: 1
+        auditing: default
+        llmId: 10000008
+        promptPrefix: 根据{{Query}}来去知识库选择对应方向的面试题
+        url: wss://maas-api.cn-huabei-1.xf-yun.com/v1.1/chat
+        multiMode: false
+        uid: '19496768956'
+        modelName: Qwen_v2.5_7b_Instruct
+        patchId: '0'
+        isThink: false
+        intentChains:
+        - intentType: 2
+          name: 后端开发
+          description: 选择后端面试题
+          id: intent-one-of::c174f4b3-76b4-4d67-8844-270ca5d14eea
+          nameErrMsg: ''
+          descriptionErrMsg: ''
+        - intentType: 2
+          name: 前端开发
+          description: 选择前端面试题
+          id: intent-one-of::a5c00a06-8303-4970-a05f-c57ff5a1193f
+          nameErrMsg: ''
+          descriptionErrMsg: ''
+        - intentType: 2
+          name: 物联网开发
+          description: 选择物联网面试题
+          id: intent-one-of::bade9774-9714-4031-8e7b-8b23be0e9261
+          nameErrMsg: ''
+          descriptionErrMsg: ''
+        - intentType: 2
+          name: 大数据开发
+          description: 选择大数据面试题
+          id: intent-one-of::bef3e4dd-f7d4-4b44-ab53-7dc6c4033ae4
+          nameErrMsg: ''
+          descriptionErrMsg: ''
+        - intentType: 1
+          name: default
+          description: 默认意图
+          id: intent-one-of::579cd77d-e040-4ef0-a993-407142060840
+          nameErrMsg: ''
+          descriptionErrMsg: ''
+        domain: xqwen257bchat
+        appId: 12a0a7e2
+        maxTokens: 2048
+        temperature: 0.5
+        model: spark
+        useFunctionCall: true
+        modelEnabled: true
+        serviceId: xqwen257bchat
+        llmIdErrMsg: ''
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/designMakeIcon.png
+      description: 结合输入的参数与填写的意图，决定后续的逻辑走向
+      updatable: false
+  - id: spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b
+    dragging: false
+    selected: false
+    width: 255
+    height: 123
+    position:
+      x: 226.46549207133626
+      y: -98.44108211654516
+    positionAbsolute:
+      x: 226.46549207133626
+      y: -98.44108211654516
+    type: 大模型
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 抽题模型
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+            children:
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: 2b422460-face-4a8f-9922-62c633372148
+              label: score
+              type: number
+              value: results.score
+              parentType: array-object
+              fileType: ''
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: 4c1ee9cf-01ac-4d64-adf0-1527f122fd37
+              label: docId
+              type: string
+              value: results.docId
+              parentType: array-object
+              fileType: ''
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: b76276f7-d446-4f88-b35e-9fccdbf76678
+              label: content
+              type: string
+              value: results.content
+              parentType: array-object
+              fileType: ''
+            - originId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+              id: 5123a1e6-8b19-475e-b1eb-6b5a9f607aff
+              label: references
+              type: object
+              value: results.references
+              parentType: array-object
+              fileType: ''
+            id: 8d18bdd7-6211-4415-bb28-60b18969d553
+            label: results
+            type: array-object
+            value: results
+            fileType: ''
+          label: ''
+          value: ''
+        label: 知识库_1
+        parentNode: true
+        value: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+      - children:
+        - references:
+          - originId: decision-making::25544163-3345-433a-be62-f17f25a94405
+            id: 6cd61b76-7375-49f1-9c80-c78a86390550
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_1
+        parentNode: true
+        value: decision-making::25544163-3345-433a-be62-f17f25a94405
+      - children:
+        - references:
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 00aa98ab-761e-4671-be24-4ce6f9b65d87
+            label: score
+            type: integer
+            value: score
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: beebd6b6-9cda-4491-b5c8-3b8f8df64419
+            label: resumeSuggest
+            type: array-string
+            value: resumeSuggest
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: d075c3e8-2c2c-4815-b45b-6553b2ad7750
+            label: resumeQuestion
+            type: array-string
+            value: resumeQuestion
+            fileType: ''
+          - originId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            id: 3116859e-6819-4765-b2a4-57bf4df251b0
+            label: resumeType
+            type: string
+            value: resumeType
+            fileType: ''
+          label: ''
+          value: ''
+        label: 简历评分面试官_2
+        parentNode: true
+        value: flow::02e07f98-ce73-46fc-a811-be4d91331435
+      - children:
+        - references:
+          - originId: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+            id: edf4eecb-6bc9-49b5-99e0-1699c320a70c
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_2
+        parentNode: true
+        value: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            children: [
+              ]
+            id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 大模型
+        nodeType: 基础节点
+      inputs:
+      - id: 11be1e3f-a64e-4d8e-bf01-1cc6459b2004
+        name: input
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: results.content
+              id: b76276f7-d446-4f88-b35e-9fccdbf76678
+              nodeId: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+            contentErrMsg: ''
+        fileType: ''
+      - id: 8308a0ad-b259-4018-8f08-e6220a8e73c5
+        name: resumeQuestions
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          value:
+            type: ref
+            content:
+              name: resumeQuestion
+              id: b1297df9-1602-488f-ad51-3b2dfae3eaa9
+              nodeId: flow::02e07f98-ce73-46fc-a811-be4d91331435
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: 7242676d-3438-4356-a515-c1e5c44a47ff
+        name: questions
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          properties: [
+            ]
+          default: 基础面试题
+      nodeParam:
+        topK: 4
+        template: |-
+          抽取的题目输出一个json中的Array<String>，类似这样
+          {
+            "questions": []
+          }
+        modelId: 10000021
+        enableChatHistoryV2:
+          isEnabled: false
+          rounds: 1
+        auditing: default
+        llmId: 10000021
+        url: wss://maas-api.cn-huabei-1.xf-yun.com/v1.1/chat
+        multiMode: false
+        uid: '19496768956'
+        modelName: Qwen3-Next-80B-A3B-Instruct
+        patchId: '0'
+        isThink: false
+        templateErrMsg: ''
+        domain: xop3qwen80bnext
+        appId: 12a0a7e2
+        maxTokens: 2048
+        temperature: 0.5
+        systemTemplate: 把这些从知识库内抽取的题目{{input}},和简历的定制化题目{{resumeQuestions}}合并为一个questions输出,总数控制在10条左右
+        model: spark
+        modelEnabled: true
+        serviceId: xop3qwen80bnext
+        respFormat: 2
+        llmIdErrMsg: ''
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/largeModelIcon.png
+      description: 根据输入的提示词，调用选定的大模型，对提示词作出回答
+      updatable: false
+  - id: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+    dragging: false
+    selected: false
+    width: 255
+    height: 171
+    position:
+      x: -1973.6894527574004
+      y: 239.8532957484635
+    positionAbsolute:
+      x: -1973.6894527574004
+      y: 239.8532957484635
+    type: 决策
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 决策_2
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            children: [
+              ]
+            id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 决策
+        nodeType: 基础节点
+      inputs:
+      - id: aa44a44a-02ea-4397-96f3-76379ee15435
+        name: Query
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: AGENT_USER_INPUT
+              id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: edf4eecb-6bc9-49b5-99e0-1699c320a70c
+        name: class_name
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: ''
+      nodeParam:
+        topK: 4
+        modelId: 10000008
+        enableChatHistoryV2:
+          isEnabled: false
+          rounds: 1
+        reasonMode: 1
+        auditing: default
+        llmId: 10000008
+        promptPrefix: 你是一个面试题出题官，同时你还可能在抽取题目后，对用户答案进行检查，如果用户聊与编程无关的，则进入默认意图
+        url: wss://maas-api.cn-huabei-1.xf-yun.com/v1.1/chat
+        multiMode: false
+        uid: '19496768956'
+        modelName: Qwen_v2.5_7b_Instruct
+        patchId: '0'
+        isThink: false
+        intentChains:
+        - intentType: 2
+          name: 用户需要我出题
+          description: 用户需要出题
+          id: intent-one-of::8a93e0bc-bd30-4c9b-a96c-c1ab2a50699c
+          nameErrMsg: ''
+          descriptionErrMsg: ''
+        - intentType: 1
+          name: default
+          description: 默认意图
+          id: intent-one-of::73ff7b25-4641-4c88-8e7f-e6ad8345e924
+          nameErrMsg: ''
+          descriptionErrMsg: ''
+        domain: xqwen257bchat
+        appId: 12a0a7e2
+        maxTokens: 2048
+        temperature: 0.5
+        model: spark
+        useFunctionCall: true
+        modelEnabled: true
+        serviceId: xqwen257bchat
+        llmIdErrMsg: ''
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/designMakeIcon.png
+      description: 结合输入的参数与填写的意图，决定后续的逻辑走向
+      updatable: false
+  - id: spark-llm::197af189-2808-46e5-9c41-69e6930ded5a
+    dragging: false
+    selected: false
+    width: 255
+    height: 123
+    position:
+      x: -1358.3551814313792
+      y: 439.1863078149755
+    positionAbsolute:
+      x: -1358.3551814313792
+      y: 439.1863078149755
+    type: 大模型
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 兜底闲聊
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+            id: edf4eecb-6bc9-49b5-99e0-1699c320a70c
+            label: class_name
+            type: string
+            value: class_name
+            fileType: ''
+          label: ''
+          value: ''
+        label: 决策_2
+        parentNode: true
+        value: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+      - children:
+        - references:
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            children: [
+              ]
+            id: eb6a36b5-63b0-409e-ae2b-50be7f2b786d
+            label: USER_FILE
+            type: string
+            value: USER_FILE
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+      status: ''
+      nodeMeta:
+        aliasName: 大模型
+        nodeType: 基础节点
+      inputs:
+      - id: d9be6873-5a9e-43fd-a2ee-c4fac9065c0b
+        name: input
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: AGENT_USER_INPUT
+              id: 0918514b-72a8-4646-8dd9-ff4a8fc26d44
+              nodeId: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: ad2edde5-fa47-423b-a566-546c42e7958a
+        name: output
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: ''
+      nodeParam:
+        topK: 4
+        template: 引导用户回到面试上
+        modelId: 10000021
+        enableChatHistoryV2:
+          isEnabled: false
+          rounds: 1
+        auditing: default
+        llmId: 10000021
+        url: wss://maas-api.cn-huabei-1.xf-yun.com/v1.1/chat
+        multiMode: false
+        uid: '19496768956'
+        modelName: Qwen3-Next-80B-A3B-Instruct
+        patchId: '0'
+        isThink: false
+        templateErrMsg: ''
+        domain: xop3qwen80bnext
+        appId: 12a0a7e2
+        maxTokens: 2048
+        temperature: 0.5
+        systemTemplate: 现在是面试时间，不能回答用户的非面试题问题，需要引导用户
+        model: spark
+        modelEnabled: true
+        serviceId: xop3qwen80bnext
+        respFormat: 0
+        llmIdErrMsg: ''
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/largeModelIcon.png
+      description: 根据输入的提示词，调用选定的大模型，对提示词作出回答
+      updatable: false
+  edges:
+  - source: flow::02e07f98-ce73-46fc-a811-be4d91331435
+    target: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    targetHandle: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    type: customEdge
+    id: reactflow__edge-flow::02e07f98-ce73-46fc-a811-be4d91331435-node-end::cda617af-551e-462e-b3b8-3bb9a041bf88node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: flow::02e07f98-ce73-46fc-a811-be4d91331435
+    target: decision-making::25544163-3345-433a-be62-f17f25a94405
+    type: customEdge
+    id: reactflow__edge-flow::02e07f98-ce73-46fc-a811-be4d91331435-decision-making::25544163-3345-433a-be62-f17f25a94405
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: decision-making::25544163-3345-433a-be62-f17f25a94405
+    sourceHandle: intent-one-of::c174f4b3-76b4-4d67-8844-270ca5d14eea
+    target: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    type: customEdge
+    id: reactflow__edge-decision-making::25544163-3345-433a-be62-f17f25a94405intent-one-of::c174f4b3-76b4-4d67-8844-270ca5d14eea-knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: decision-making::25544163-3345-433a-be62-f17f25a94405
+    sourceHandle: intent-one-of::a5c00a06-8303-4970-a05f-c57ff5a1193f
+    target: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    type: customEdge
+    id: reactflow__edge-decision-making::25544163-3345-433a-be62-f17f25a94405intent-one-of::a5c00a06-8303-4970-a05f-c57ff5a1193f-knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: decision-making::25544163-3345-433a-be62-f17f25a94405
+    sourceHandle: intent-one-of::bade9774-9714-4031-8e7b-8b23be0e9261
+    target: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    type: customEdge
+    id: reactflow__edge-decision-making::25544163-3345-433a-be62-f17f25a94405intent-one-of::bade9774-9714-4031-8e7b-8b23be0e9261-knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: decision-making::25544163-3345-433a-be62-f17f25a94405
+    sourceHandle: intent-one-of::bef3e4dd-f7d4-4b44-ab53-7dc6c4033ae4
+    target: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    type: customEdge
+    id: reactflow__edge-decision-making::25544163-3345-433a-be62-f17f25a94405intent-one-of::bef3e4dd-f7d4-4b44-ab53-7dc6c4033ae4-knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd
+    target: spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b
+    type: customEdge
+    id: reactflow__edge-knowledge-base::38246329-d2ff-43ca-9a67-f8248793defd-spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b
+    target: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    targetHandle: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    type: customEdge
+    id: reactflow__edge-spark-llm::26d7d9bd-c243-498b-8470-d141eaede76b-node-end::cda617af-551e-462e-b3b8-3bb9a041bf88node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: decision-making::25544163-3345-433a-be62-f17f25a94405
+    sourceHandle: intent-one-of::579cd77d-e040-4ef0-a993-407142060840
+    target: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    targetHandle: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    type: customEdge
+    id: reactflow__edge-decision-making::25544163-3345-433a-be62-f17f25a94405intent-one-of::579cd77d-e040-4ef0-a993-407142060840-node-end::cda617af-551e-462e-b3b8-3bb9a041bf88node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783
+    target: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+    type: customEdge
+    id: reactflow__edge-node-start::d61b0f71-87ee-475e-93ba-f1607f0ce783-decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+    sourceHandle: intent-one-of::8a93e0bc-bd30-4c9b-a96c-c1ab2a50699c
+    target: flow::02e07f98-ce73-46fc-a811-be4d91331435
+    type: customEdge
+    id: reactflow__edge-decision-making::acd804ac-9425-49d9-99a6-422f058a62a2intent-one-of::8a93e0bc-bd30-4c9b-a96c-c1ab2a50699c-flow::02e07f98-ce73-46fc-a811-be4d91331435
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: decision-making::acd804ac-9425-49d9-99a6-422f058a62a2
+    sourceHandle: intent-one-of::73ff7b25-4641-4c88-8e7f-e6ad8345e924
+    target: spark-llm::197af189-2808-46e5-9c41-69e6930ded5a
+    type: customEdge
+    id: reactflow__edge-decision-making::acd804ac-9425-49d9-99a6-422f058a62a2intent-one-of::73ff7b25-4641-4c88-8e7f-e6ad8345e924-spark-llm::197af189-2808-46e5-9c41-69e6930ded5a
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: spark-llm::197af189-2808-46e5-9c41-69e6930ded5a
+    target: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    targetHandle: node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    type: customEdge
+    id: reactflow__edge-spark-llm::197af189-2808-46e5-9c41-69e6930ded5a-node-end::cda617af-551e-462e-b3b8-3bb9a041bf88node-end::cda617af-551e-462e-b3b8-3bb9a041bf88
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve

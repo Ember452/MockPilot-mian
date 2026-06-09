@@ -1,0 +1,757 @@
+flowMeta:
+  name: 简历评分面试官
+  description: 对用户的简历进行评分
+  avatarIcon: https://oss-beijing-m8.openstorage.cn/SparkBotProd/icon/common/emojiitem_00_10@2x.png
+  avatarColor: '#FFEAD5'
+  advancedConfig: '{"prologue":{"enabled":true,"inputExample":["","",""]},"needGuide":false}'
+  category: 10
+  dslVersion: v1
+flowData:
+  nodes:
+  - id: node-start::df679514-fa75-4d00-b709-56f15890a83e
+    dragging: false
+    selected: false
+    width: 329
+    height: 73
+    position:
+      x: 214.31637023634028
+      y: -11.628991579459722
+    positionAbsolute:
+      x: 214.31637023634028
+      y: -11.628991579459722
+    type: 开始节点
+    data:
+      allowInputReference: false
+      allowOutputReference: true
+      label: 开始
+      status: ''
+      nodeMeta:
+        aliasName: 开始
+        nodeType: 基础节点
+      inputs: [
+        ]
+      outputs:
+      - id: 29a875d9-0cc2-47a5-8abd-067a0eb9ff2a
+        name: AGENT_USER_INPUT
+        nameErrMsg: ''
+        schema:
+          type: string
+          default: 用户本轮对话输入内容
+        required: true
+        deleteDisabled: true
+      - id: 3c366695-8ab1-48dd-adbb-344b28776185
+        name: USER_RESUME
+        nameErrMsg: ''
+        schema:
+          type: string
+          properties: [
+            ]
+          default: 用户的简历
+        allowedFileType:
+        - pdf
+        fileType: file
+        required: true
+        customParameterType: xfyun-file
+      nodeParam:
+        apiKey: 5f93d1890c25748e68a514c62f79b8b1
+        appId: a01c2bc7
+        apiSecret: ODc3MDhkZjA4M2E4ZDgzODM0MmY4MzZk
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/start-node-icon.png
+      description: 工作流的开启节点，用于定义流程调用所需的业务变量信息。
+      updatable: false
+  - id: node-end::116b098d-b9d4-4178-8637-9a4fe6d0e155
+    dragging: false
+    selected: false
+    width: 361
+    height: 73
+    position:
+      x: 1690.7634945722284
+      y: -29.17880873129137
+    positionAbsolute:
+      x: 1690.7634945722284
+      y: -29.17880873129137
+    type: 结束节点
+    data:
+      allowInputReference: true
+      allowOutputReference: false
+      label: 结束
+      references:
+      - children:
+        - references:
+          - originId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            children: [
+              ]
+            id: ecc8f811-84d1-46fa-953f-81179846aa49
+            label: score
+            type: integer
+            value: score
+            fileType: ''
+          - originId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            children: [
+              ]
+            id: 7c9e1ea3-5ae4-4755-9ebf-c753fd464cc1
+            label: resumeSuggest
+            type: array-string
+            value: resumeSuggest
+            fileType: ''
+          - originId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            children: [
+              ]
+            id: 648da307-e0e1-4b03-8775-bcf1799f4d45
+            label: resumeQuestion
+            type: array-string
+            value: resumeQuestion
+            fileType: ''
+          - originId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            children: [
+              ]
+            id: bf82bc6a-c4b0-4fba-b29f-8554ca90bf69
+            label: resumeType
+            type: string
+            value: resumeType
+            fileType: ''
+          label: ''
+          value: ''
+        label: 简历评估
+        parentNode: true
+        value: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+      - children:
+        - references:
+          - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+            id: 00b4aed2-ca27-4f9c-a522-12f4db77c751
+            label: code
+            type: number
+            value: code
+            fileType: ''
+          - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+            children:
+            - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+              id: fbb440ae-1a98-4ba9-9415-6d75957e4acc
+              label: file_index
+              type: number
+              value: data.file_index
+              parentType: array-object
+              fileType: ''
+            - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+              children:
+              - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+                id: f6e85257-8e8a-49d5-8a45-3bca72a6e78b
+                label: name
+                type: string
+                value: data.content.name
+                parentType: array-object
+                fileType: ''
+              - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+                id: b7b620c4-f447-4ea1-adc1-af3e89b44822
+                label: value
+                type: string
+                value: data.content.value
+                parentType: array-object
+                fileType: ''
+              - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+                id: b84a01bb-4e08-436f-aed1-5eec3e76e959
+                label: source_data
+                type: string
+                value: data.content.source_data
+                parentType: array-object
+                fileType: ''
+              id: d6c91842-caf3-42d7-8571-ab374b4259ef
+              label: content
+              type: array-object
+              value: data.content
+              parentType: array-object
+              fileType: ''
+            id: dda69baf-afd4-4291-8b91-fb36e0395754
+            label: data
+            type: array-object
+            value: data
+            fileType: ''
+          - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+            id: b0180abd-be7a-444f-baf9-9e7617a5cc34
+            label: message
+            type: string
+            value: message
+            fileType: ''
+          label: ''
+          value: ''
+        label: 通用OCR大模型_1
+        parentNode: true
+        value: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+      - children:
+        - references:
+          - originId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            id: 29a875d9-0cc2-47a5-8abd-067a0eb9ff2a
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            children: [
+              ]
+            id: 3c366695-8ab1-48dd-adbb-344b28776185
+            label: USER_RESUME
+            type: string
+            value: USER_RESUME
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::df679514-fa75-4d00-b709-56f15890a83e
+      status: ''
+      nodeMeta:
+        aliasName: 结束
+        nodeType: 基础节点
+      inputs:
+      - id: 7ca4eea7-17fe-4bee-996e-02452f71fa18
+        name: score
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content:
+              name: score
+              id: ecc8f811-84d1-46fa-953f-81179846aa49
+              nodeId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            contentErrMsg: ''
+        fileType: ''
+      - id: e77a5f88-b6f7-41d3-96ee-91601343f752
+        name: resumeSuggest
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          value:
+            type: ref
+            content:
+              name: resumeSuggest
+              id: 7c9e1ea3-5ae4-4755-9ebf-c753fd464cc1
+              nodeId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            contentErrMsg: ''
+        fileType: ''
+      - id: bf17d011-dd74-48b5-b7ca-b322dfaa8ad7
+        name: resumeQuestion
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          value:
+            type: ref
+            content:
+              name: resumeQuestion
+              id: 648da307-e0e1-4b03-8775-bcf1799f4d45
+              nodeId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            contentErrMsg: ''
+        fileType: ''
+      - id: d8f32e90-e574-479c-b226-a06dbafc9a72
+        name: resumeType
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: resumeType
+              id: bf82bc6a-c4b0-4fba-b29f-8554ca90bf69
+              nodeId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            contentErrMsg: ''
+        fileType: ''
+      - id: 4760888d-4b55-494a-a631-468d9eaa4975
+        name: ragQuery
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          value:
+            type: ref
+            content:
+              name: ragQuery
+              id: 4f667953-f0e8-4617-9851-d9f89af6f497
+              nodeId: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+            contentErrMsg: ''
+        fileType: ''
+      outputs: [
+        ]
+      nodeParam:
+        template: ''
+        streamOutput: true
+        apiKey: 5f93d1890c25748e68a514c62f79b8b1
+        templateErrMsg: 值不能为空
+        appId: a01c2bc7
+        apiSecret: ODc3MDhkZjA4M2E4ZDgzODM0MmY4MzZk
+        outputMode: 0
+        reasoningTemplate: |-
+          严格按照这个格式输出
+          {
+              "score": 0,
+              "resumeSuggest": "",
+              "resumeQuestion": []
+          }
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/end-node-icon.png
+      description: 工作流的结束节点，用于输出工作流运行后的最终结果。
+      updatable: false
+  - id: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+    dragging: false
+    selected: false
+    width: 361
+    height: 99
+    position:
+      x: 690.5749864511124
+      y: -17.907858954649214
+    positionAbsolute:
+      x: 690.5749864511124
+      y: -17.907858954649214
+    type: 工具
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 通用OCR大模型_1
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            id: 29a875d9-0cc2-47a5-8abd-067a0eb9ff2a
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            children: [
+              ]
+            id: 3c366695-8ab1-48dd-adbb-344b28776185
+            label: USER_RESUME
+            type: string
+            value: USER_RESUME
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::df679514-fa75-4d00-b709-56f15890a83e
+      status: ''
+      nodeMeta:
+        aliasName: 通用OCR大模型_1
+        nodeType: 工具
+      inputs:
+      - id: 7e22fa50-389f-4f9d-882d-addb5014aa85
+        name: file_url
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: USER_RESUME
+              id: 3c366695-8ab1-48dd-adbb-344b28776185
+              nodeId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            contentErrMsg: ''
+        description: 需要识别的ocr文件地址。当前支持图片和pdf
+        required: true
+        disabled: false
+      - id: d5c89a3f-45c7-4cc2-8c93-5d674765776f
+        name: ocr_document_page_start
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content: {
+              }
+            contentErrMsg: ''
+        description: 针对文档数据，指定识别的页码开始范围，从0开始，-1表示不限制
+        required: false
+        disabled: false
+      - id: a6d291f6-d555-4148-ac59-df9bcc120089
+        name: ocr_document_page_end
+        nameErrMsg: ''
+        schema:
+          type: integer
+          value:
+            type: ref
+            content: {
+              }
+            contentErrMsg: ''
+        description: 针对文档数据，指定识别的页码结束范围，从0开始，-1表示不限制
+        required: false
+        disabled: false
+      outputs:
+      - id: 5ea01172-742d-4718-a611-87ecad605e89
+        name: code
+        schema:
+          type: number
+      - id: 1f034ae7-e033-43b5-a645-d2ee24b4e15a
+        name: data
+        schema:
+          type: array-object
+          properties:
+          - id: fbb440ae-1a98-4ba9-9415-6d75957e4acc
+            name: file_index
+            type: number
+          - id: d6c91842-caf3-42d7-8571-ab374b4259ef
+            name: content
+            type: array-object
+            properties:
+            - id: f6e85257-8e8a-49d5-8a45-3bca72a6e78b
+              name: page_index
+              type: integer
+            - id: b7b620c4-f447-4ea1-adc1-af3e89b44822
+              name: content
+              type: object
+              properties:
+              - id: 596b0d5f-09ef-483f-a810-8c9b793c3c64
+                name: name
+                type: string
+              - id: 2aa64fa1-1f4f-4e99-864f-bc412a4b57be
+                name: value
+                type: string
+      - id: 803cf099-60fc-464b-96fb-a256d2ba617e
+        name: message
+        schema:
+          type: string
+      - id: 44564855-68f2-4b00-9860-8cc1432d1347
+        name: sid
+        schema:
+          type: string
+      nodeParam:
+        uid: '0'
+        code: ''
+        toolDescription: 通用OCR大模型
+        apiKey: 5f93d1890c25748e68a514c62f79b8b1
+        pluginId: tool@6dc893527421000
+        appId: a01c2bc7
+        operationId: 通用OCR大模型-bjzgpdk8
+        apiSecret: ODc3MDhkZjA4M2E4ZDgzODM0MmY4MzZk
+        version: V4.0
+        businessInput: [
+          ]
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/tool-icon.png
+      updatable: false
+      isLatest: true
+      pluginName: 通用OCR大模型
+  - id: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+    dragging: false
+    selected: false
+    width: 361
+    height: 123
+    position:
+      x: 1153.5493926252514
+      y: -22.137476191841955
+    positionAbsolute:
+      x: 1153.5493926252514
+      y: -22.137476191841955
+    type: 大模型
+    data:
+      allowInputReference: true
+      allowOutputReference: true
+      label: 简历评估
+      labelEdit: false
+      references:
+      - children:
+        - references:
+          - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+            id: 00b4aed2-ca27-4f9c-a522-12f4db77c751
+            label: code
+            type: number
+            value: code
+            fileType: ''
+          - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+            children:
+            - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+              id: fbb440ae-1a98-4ba9-9415-6d75957e4acc
+              label: file_index
+              type: number
+              value: data.file_index
+              parentType: array-object
+              fileType: ''
+            - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+              children:
+              - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+                id: f6e85257-8e8a-49d5-8a45-3bca72a6e78b
+                label: name
+                type: string
+                value: data.content.name
+                parentType: array-object
+                fileType: ''
+              - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+                id: b7b620c4-f447-4ea1-adc1-af3e89b44822
+                label: value
+                type: string
+                value: data.content.value
+                parentType: array-object
+                fileType: ''
+              - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+                id: b84a01bb-4e08-436f-aed1-5eec3e76e959
+                label: source_data
+                type: string
+                value: data.content.source_data
+                parentType: array-object
+                fileType: ''
+              id: d6c91842-caf3-42d7-8571-ab374b4259ef
+              label: content
+              type: array-object
+              value: data.content
+              parentType: array-object
+              fileType: ''
+            id: dda69baf-afd4-4291-8b91-fb36e0395754
+            label: data
+            type: array-object
+            value: data
+            fileType: ''
+          - originId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+            id: b0180abd-be7a-444f-baf9-9e7617a5cc34
+            label: message
+            type: string
+            value: message
+            fileType: ''
+          label: ''
+          value: ''
+        label: 通用OCR大模型_1
+        parentNode: true
+        value: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+      - children:
+        - references:
+          - originId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            id: 29a875d9-0cc2-47a5-8abd-067a0eb9ff2a
+            label: AGENT_USER_INPUT
+            type: string
+            value: AGENT_USER_INPUT
+            fileType: ''
+          - originId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            children: [
+              ]
+            id: 3c366695-8ab1-48dd-adbb-344b28776185
+            label: USER_RESUME
+            type: string
+            value: USER_RESUME
+            fileType: pdf
+          label: ''
+          value: ''
+        label: 开始
+        parentNode: true
+        value: node-start::df679514-fa75-4d00-b709-56f15890a83e
+      status: ''
+      nodeMeta:
+        aliasName: 大模型_1
+        nodeType: 基础节点
+      inputs:
+      - id: 6414e882-de8d-476a-bc4f-18dc35cc6f74
+        name: ocr_result
+        nameErrMsg: ''
+        schema:
+          type: array-object
+          value:
+            type: ref
+            content:
+              name: data.content
+              id: d6c91842-caf3-42d7-8571-ab374b4259ef
+              nodeId: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+            contentErrMsg: ''
+        fileType: ''
+      - id: 499786da-6360-4a80-b63e-086411c168ab
+        name: input
+        nameErrMsg: ''
+        schema:
+          type: string
+          value:
+            type: ref
+            content:
+              name: AGENT_USER_INPUT
+              id: 29a875d9-0cc2-47a5-8abd-067a0eb9ff2a
+              nodeId: node-start::df679514-fa75-4d00-b709-56f15890a83e
+            contentErrMsg: ''
+        fileType: ''
+      outputs:
+      - id: ecc8f811-84d1-46fa-953f-81179846aa49
+        name: score
+        nameErrMsg: ''
+        schema:
+          type: integer
+          properties: [
+            ]
+          default: ''
+      - id: 7c9e1ea3-5ae4-4755-9ebf-c753fd464cc1
+        name: resumeSuggest
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          properties: [
+            ]
+          default: ''
+        required: false
+      - id: 648da307-e0e1-4b03-8775-bcf1799f4d45
+        name: resumeQuestion
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          properties: [
+            ]
+          default: ''
+        required: false
+      - id: bf82bc6a-c4b0-4fba-b29f-8554ca90bf69
+        name: resumeType
+        nameErrMsg: ''
+        schema:
+          type: string
+          properties: [
+            ]
+          default: ''
+        required: false
+      - id: 4f667953-f0e8-4617-9851-d9f89af6f497
+        name: ragQuery
+        nameErrMsg: ''
+        schema:
+          type: array-string
+          properties: [
+            ]
+          default: ''
+        required: false
+      nodeParam:
+        template: '{{ocr_result}}'
+        configs:
+        - standard: true
+          constraintType: range
+          default: 2048
+          constraintContent:
+          - name: 1
+          - name: 8192
+          name: 回答的tokens的最大长度
+          revealed: true
+          support: true
+          fieldType: int
+          initialValue: 2048
+          key: maxTokens
+          required: true
+          desc: 最小值是1, 最大值是8192
+        - standard: true
+          constraintContent:
+          - name: 0.1
+          - name: 1
+          precision: 0.1
+          required: true
+          constraintType: range
+          default: 0.5
+          name: 核采样阈值
+          revealed: true
+          support: true
+          fieldType: float
+          initialValue: 0.5
+          key: temperature
+          desc: 取值范围 (0，1]
+        - standard: true
+          constraintType: range
+          default: 4
+          constraintContent:
+          - name: 1
+          - name: 6
+          name: 从k个中随机选择一个(非等概率)
+          revealed: true
+          support: true
+          fieldType: int
+          initialValue: 4
+          key: topK
+          required: true
+          desc: 最小值1，最大值6
+        - constraintType: enum
+          default: default
+          constraintContent:
+          - name: strict
+            label: strict
+            value: strict
+            desc: 严格审核策略
+          - name: moderate
+            label: moderate
+            value: moderate
+            desc: 中等审核策略
+          - name: show
+            label: show
+            value: show
+            desc: 演示场景的审核策略
+          - name: default
+            label: default
+            value: default
+            desc: 默认的审核策略
+          name: 内容审核的严格程度
+          fieldType: string
+          support: true
+          initialValue: default
+          required: false
+          key: auditing
+          desc: strict表示严格审核策略；moderate表示中等审核策略；show表示演示场景审核策略；default表示默认的审核程度；（需继续下调策略需要申请）
+        - constraintType: enum
+          default: generalv3
+          constraintContent:
+          - name: generalv3
+            label: generalv3
+            value: generalv3
+            desc: 星火3.0
+          name: 需要使用的领域
+          fieldType: string
+          support: true
+          initialValue: generalv3
+          required: true
+          key: domain
+          desc: ''
+        apiKey: 5f93d1890c25748e68a514c62f79b8b1
+        modelId: 10000021
+        auditing: default
+        llmId: 10000021
+        uid: '19496768956'
+        patchId: '0'
+        isThink: false
+        templateErrMsg: ''
+        appId: a01c2bc7
+        maxTokens: 2048
+        temperature: 0.5
+        model: spark
+        modelEnabled: true
+        serviceId: xop3qwen80bnext
+        llmIdErrMsg: ''
+        topK: 4
+        enableChatHistory: true
+        apiSecret: ODc3MDhkZjA4M2E4ZDgzODM0MmY4MzZk
+        url: wss://maas-api.cn-huabei-1.xf-yun.com/v1.1/chat
+        multiMode: false
+        modelName: Qwen3-Next-80B-A3B-Instruct
+        domain: xop3qwen80bnext
+        systemTemplate: |
+          你是一个面试官的简历助手，你现在就简历的内容进行关键信息提取，并返回给面试官，同时对简历进行评估打分，注意，涉及到时间的信息不要判断是否合理
+          关键要素及评分标准
+          1. 简历是否完整，包括基础的联系方式，教育经历，以及有没有错别字等等(20%)
+          2. 技术栈丰富度，对应方向的基础技术栈是否熟练(30%)
+          3. 如果有项目经历，他的核心难点提取一下(30%)
+          4. 如果有实习或者工作经历，对这方面进行提问，包括负责的模块，产出等等(20%)
+          5.同时你需要为后续RAG提供该简历中出现的相关字段，要核心语义字段，尽量精简一些，帮助后续我们RAG定制化出题，控制在5个
+           最后把简历得分，简历建议，简历提问点,面试岗位，Rag抽题字段，严格按照这个格式以json格式输出，score，resumeSuggest，resumeQuestion,resumeType，ragQuery 这五个参数，类型分别为integer，array，array，string，
+          array
+        respFormat: 2
+      icon: https://oss-beijing-m8.openstorage.cn/pro-bucket/sparkBot/common/workflow/icon/largeModelIcon.png
+      description: 根据输入的提示词，调用选定的大模型，对提示词作出回答
+      updatable: false
+  edges:
+  - source: node-start::df679514-fa75-4d00-b709-56f15890a83e
+    target: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+    type: customEdge
+    id: reactflow__edge-node-start::df679514-fa75-4d00-b709-56f15890a83e-plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+    target: node-end::116b098d-b9d4-4178-8637-9a4fe6d0e155
+    targetHandle: node-end::116b098d-b9d4-4178-8637-9a4fe6d0e155
+    type: customEdge
+    id: reactflow__edge-spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41-node-end::116b098d-b9d4-4178-8637-9a4fe6d0e155node-end::116b098d-b9d4-4178-8637-9a4fe6d0e155
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
+  - source: plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f
+    target: spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+    type: customEdge
+    id: reactflow__edge-plugin::88fa14a8-2c3f-45bb-a1a5-c5c025a9024f-spark-llm::f2ebca50-65cb-4c00-b1b6-8bbd26e52d41
+    markerEnd:
+      color: '#275EFF'
+      type: arrow
+    data:
+      edgeType: curve
