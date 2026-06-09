@@ -15,19 +15,19 @@ spring:
       max-request-size: 100MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST:192.168.100.129}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mainshi_agent}?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=${APP_TIMEZONE:Asia/Shanghai}
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:123456}
+    url: jdbc:mysql://${MYSQL_HOST:192.168.100.129}:${MYSQL_PORT}/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=${APP_TIMEZONE:Asia/Shanghai}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
   data:
     mongodb:
       host: ${MONGODB_HOST:192.168.100.129}
       port: ${MONGODB_PORT:27017}
-      database: ${MONGODB_DATABASE:xunzhi_agent}
+      database: ${MONGODB_DATABASE}
       # username: ${MONGODB_USERNAME:}
       # password: ${MONGODB_PASSWORD:}
     redis:
-      host: ${REDIS_HOST:192.168.100.129}
-      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD:}
       lettuce:
         pool:
@@ -60,15 +60,15 @@ spring:
 #          model: ${SPRING_AI_OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
   ai:
     openai:
-      api-key: ${SPRING_AI_OPENAI_API_KEY:sk-74d06f098d3a4e0fa56ca5a971fa1a49}
-      base-url: ${SPRING_AI_OPENAI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      api-key: ${SPRING_AI_OPENAI_API_KEY}
+      base-url: ${SPRING_AI_OPENAI_BASE_URL}
       chat:
         options:
-          model: ${SPRING_AI_OPENAI_MODEL:qwen3.6-plus}
+          model: ${SPRING_AI_OPENAI_MODEL}
           temperature: ${SPRING_AI_OPENAI_TEMPERATURE:0.7}
       embedding:
         options:
-          model: ${SPRING_AI_OPENAI_EMBEDDING_MODEL:text-embedding-v4}
+          model: ${SPRING_AI_OPENAI_EMBEDDING_MODEL}
 
 management:
   endpoints:
@@ -92,16 +92,16 @@ collection:
     similarity-threshold: 0.9
 
 elasticsearch:
-  host: ${ES_HOST:192.168.100.129}
-  port: ${ES_PORT:9200}
+  host: ${ES_HOST}
+  port: ${ES_PORT}
   index-prefix: xunzhi_kb_
 
 xunfei:
   lat-key:
-    app-id: ${XUNFEI_APP_ID:a2c21df4}
-    api-key: ${XUNFEI_API_KEY:0bd0dc2c7ba9e391e36242c676cf0901}
-    api-secret: ${XUNFEI_API_SECRET:ZmFmYzRmNmMzOWMxMzFlOWI2MzQyNmQ1}
-    rta-api-key: ${XUNFEI_RTA_API_KEY:0bd0dc2c7ba9e391e36242c676cf0901}
+    app-id: ${XUNFEI_APP_ID}
+    api-key: ${XUNFEI_API_KEY}
+    api-secret: ${XUNFEI_API_SECRET}
+    rta-api-key: ${XUNFEI_RTA_API_KEY}
 
 xunzhi-agent:
   security:

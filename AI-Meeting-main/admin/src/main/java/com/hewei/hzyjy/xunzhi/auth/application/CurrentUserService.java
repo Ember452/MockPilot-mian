@@ -23,3 +23,4 @@ public interface CurrentUserService {
 
     boolean isValidToken(String token);
 }
+
