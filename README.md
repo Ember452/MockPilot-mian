@@ -118,8 +118,8 @@ AI-Meeting-main/
 #### 1. 克隆项目
 
 ```bash
-git clone https://github.com/your-repo/AI-Meeting.git
-cd AI-Meeting
+(https://github.com/Ember452/MockPilot-mian.git)
+cd MockPilot-main
 ```
 
 #### 2. 初始化数据库
