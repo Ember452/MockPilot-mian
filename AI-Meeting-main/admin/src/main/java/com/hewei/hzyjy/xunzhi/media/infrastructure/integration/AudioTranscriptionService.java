@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class AudioTranscriptionService {
 
+
     private final SparkIatUtil sparkIatUtil;
     private final ApplicationStorageProperties storageProperties;
     @Resource(name = "cpuComputeExecutor")

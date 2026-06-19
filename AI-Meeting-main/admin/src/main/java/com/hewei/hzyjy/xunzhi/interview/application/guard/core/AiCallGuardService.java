@@ -43,6 +43,7 @@ public class AiCallGuardService {
     private final MeterRegistry meterRegistry;
     private final ExecutorService aiIoExecutor;
 
+
     private final ConcurrentMap<String, CircuitBreaker> circuitBreakers = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bulkhead> bulkheads = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Retry> retries = new ConcurrentHashMap<>();

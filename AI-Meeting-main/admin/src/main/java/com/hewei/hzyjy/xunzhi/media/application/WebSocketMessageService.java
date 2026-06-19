@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
+
 /**
  * Application service for websocket session status and server-side push.
  */
@@ -32,6 +33,7 @@ public class WebSocketMessageService {
     public CompletableFuture<Boolean> sendMessageToUserAsync(String userId, String type, String message, String data) {
         return CompletableFuture.supplyAsync(() -> sendMessageToUser(userId, type, message, data), queryExecutor);
     }
+
 
     public boolean isUserOnline(String userId) {
         return AudioTranscriptionWebSocketHandler.isUserOnline(userId);

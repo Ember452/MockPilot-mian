@@ -38,6 +38,8 @@ public class MessageSequenceAllocator {
         );
     }
 
+
+
     private final StringRedisTemplate stringRedisTemplate;
     private final AgentMessageRepository agentMessageRepository;
     private final AiMessageRepository aiMessageRepository;
