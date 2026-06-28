@@ -16,16 +16,17 @@ public class AiMessageMongoPersistencePort implements AiMessagePersistencePort {
 
     private final AiMessageRepository aiMessageRepository;
 
-    @Override
-    public List<AiMessage> findHistoryBySessionId(String sessionId) {
-        return aiMessageRepository.findBySessionIdAndDelFlagOrderByMessageSeqAsc(sessionId, 0);
-    }
+
 
     @Override
     public Page<AiMessage> pageHistoryBySessionId(String sessionId, Pageable pageable) {
         return aiMessageRepository.findBySessionIdAndDelFlagOrderByCreateTimeAsc(sessionId, 0, pageable);
     }
 
+    @Override
+    public List<AiMessage> findHistoryBySessionId(String sessionId) {
+        return aiMessageRepository.findBySessionIdAndDelFlagOrderByMessageSeqAsc(sessionId, 0);
+    }
     @Override
     public Page<AiMessage> pageHistoryBySessionIds(List<String> sessionIds, Pageable pageable) {
         return aiMessageRepository.findBySessionIdInAndDelFlagOrderByCreateTimeDesc(sessionIds, 0, pageable);

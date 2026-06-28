@@ -18,6 +18,23 @@ public class StpInterfaceImpl implements StpInterface {
     private final AdminPermissionService adminPermissionService;
 
     /**
+     * 返回一个账号所拥有的角色标识集合 (权限与角色可分开校验)
+     */
+    @Override
+    public List<String> getRoleList(Object loginId, String loginType) {
+        List<String> roles = new ArrayList<>();
+
+        // 根据用户名判断是否为管理员
+        String username = (String) loginId;
+        if (adminPermissionService.isAdmin(username)) {
+            roles.add("admin");
+        } else {
+            roles.add("user");
+        }
+
+        return roles;
+    }
+    /**
      * 返回一个账号所拥有的权限码集合
      */
     @Override
@@ -33,21 +50,4 @@ public class StpInterfaceImpl implements StpInterface {
         return permissions;
     }
 
-    /**
-     * 返回一个账号所拥有的角色标识集合 (权限与角色可分开校验)
-     */
-    @Override
-    public List<String> getRoleList(Object loginId, String loginType) {
-        List<String> roles = new ArrayList<>();
-        
-        // 根据用户名判断是否为管理员
-        String username = (String) loginId;
-        if (adminPermissionService.isAdmin(username)) {
-            roles.add("admin");
-        } else {
-            roles.add("user");
-        }
-        
-        return roles;
-    }
 }

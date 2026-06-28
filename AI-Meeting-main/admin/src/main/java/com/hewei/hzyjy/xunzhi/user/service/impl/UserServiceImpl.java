@@ -52,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.hewei.hzyjy.xunzhi.common.constant.RedisCacheConstant.LOCK_USER_REGISTER_KEY;
@@ -158,17 +159,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     @Override
-    public Boolean checkLogin(String username, String token) {
-        return stringRedisTemplate.opsForHash().get(USER_LOGIN_KEY + username, token) != null;
-    }
-
-    @Override
     public void logout(String username, String token) {
         if (checkLogin(username, token)) {
             stringRedisTemplate.delete(USER_LOGIN_KEY + username);
             return;
         }
         throw new ClientException("user token does not exist or user is not logged in");
+    }
+
+    @Override
+    public Boolean checkLogin(String username, String token) {
+        return stringRedisTemplate.opsForHash().get(USER_LOGIN_KEY + username, token) != null;
     }
 
     @Override

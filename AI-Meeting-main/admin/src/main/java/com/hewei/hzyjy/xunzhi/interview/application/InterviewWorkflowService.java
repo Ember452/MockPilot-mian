@@ -12,9 +12,11 @@ public interface InterviewWorkflowService {
 
     InterviewAnswerRespDTO answerInterviewQuestion(String sessionId, InterviewAnswerReqDTO requestParam);
 
-    InterviewAnswerRespDTO getNextQuestion(String sessionId);
 
     InterviewAnswerRespDTO getCurrentQuestion(String sessionId);
+    InterviewAnswerRespDTO getNextQuestion(String sessionId);
+
+
 
     String evaluateDemeanor(DemeanorEvaluationReqDTO requestParam);
 }

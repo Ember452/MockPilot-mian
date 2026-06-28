@@ -45,7 +45,7 @@
 | 语音能力 | 讯飞 WebSDK | - | ASR 语音识别、TTS 语音合成、人脸检测 |
 | 容错 | Resilience4j | 2.2.0 | 熔断、重试、限流、超时控制 |
 | 实时通信 | WebSocket + SSE | - | 实时消息推送、流式 AI 回复 |
-| 爬虫 | WebMagic + Jsoup | 1.0.3 | 网页解析、联网搜索 |
+| 爬虫 | WebMagic + Jsoup | 1.0.3 | 网页解析、联网搜索增强 |
 | 容器化 | Docker + Docker Compose | - | 多阶段构建 & 一键部署 |
 
 ### 模块结构

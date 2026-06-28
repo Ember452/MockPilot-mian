@@ -19,15 +19,7 @@ public class AiConversationController {
 
     private final AiConversationService aiConversationService;
 
-    @PostMapping
-    public Result<AiSessionCreateRespDTO> createConversation(@RequestBody AiSessionCreateReqDTO requestParam, @CurrentUser String username) {
-        AiSessionCreateRespDTO result = aiConversationService.createConversationWithTitle(
-                username,
-                requestParam.getAiId(),
-                requestParam.getFirstMessage()
-        );
-        return Results.success(result);
-    }
+
 
     @GetMapping
     public Result<IPage<AiConversationRespDTO>> pageConversations(
@@ -37,6 +29,15 @@ public class AiConversationController {
         return Results.success(result);
     }
 
+    @PostMapping
+    public Result<AiSessionCreateRespDTO> createConversation(@RequestBody AiSessionCreateReqDTO requestParam, @CurrentUser String username) {
+        AiSessionCreateRespDTO result = aiConversationService.createConversationWithTitle(
+                username,
+                requestParam.getAiId(),
+                requestParam.getFirstMessage()
+        );
+        return Results.success(result);
+    }
     @PutMapping("/{sessionId}")
     public Result<Void> updateConversation(@PathVariable String sessionId,
                                            @RequestParam(required = false) Integer messageCount,

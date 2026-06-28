@@ -25,15 +25,6 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
     private final UserMapper userMapper;
 
     @Override
-    public Boolean isAdmin(String username) {
-        LambdaQueryWrapper<AdminPermission> queryWrapper = Wrappers.lambdaQuery(AdminPermission.class)
-                .eq(AdminPermission::getUsername, username)
-                .eq(AdminPermission::getDelFlag, 0);
-        AdminPermission adminPermission = getOne(queryWrapper);
-        return adminPermission != null && adminPermission.getIsAdmin() != null && adminPermission.getIsAdmin() == 1;
-    }
-
-    @Override
     public void setAdminByUserId(String username) {
         // 使用当前登录用户名查询用户信息验证用户存在
         LambdaQueryWrapper<UserDO> userQueryWrapper = Wrappers.lambdaQuery(UserDO.class)
@@ -58,6 +49,15 @@ public class AdminPermissionServiceImpl extends ServiceImpl<AdminPermissionMappe
             existingPermission.setIsAdmin(1);
             updateById(existingPermission);
         }
+    }
+
+    @Override
+    public Boolean isAdmin(String username) {
+        LambdaQueryWrapper<AdminPermission> queryWrapper = Wrappers.lambdaQuery(AdminPermission.class)
+                .eq(AdminPermission::getUsername, username)
+                .eq(AdminPermission::getDelFlag, 0);
+        AdminPermission adminPermission = getOne(queryWrapper);
+        return adminPermission != null && adminPermission.getIsAdmin() != null && adminPermission.getIsAdmin() == 1;
     }
 }
 

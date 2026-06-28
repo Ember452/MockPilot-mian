@@ -10,7 +10,7 @@
 ## 分支与提交
 
 - 分支命名建议使用 `feature/<topic>`、`fix/<topic>`、`docs/<topic>`
-- 提交信息应直接说明修改意图，例如 `fix: normalize interview validation errors`
+- 提交信息应直接说明修改意图，遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范，例如 `fix: normalize interview validation errors`
 
 ## Pull Request 要求
 

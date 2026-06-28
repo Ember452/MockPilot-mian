@@ -21,11 +21,12 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class MessageSequenceAllocator {
 
-    private static final String AGENT_SEQ_KEY_PREFIX = "xunzhi:msg-seq:agent:";
-    private static final String AI_SEQ_KEY_PREFIX = "xunzhi:msg-seq:ai:";
+
     private static final Duration KEY_TTL = Duration.ofDays(7);
     private static final DefaultRedisScript<Long> INIT_AND_INCR_SCRIPT = new DefaultRedisScript<>();
 
+    private static final String AGENT_SEQ_KEY_PREFIX = "xunzhi:msg-seq:agent:";
+    private static final String AI_SEQ_KEY_PREFIX = "xunzhi:msg-seq:ai:";
     static {
         INIT_AND_INCR_SCRIPT.setResultType(Long.class);
         INIT_AND_INCR_SCRIPT.setScriptText(
@@ -44,22 +45,13 @@ public class MessageSequenceAllocator {
     private final AgentMessageRepository agentMessageRepository;
     private final AiMessageRepository aiMessageRepository;
 
-    public int nextAgentMessageSeq(String sessionId) {
-        int latest = latestAgentMessageSeq(sessionId);
-        return next(AGENT_SEQ_KEY_PREFIX, sessionId, latest);
-    }
-
     public int nextAiMessageSeq(String sessionId) {
         int latest = latestAiMessageSeq(sessionId);
         return next(AI_SEQ_KEY_PREFIX, sessionId, latest);
     }
-
-    private int latestAgentMessageSeq(String sessionId) {
-        AgentMessage last = agentMessageRepository.findTopBySessionIdAndDelFlagOrderByMessageSeqDesc(sessionId, 0);
-        if (last == null || last.getMessageSeq() == null) {
-            return 0;
-        }
-        return last.getMessageSeq();
+    public int nextAgentMessageSeq(String sessionId) {
+        int latest = latestAgentMessageSeq(sessionId);
+        return next(AGENT_SEQ_KEY_PREFIX, sessionId, latest);
     }
 
     private int latestAiMessageSeq(String sessionId) {
@@ -69,6 +61,15 @@ public class MessageSequenceAllocator {
         }
         return last.getMessageSeq();
     }
+    private int latestAgentMessageSeq(String sessionId) {
+        AgentMessage last = agentMessageRepository.findTopBySessionIdAndDelFlagOrderByMessageSeqDesc(sessionId, 0);
+        if (last == null || last.getMessageSeq() == null) {
+            return 0;
+        }
+        return last.getMessageSeq();
+    }
+
+
 
     private int next(String keyPrefix, String sessionId, int latestSeq) {
         if (StrUtil.isBlank(sessionId)) {

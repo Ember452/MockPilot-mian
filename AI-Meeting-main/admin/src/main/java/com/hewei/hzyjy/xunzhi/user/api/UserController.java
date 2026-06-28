@@ -100,6 +100,12 @@ public class UserController {
         return Results.success(result);
     }
 
+    @PostMapping("/logout")
+    public Result<Void> logout() {
+        loginSessionService.logoutCurrent();
+        return Results.success();
+    }
+
     @GetMapping("/check-login")
     public Result<Map<String, Object>> checkLogin() {
         Map<String, Object> result = new HashMap<>();
@@ -110,12 +116,6 @@ public class UserController {
             result.put("token", loginSessionService.getCurrentToken());
         }
         return Results.success(result);
-    }
-
-    @PostMapping("/logout")
-    public Result<Void> logout() {
-        loginSessionService.logoutCurrent();
-        return Results.success();
     }
 
     @GetMapping("/is-admin")
