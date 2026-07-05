@@ -53,6 +53,9 @@ public class InterviewScoreServiceImpl implements InterviewScoreService {
         return derivedAverage != null ? derivedAverage : 0;
     }
 
+    /**
+     * 添加面试会话分数
+     */
     @Override
     public Integer addSessionScore(String sessionId, Integer score) {
         if (StrUtil.isBlank(sessionId)) {

@@ -30,6 +30,9 @@ public class InterviewTurnRepairService {
     private final InterviewTurnRepairConfiguration configuration;
     private final MeterRegistry meterRegistry;
 
+    /**
+     * Enqueue a turn repair task.
+     */
     public void enqueue(String sessionId, InterviewTurnLog turnLog, String reason) {
         if (StrUtil.isBlank(sessionId) || turnLog == null) {
             return;

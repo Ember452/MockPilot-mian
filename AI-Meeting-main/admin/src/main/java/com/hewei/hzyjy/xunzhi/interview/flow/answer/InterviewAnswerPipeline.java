@@ -428,6 +428,7 @@ public class InterviewAnswerPipeline {
     private boolean commitScoreAtSuccess(InterviewAnswerPipelineContext ctx) {
         try {
             // 追问不计入总分；仅主问题在“返回成功前”提交入账，避免失败重试重复计分。
+            // 如果是追问的话，则从缓存中获取总分，否则从缓存中获取当前问题的分数，并更新总分缓存。
             Integer committedTotalScore = Boolean.TRUE.equals(ctx.currentIsFollowUp)
                     ? interviewQuestionCacheService.getSessionTotalScore(ctx.sessionId)
                     : interviewQuestionCacheService.addSessionScore(ctx.sessionId, ctx.score);
@@ -646,6 +647,9 @@ public class InterviewAnswerPipeline {
         return normalized;
     }
 
+    /**
+     *
+     */
     private static final class InterviewAnswerPipelineContext {
         private String sessionId;
         private InterviewAnswerReqDTO requestParam;

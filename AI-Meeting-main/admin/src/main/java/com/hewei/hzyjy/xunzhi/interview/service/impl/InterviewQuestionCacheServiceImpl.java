@@ -548,6 +548,12 @@ public class InterviewQuestionCacheServiceImpl implements InterviewQuestionCache
         }
     }
 
+    /**
+     *
+     * @param sessionId 会话ID
+     * @param score 本次得分
+     * @return
+     */
     @Override
     public Integer addSessionScore(String sessionId, Integer score) {
         try {

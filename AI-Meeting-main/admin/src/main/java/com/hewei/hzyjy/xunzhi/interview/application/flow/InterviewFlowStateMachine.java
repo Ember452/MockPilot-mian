@@ -115,6 +115,9 @@ public class InterviewFlowStateMachine {
         return interviewQuestionCacheService.markInterviewCompleted(sessionId);
     }
 
+    /**
+     * 继续下一道题
+     */
     public InterviewFlowState advanceMainQuestion(String sessionId) {
         InterviewFlowState currentState = current(sessionId);
         if (currentState == null) {

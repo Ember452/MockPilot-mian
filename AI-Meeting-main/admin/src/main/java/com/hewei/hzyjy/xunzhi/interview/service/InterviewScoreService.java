@@ -9,6 +9,9 @@ public interface InterviewScoreService {
 
     Integer getSessionTotalScore(String sessionId, List<InterviewTurnLog> turns);
 
+    /**
+     * 添加面试会话分数
+     */
     Integer addSessionScore(String sessionId, Integer score);
 
     void resetSessionScore(String sessionId);

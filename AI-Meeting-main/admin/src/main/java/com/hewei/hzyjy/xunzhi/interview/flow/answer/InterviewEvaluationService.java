@@ -49,6 +49,7 @@ public class InterviewEvaluationService {
 
     /**
      * Evaluate current answer by scorer workflow and return normalized result fields.
+     * 对当前答案进行评分
      */
     public Map<String, Object> evaluateAnswer(
             String sessionId,
@@ -110,6 +111,16 @@ public class InterviewEvaluationService {
         return normalized;
     }
 
+    /**
+     * 调用Agent评分工作流进行评分
+     * @param sessionId sessionId
+     * @param requestId requestId
+     * @param questionNumber 问题ID
+     * @param questionContent  问题上下文
+     * @param answerContent  回答
+     * @param scorerAgent 评分Agent
+     * @return  评分结果
+     */
     private Map<String, Object> evaluateAnswerByScorerAgent(
             String sessionId,
             String requestId,
@@ -132,7 +143,6 @@ public class InterviewEvaluationService {
                     scorerAgent,
                     parameters
             );
-
             String workflowResponse = interviewAiInvoker.callAiSyncWithParameters(
                     sessionId + "_score",
                     scorerAgent,
