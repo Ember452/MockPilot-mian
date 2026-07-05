@@ -22,6 +22,9 @@ public class InterviewFollowUpRuleDecision {
 
     private boolean fallback;
 
+    /**
+     * 判断是否需要追问
+     */
     public static InterviewFollowUpRuleDecision noFollowUp(
             int resolvedMaxFollowUp,
             String reasonCode,

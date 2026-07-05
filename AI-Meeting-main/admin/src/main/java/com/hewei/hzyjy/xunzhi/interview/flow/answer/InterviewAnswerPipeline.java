@@ -123,6 +123,9 @@ public class InterviewAnswerPipeline {
         return ctx.response;
     }
 
+    /**
+     * 基础会话校验，校验ID，回答，问题，不为空
+     */
     private boolean validateRequest(InterviewAnswerPipelineContext ctx) {
         if (StrUtil.isBlank(ctx.sessionId)) {
             ctx.response.fail("sessionId cannot be empty");

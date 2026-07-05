@@ -4,6 +4,7 @@ import lombok.Data;
 
 /**
  * Interview flow state cached in Redis.
+ * Redis中的面试流程状态缓存
  */
 @Data
 public class InterviewFlowState {

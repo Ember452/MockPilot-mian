@@ -21,6 +21,9 @@ public class InterviewQuestionLockService {
     private final RedissonClient redissonClient;
     private final InterviewAnswerGuardConfiguration configuration;
 
+    /**
+     * 获取Redission的分布式锁，可以用来防止某个问题被重复消费
+     */
     public RLock acquire(String sessionId, String questionNumber) throws InterruptedException {
         if (StrUtil.isBlank(sessionId) || StrUtil.isBlank(questionNumber)) {
             return null;

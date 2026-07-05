@@ -19,6 +19,9 @@ public class BusinessAgentBindingProperties {
 
     private String interviewQuestionAsking;
 
+    /**
+     * 根据场景获取对应的业务Agent
+     */
     public String resolveAgentName(BusinessAgentScene scene) {
         if (scene == null) {
             return null;

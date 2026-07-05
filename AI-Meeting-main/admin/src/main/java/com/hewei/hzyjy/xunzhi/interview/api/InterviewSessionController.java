@@ -96,6 +96,9 @@ public class InterviewSessionController {
                 sessionId, resumePdf, currentUser.getUserId(), currentUser.getUsername()));
     }
 
+    /**
+     * 答题主链路入口
+     */
     @PostMapping("/sessions/{sessionId}/interview/answer")
     public Result<InterviewAnswerRespDTO> answerInterviewQuestion(
             @PathVariable String sessionId,

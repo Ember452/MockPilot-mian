@@ -21,6 +21,9 @@ public class InterviewFollowUpRuleService {
     private final FlowExecutor flowExecutor;
     private final InterviewRuleEngineConfiguration ruleConfiguration;
 
+    /**
+     * 判断是否需要追问
+     */
     public InterviewFollowUpRuleDecision decide(InterviewFollowUpRuleContext context) {
         if (context == null) {
             return InterviewFollowUpRuleDecision.noFollowUp(

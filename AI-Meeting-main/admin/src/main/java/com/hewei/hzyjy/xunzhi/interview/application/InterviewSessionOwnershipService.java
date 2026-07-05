@@ -14,6 +14,9 @@ public class InterviewSessionOwnershipService {
 
     private final InterviewSessionRepository interviewSessionRepository;
 
+    /**
+     * 获取指定用户的会话
+     */
     public InterviewSession requireOwnedSession(String sessionId, Long userId) {
         if (StrUtil.isBlank(sessionId)) {
             throw new ClientException(InterviewErrorCodeEnum.SESSION_ID_EMPTY);
