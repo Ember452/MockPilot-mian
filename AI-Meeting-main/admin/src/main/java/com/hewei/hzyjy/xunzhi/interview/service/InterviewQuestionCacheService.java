@@ -85,6 +85,7 @@ public interface InterviewQuestionCacheService {
 
     /**
      * Cache one follow-up question for the current session.
+     * 把当前追问问题放到Redis中，以便下一轮用户回答评分用
      * @param sessionId session id
      * @param questionNumber follow-up question number, such as 1-F1
      * @param questionContent question content
@@ -93,6 +94,7 @@ public interface InterviewQuestionCacheService {
 
     /**
      * Get cached follow-up questions for a session.
+     * 得到追问的问题
      * @param sessionId session id
      * @return follow-up question map
      */

@@ -319,6 +319,12 @@ public class InterviewQuestionCacheServiceImpl implements InterviewQuestionCache
         }
     }
 
+    /**
+     * 获取面试会话的随路问题
+     *
+     * @param sessionId 会话ID
+     * @return 随路问题
+     */
     @Override
     public Map<String, String> getSessionFollowUpQuestions(String sessionId) {
         Map<String, String> followUpQuestionMap = new LinkedHashMap<>();

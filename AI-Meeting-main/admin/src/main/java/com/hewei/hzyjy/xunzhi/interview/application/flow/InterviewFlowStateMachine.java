@@ -91,6 +91,9 @@ public class InterviewFlowStateMachine {
         return transitionStatus(sessionId, InterviewFlowStatus.FOLLOW_UP);
     }
 
+    /**
+     * 把当前流程推进到追问
+     */
     public InterviewFlowState startFollowUpQuestion(String sessionId, String questionNumber) {
         InterviewFlowState currentState = current(sessionId);
         if (currentState == null) {

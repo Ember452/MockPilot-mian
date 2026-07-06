@@ -37,6 +37,9 @@ public class InterviewFollowUpService {
     private final InterviewAiInvoker interviewAiInvoker;
     private final InterviewResponseParser interviewResponseParser;
 
+    /**
+     * 得到追问的问题
+     */
     public FollowUpQuestionResult generateFollowUpQuestion(
             String sessionId,
             String requestId,
@@ -188,6 +191,7 @@ public class InterviewFollowUpService {
         }
         String normalized = question.trim();
         if ("none".equalsIgnoreCase(normalized)
+                //这个"null".equalsIgnoreCase,可以防止在一些旧系统重null存的是字符串null
                 || "null".equalsIgnoreCase(normalized)
                 || "N/A".equalsIgnoreCase(normalized)
                 || "-".equals(normalized)
@@ -200,6 +204,9 @@ public class InterviewFollowUpService {
         return clip(normalized, 100);
     }
 
+    /**
+     * 获取主问题的编号
+     */
     private String resolveMainQuestionNumber(String questionNumber) {
         if (StrUtil.isBlank(questionNumber)) {
             return null;
@@ -219,6 +226,9 @@ public class InterviewFollowUpService {
         return mainQuestionNumber + "-F" + followUpCount;
     }
 
+    /**
+     * 截断一个字符串，只能到某个长度的字符串
+     */
     private String clip(String value, int maxLength) {
         if (value == null || value.length() <= maxLength) {
             return value;

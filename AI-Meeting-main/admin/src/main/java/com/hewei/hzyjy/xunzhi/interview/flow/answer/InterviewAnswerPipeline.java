@@ -337,6 +337,9 @@ public class InterviewAnswerPipeline {
         return true;
     }
 
+    /**
+     * 推进流程到追问或者主问题
+     */
     private boolean stepAdvanceFlowAndAssemble(InterviewAnswerPipelineContext ctx) {
         // 1) 先拍快照：后续若计分提交失败，用于补偿回滚 flow，避免“题号推进成功但分数未入账”。
         InterviewFlowState flowSnapshotBeforeAdvance = snapshotFlowState(interviewFlowStateMachine.current(ctx.sessionId));
