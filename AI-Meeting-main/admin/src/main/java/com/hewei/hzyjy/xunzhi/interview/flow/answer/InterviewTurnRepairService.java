@@ -32,6 +32,7 @@ public class InterviewTurnRepairService {
 
     /**
      * Enqueue a turn repair task.
+     *
      */
     public void enqueue(String sessionId, InterviewTurnLog turnLog, String reason) {
         if (StrUtil.isBlank(sessionId) || turnLog == null) {
@@ -52,6 +53,9 @@ public class InterviewTurnRepairService {
         }
     }
 
+    /**
+     * 定时轮询执行修复失败的turn
+      */
     @Scheduled(fixedDelayString = "${xunzhi-agent.interview.turn-repair.fixed-delay-millis:3000}")
     public void repairPendingTurns() {
         if (!Boolean.TRUE.equals(configuration.getEnable())) {

@@ -124,6 +124,9 @@ public class InterviewAiInvoker {
         );
     }
 
+    /**
+     * 模型调用
+     */
     private String doChat(
             String input,
             String sessionId,

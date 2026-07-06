@@ -109,6 +109,9 @@ public class InterviewAnswerPipeline {
         }
     }
 
+    /**
+     * 对用户的答案评估结束，现在进行持久化turnLog
+     */
     private InterviewAnswerRespDTO finishAndReturn(InterviewAnswerPipelineContext ctx, boolean appendTurn) {
         if (Boolean.TRUE.equals(ctx.response.getIsSuccess())) {
             if (appendTurn && !stepAppendTurnLog(ctx)) {

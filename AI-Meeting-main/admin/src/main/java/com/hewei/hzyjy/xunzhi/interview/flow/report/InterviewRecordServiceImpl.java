@@ -234,6 +234,10 @@ public class InterviewRecordServiceImpl extends ServiceImpl<InterviewRecordMappe
         return respDTO;
     }
 
+    /**
+     * 即使Redis缓存丢失，也能从DB既有的记录或者turns中
+     * 推导出
+     */
     @Override
     public void saveInterviewRecordFromRedis(String sessionId, Long userId) {
         if (StrUtil.isBlank(sessionId)) {

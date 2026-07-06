@@ -801,6 +801,9 @@ public class InterviewQuestionCacheServiceImpl implements InterviewQuestionCache
         appendInterviewTurnInternal(sessionId, turnData);
     }
 
+    /**
+     * 持久化面试轮次数据
+     */
     @Override
     public boolean appendInterviewTurnIfAbsent(String sessionId, InterviewTurnLog turnData) {
         if (StrUtil.isBlank(sessionId) || turnData == null) {

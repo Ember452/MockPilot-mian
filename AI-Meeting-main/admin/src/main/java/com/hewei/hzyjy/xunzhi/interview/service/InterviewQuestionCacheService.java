@@ -272,6 +272,7 @@ public interface InterviewQuestionCacheService {
 
     /**
      * Append one interview turn log once by requestId.
+     * 添加一个面试轮次日志，用来最后总评和和恢复
      * @param sessionId session id
      * @param turnData turn payload
      * @return true when append succeeded or duplicated by the same requestId
