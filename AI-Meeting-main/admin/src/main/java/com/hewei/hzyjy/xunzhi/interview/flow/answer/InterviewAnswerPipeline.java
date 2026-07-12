@@ -301,6 +301,7 @@ public class InterviewAnswerPipeline {
 
         Map<String, Object> evaluationResult;
         try {
+            // 走评分工作流
             evaluationResult = interviewEvaluationService.evaluateAnswer(
                     ctx.sessionId,
                     ctx.requestId,

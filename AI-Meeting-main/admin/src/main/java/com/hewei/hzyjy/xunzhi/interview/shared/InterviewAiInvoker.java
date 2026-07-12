@@ -93,6 +93,9 @@ public class InterviewAiInvoker {
         );
     }
 
+    /**
+     * 以会话当前阶段，会话ID，问题编号，回答内容的Hash构建一个key，用来分布式防重
+     */
     public String buildSingleFlightKey(
             String stage,
             String sessionId,
@@ -114,6 +117,9 @@ public class InterviewAiInvoker {
         return safeStage + "|" + safeSessionId + "|" + safeBusinessKey;
     }
 
+    /**
+     * 带分布式限流熔断保护的调用入口
+     */
     private String guardedCall(String stage, String singleFlightKey, Callable<String> callable) throws Exception {
         String safeStage = StrUtil.blankToDefault(stage, "interview-default");
         String key = StrUtil.blankToDefault(singleFlightKey, safeStage + "|no-key");

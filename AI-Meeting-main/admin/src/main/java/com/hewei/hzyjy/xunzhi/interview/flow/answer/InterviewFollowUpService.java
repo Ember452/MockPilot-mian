@@ -68,6 +68,7 @@ public class InterviewFollowUpService {
         try {
             // 2) 优先调用追问工作流生成更针对性的追问。
             AgentPropertiesDO agentProperties = businessAgentResolver.resolveRequired(BusinessAgentScene.INTERVIEW_QUESTION_ASKING);
+            // 调用工作流生成追问问题
             generatedQuestion = invokeFollowUpWorkflow(
                     sessionId,
                     requestId,
@@ -126,6 +127,7 @@ public class InterviewFollowUpService {
                     currentQuestion,
                     answerContent
             );
+            // 异步调用AI进行追问问题生成
             workflowResponse = interviewAiInvoker.callAiSyncWithParameters(
                     sessionId,
                     agentProperties,
@@ -162,6 +164,9 @@ public class InterviewFollowUpService {
         }
     }
 
+    /**
+     * 将追问工作流所需的零散参数打包成一个Map集合
+     */
     private Map<String, Object> buildWorkflowParameters(
             String answerContent,
             String currentQuestion,

@@ -143,6 +143,7 @@ public class InterviewEvaluationService {
                     scorerAgent,
                     parameters
             );
+            // 异步调用AI Agent进行评分
             String workflowResponse = interviewAiInvoker.callAiSyncWithParameters(
                     sessionId + "_score",
                     scorerAgent,

@@ -90,6 +90,10 @@ public class AiCallGuardService {
         }
     }
 
+    /**
+     * 在熔断，隔离，重试，超时的保护下调用AI
+     * 熔断快速决策。隔离，超时把AI调用任务放到独立的线程池中，避免业务线程被阻塞，同时配置有限次数的重试
+     */
     private <T> T guardedExecute(String stage, Callable<T> action) throws Exception {
         CircuitBreaker circuitBreaker = circuitBreakers.computeIfAbsent(stage, this::newCircuitBreaker);
         Bulkhead bulkhead = bulkheads.computeIfAbsent(stage, this::newBulkhead);
@@ -110,9 +114,14 @@ public class AiCallGuardService {
         return decorated.call();
     }
 
+    /**
+     * 带超时控制的异步调用
+     * 把耗时长的AI任务放到一个独立的线程池中调用，不占用Tomcat的系统资源
+     */
     private <T> T callWithTimeLimiter(String stage, Callable<T> action) throws Exception {
         TimeLimiter timeLimiter = timeLimiters.computeIfAbsent(stage, this::newTimeLimiter);
         // AI I/O 调用放到专用线程池，避免占用业务线程，并由 TimeLimiter 统一裁剪超时。
+        // TimeLimiter 是一个缓存Map，key是业务阶段名称
         Callable<T> timeLimitedCall = TimeLimiter.decorateFutureSupplier(
                 timeLimiter,
                 () -> CompletableFuture.supplyAsync(() -> {
