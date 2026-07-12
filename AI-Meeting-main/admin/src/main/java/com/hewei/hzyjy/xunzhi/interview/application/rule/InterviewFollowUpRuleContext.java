@@ -6,6 +6,11 @@ import java.util.List;
 
 /**
  * Follow-up rule context used by LiteFlow nodes.
+ * 多节点决策采用否决加投票
+ * 如果是有面试终止的，一票就终止
+ * 如果是建议追问，不拒绝，因为有多个流程都可能建议追问
+ * 只记录第一次建议追问的
+ *
  */
 @Data
 public class InterviewFollowUpRuleContext {

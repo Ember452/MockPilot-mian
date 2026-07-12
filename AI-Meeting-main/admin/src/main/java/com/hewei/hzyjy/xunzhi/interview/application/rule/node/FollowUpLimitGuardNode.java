@@ -4,6 +4,9 @@ import com.hewei.hzyjy.xunzhi.interview.application.rule.InterviewFollowUpRuleCo
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 
+/**
+ * 追问次数上限守卫
+ */
 @LiteflowComponent("followUpLimitGuard")
 public class FollowUpLimitGuardNode extends NodeComponent {
 

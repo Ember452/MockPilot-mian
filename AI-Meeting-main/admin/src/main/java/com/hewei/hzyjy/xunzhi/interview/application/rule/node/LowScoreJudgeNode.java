@@ -4,6 +4,9 @@ import com.hewei.hzyjy.xunzhi.interview.application.rule.InterviewFollowUpRuleCo
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 
+/**
+ * 低分判断节点，如果分数低于60分，需要追问
+ */
 @LiteflowComponent("lowScoreJudge")
 public class LowScoreJudgeNode extends NodeComponent {
 

@@ -6,6 +6,9 @@ import com.hewei.hzyjy.xunzhi.interview.application.rule.InterviewFollowUpRuleCo
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 
+/**
+ * 遗漏知识判断节点
+ */
 @LiteflowComponent("missingPointsJudge")
 public class MissingPointsJudgeNode extends NodeComponent {
 

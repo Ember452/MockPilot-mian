@@ -4,6 +4,9 @@ import com.hewei.hzyjy.xunzhi.interview.application.rule.InterviewFollowUpRuleCo
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 
+/**
+ * 最终决策节点
+ */
 @LiteflowComponent("followUpDecisionFinalize")
 public class FollowUpDecisionFinalizeNode extends NodeComponent {
 

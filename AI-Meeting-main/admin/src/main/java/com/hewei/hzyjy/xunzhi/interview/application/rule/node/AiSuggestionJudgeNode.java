@@ -4,6 +4,9 @@ import com.hewei.hzyjy.xunzhi.interview.application.rule.InterviewFollowUpRuleCo
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 
+/**
+ * AI 建议判断节点。如果AI建议追问，投票建议追问
+ */
 @LiteflowComponent("aiSuggestionJudge")
 public class AiSuggestionJudgeNode extends NodeComponent {
 
