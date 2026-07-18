@@ -601,6 +601,15 @@ public class InterviewQuestionCacheServiceImpl implements InterviewQuestionCache
         }
     }
 
+    /**
+     * 评估完成后，结果会写入Redis缓存中，供下游消费
+     * 并刷新快照
+     * @param sessionId 会话ID
+     * @param panicLevel 慌乱度
+     * @param seriousnessLevel 严肃程度
+     * @param emoticonHandling 表情处理
+     * @param compositeScore 综合得分
+     */
     @Override
     public void cacheDemeanorScoreDetails(String sessionId, Integer panicLevel, Integer seriousnessLevel, 
                                           Integer emoticonHandling, Integer compositeScore) {

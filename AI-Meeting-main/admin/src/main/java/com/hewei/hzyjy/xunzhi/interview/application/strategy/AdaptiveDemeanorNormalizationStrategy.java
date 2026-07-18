@@ -2,6 +2,9 @@ package com.hewei.hzyjy.xunzhi.interview.application.strategy;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * 归一化
+ */
 @Component
 public class AdaptiveDemeanorNormalizationStrategy implements DemeanorNormalizationStrategy {
 

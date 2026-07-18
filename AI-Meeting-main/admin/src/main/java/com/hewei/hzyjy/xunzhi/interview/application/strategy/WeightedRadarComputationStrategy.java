@@ -3,6 +3,9 @@ package com.hewei.hzyjy.xunzhi.interview.application.strategy;
 import com.hewei.hzyjy.xunzhi.interview.api.io.resp.RadarChartDTO;
 import org.springframework.stereotype.Component;
 
+/**
+ * 构建雷达图
+ */
 @Component
 public class WeightedRadarComputationStrategy implements RadarComputationStrategy {
 

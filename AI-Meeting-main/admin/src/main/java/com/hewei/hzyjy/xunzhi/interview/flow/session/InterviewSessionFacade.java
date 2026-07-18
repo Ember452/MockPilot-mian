@@ -261,6 +261,9 @@ public class InterviewSessionFacade {
         return radar;
     }
 
+    /**
+     * 评估神态
+     */
     public String evaluateDemeanor(
             String sessionId,
             MultipartFile userPhoto,
