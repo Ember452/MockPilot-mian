@@ -37,6 +37,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 面试会话统一门面服务，对外暴露面试全流程API。
+ * 负责会话创建、简历提取、答题、神态评估、会话恢复等核心操作的编排，
+ * 将前端请求路由到对应的子服务，不包含具体业务逻辑。
+ *
+ * @author 系统开发团队
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -51,10 +58,16 @@ public class InterviewSessionFacade {
     private final InterviewSessionRuntimeSnapshotService runtimeSnapshotService;
     private final InterviewSessionRuntimeRehydrateService runtimeRehydrateService;
 
+    /**
+     * 创建新的面试会话，初始化状态为草稿。
+     */
     public InterviewSessionCreateRespDTO createSession(Long userId) {
         return interviewSessionService.createSession(userId);
     }
 
+    /**
+     * 分页查询用户的面试会话列表，支持关键词搜索和状态筛选。
+     */
     public IPage<InterviewConversationRespDTO> pageConversations(Long userId, InterviewConversationPageReqDTO requestParam) {
         return interviewSessionService.pageConversations(userId, requestParam);
     }
@@ -75,15 +88,25 @@ public class InterviewSessionFacade {
         throw new ClientException("interview history paging is not enabled", InterviewErrorCodeEnum.INTERVIEW_SESSION_INVALID_STATE);
     }
 
+    /**
+     * 结束面试会话，统一走 finalize 收口：落记录 + 补齐会话结束态（内部含锁与重试）。
+     */
     public void finishSession(String sessionId, Long userId) {
-        // 1) 统一走 finalize 收口：落记录 + 补齐会话结束态（内部含锁与重试）。
         interviewRecordService.saveInterviewRecordFromRedis(sessionId, userId);
     }
 
+    /**
+     * 结束对话，finishSession 的别名接口。
+     */
     public void endConversation(String sessionId, Long userId) {
         finishSession(sessionId, userId);
     }
 
+    /**
+     * 从简历中提取面试题目。
+     * 走上传简历->AI提取->结构化落库->状态推进的完整链路。
+     * 提取成功推进到READY状态，失败回落到DRAFT状态。
+     */
     public InterviewQuestionRespDTO extractInterviewQuestions(
             String sessionId,
             MultipartFile resumePdf,
@@ -116,6 +139,11 @@ public class InterviewSessionFacade {
         return response;
     }
 
+    /**
+     * 面试答题主入口。
+     * 先校验会话可继续，首次答题推进到IN_PROGRESS，然后委托答题编排流水线处理。
+     * 内部处理幂等/加锁/评估/推进等完整流程。
+     */
     public InterviewAnswerRespDTO answerInterviewQuestion(
             String sessionId,
             InterviewAnswerReqDTO requestParam,
@@ -129,12 +157,18 @@ public class InterviewSessionFacade {
         return interviewWorkflowService.answerInterviewQuestion(sessionId, requestParam);
     }
 
+    /**
+     * 获取下一道面试题目，不推进游标，仅返回当前题。
+     */
     public InterviewAnswerRespDTO getNextQuestion(String sessionId, Long userId) {
         ensureInterviewCanProceed(sessionId, userId);
         interviewSessionService.markInProgressIfReady(sessionId, userId);
         return interviewWorkflowService.getNextQuestion(sessionId);
     }
 
+    /**
+     * 获取当前面试题目，不推进游标。
+     */
     public InterviewAnswerRespDTO getCurrentQuestion(String sessionId, Long userId) {
         ensureInterviewCanProceed(sessionId, userId);
         InterviewAnswerRespDTO response = interviewWorkflowService.getCurrentQuestion(sessionId);
@@ -144,11 +178,18 @@ public class InterviewSessionFacade {
         return response;
     }
 
+    /**
+     * 加载简历预览资源。
+     */
     public InterviewResumePreviewService.ResumePreviewResource loadResumePreview(String sessionId, Long userId) {
         interviewSessionService.requireOwnedSession(sessionId, userId);
         return interviewResumePreviewService.loadResumePreview(sessionId);
     }
 
+    /**
+     * 恢复面试会话，返回会话状态、简历信息、面试方向、题目建议、简历评分等完整数据。
+     * 优先级：会话主表 > question表 > 缓存回补。
+     */
     public InterviewSessionRestoreRespDTO restoreInterviewSession(String sessionId, Long userId) {
         // 1) 先恢复会话主信息（状态、简历、方向等主字段）。
         InterviewSession session = interviewSessionService.requireOwnedSession(sessionId, userId);
@@ -196,6 +237,9 @@ public class InterviewSessionFacade {
         return response;
     }
 
+    /**
+     * 获取会话的面试题目列表，缓存miss时从数据库回补。
+     */
     public Map<String, String> getSessionInterviewQuestions(String sessionId, Long userId) {
         interviewSessionService.requireOwnedSession(sessionId, userId);
         runtimeRehydrateService.ensureRuntime(sessionId, InterviewRuntimeLoadMode.READ_ONLY, InterviewRuntimeRehydrateScope.MATERIAL_ONLY);
@@ -208,6 +252,9 @@ public class InterviewSessionFacade {
         return questions;
     }
 
+    /**
+     * 获取会话总分，读取顺序：缓存 > 记录快照，避免缓存丢失导致分数回退。
+     */
     public Integer getSessionTotalScore(String sessionId, Long userId) {
         interviewSessionService.requireOwnedSession(sessionId, userId);
         runtimeRehydrateService.ensureRuntime(sessionId, InterviewRuntimeLoadMode.READ_ONLY, InterviewRuntimeRehydrateScope.SCORE_ONLY);
@@ -223,6 +270,9 @@ public class InterviewSessionFacade {
         return score;
     }
 
+    /**
+     * 获取会话的面试建议列表，缓存miss时从数据库回补。
+     */
     public Map<String, String> getSessionInterviewSuggestions(String sessionId, Long userId) {
         interviewSessionService.requireOwnedSession(sessionId, userId);
         runtimeRehydrateService.ensureRuntime(sessionId, InterviewRuntimeLoadMode.READ_ONLY, InterviewRuntimeRehydrateScope.MATERIAL_ONLY);
@@ -235,6 +285,9 @@ public class InterviewSessionFacade {
         return suggestions;
     }
 
+    /**
+     * 获取简历评分，缓存miss时从数据库回补。
+     */
     public Integer getSessionResumeScore(String sessionId, Long userId) {
         interviewSessionService.requireOwnedSession(sessionId, userId);
         runtimeRehydrateService.ensureRuntime(sessionId, InterviewRuntimeLoadMode.READ_ONLY, InterviewRuntimeRehydrateScope.MATERIAL_ONLY);
@@ -247,6 +300,9 @@ public class InterviewSessionFacade {
         return resumeScore;
     }
 
+    /**
+     * 获取雷达图数据，读取顺序：缓存 > 记录快照。
+     */
     public RadarChartDTO getRadarChartData(String sessionId, Long userId) {
         interviewSessionService.requireOwnedSession(sessionId, userId);
         runtimeRehydrateService.ensureRuntime(sessionId, InterviewRuntimeLoadMode.READ_ONLY, InterviewRuntimeRehydrateScope.FULL_RUNTIME);
@@ -284,6 +340,9 @@ public class InterviewSessionFacade {
         return interviewWorkflowService.evaluateDemeanor(reqDTO);
     }
 
+    /**
+     * 校验会话是否可继续：先校验归属，再校验状态是否可恢复。
+     */
     private void ensureInterviewCanProceed(String sessionId, Long userId) {
         InterviewSession session = interviewSessionService.requireOwnedSession(sessionId, userId);
         if (session == null || !isSessionResumable(session)) {
@@ -291,6 +350,9 @@ public class InterviewSessionFacade {
         }
     }
 
+    /**
+     * 判断会话是否可恢复，只有活跃状态（READY/IN_PROGRESS等）才可恢复。
+     */
     private boolean isSessionResumable(InterviewSession session) {
         if (session == null || StrUtil.isBlank(session.getStatus())) {
             return false;
@@ -302,6 +364,9 @@ public class InterviewSessionFacade {
         }
     }
 
+    /**
+     * 判断雷达图是否有有效信号（至少一个维度 > 0）。
+     */
     private boolean hasRadarSignal(RadarChartDTO radar) {
         if (radar == null) {
             return false;
