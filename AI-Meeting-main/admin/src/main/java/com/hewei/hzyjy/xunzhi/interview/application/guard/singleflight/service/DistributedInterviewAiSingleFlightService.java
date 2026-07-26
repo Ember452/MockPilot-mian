@@ -52,12 +52,14 @@ public class DistributedInterviewAiSingleFlightService {
     public String execute(String stage, String requestKey, Supplier<String> supplier) {
         flightReplayLocalCache.refreshMaxSize(configuration.getL1CacheMaxSize());
         FlightMode mode = FlightMode.from(configuration.normalizedMode());
+        // 如果配置中没有开启的话，调用本地SingleFlight
         if (!Boolean.TRUE.equals(configuration.getEnable()) || mode == FlightMode.LOCAL || !Boolean.TRUE.equals(configuration.getDistributedEnabled())) {
             return localSingleFlightService.execute(requestKey, supplier);
         }
         try {
             return executeDistributed(stage, requestKey, supplier);
         } catch (RuntimeException ex) {
+            // 分布式调用失败，降级为本地SingleFlight
             if (mode == FlightMode.HYBRID) {
                 log.warn("Distributed single-flight fallback to local mode, stage={}, key={}, reason={}", stage, requestKey, ex.getMessage());
                 return localSingleFlightService.execute(requestKey, supplier);
