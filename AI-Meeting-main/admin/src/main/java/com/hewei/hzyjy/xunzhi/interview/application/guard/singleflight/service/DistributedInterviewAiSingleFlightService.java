@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * 分布式 AI single-flight 核心服务，负责在集群内协调 owner 与 follower，
  * 完成请求抢占、结果复用、失败接管以及本地降级回退。
  *
- * @author 程序员牛肉
+ * @author solis
  */
 @Service
 @RequiredArgsConstructor
@@ -46,6 +46,9 @@ public class DistributedInterviewAiSingleFlightService {
     private final FlightResultSerializer flightResultSerializer;
     private final FlightReplayLocalCache flightReplayLocalCache;
 
+    /**
+     * 执行分布式 AI single-flight
+     */
     public String execute(String stage, String requestKey, Supplier<String> supplier) {
         flightReplayLocalCache.refreshMaxSize(configuration.getL1CacheMaxSize());
         FlightMode mode = FlightMode.from(configuration.normalizedMode());
