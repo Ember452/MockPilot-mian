@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 /**
  * Short-living single-flight deduplication for AI requests.
+ * 单机SingleFlightService
  */
 @Service
 @RequiredArgsConstructor
