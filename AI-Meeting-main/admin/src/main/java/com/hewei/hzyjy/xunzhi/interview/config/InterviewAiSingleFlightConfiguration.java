@@ -73,7 +73,7 @@ public class InterviewAiSingleFlightConfiguration {
      * 按业务 stage 定义 single-flight 细粒度策略的配置对象，
      * 用于区分不同阶段的 heartbeat、TTL、压缩和 L1 缓存策略。
      *
-     * @author 程序员牛肉
+     * @author solis
      */
     @Data
     public static class StageFlightPolicy {
