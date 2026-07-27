@@ -45,7 +45,7 @@ public class InterviewAiSingleFlightService {
         AtomicBoolean newFlight = new AtomicBoolean(false);
         // compute 保证同 key 下“创建 flight + 复用 flight”原子化，避免瞬时并发下出现多个 leader。
         FlightEntry entry = flights.compute(key, (ignored, existing) -> {
-            if (existing == null || existing.expireAtMillis <= now) {
+            if (existing == null || existing.expireAtMillis <= now) { // existing：当前缓存中key对应的旧条目
                 newFlight.set(true);
                 return new FlightEntry(new CompletableFuture<>(), now + ttlMillis);
             }
@@ -68,6 +68,7 @@ public class InterviewAiSingleFlightService {
             }
         }
 
+        // 阻塞当前线程，等待异步任务完成结果
         meterRegistry.counter("ai_singleflight_hit_total").increment();
         try {
             @SuppressWarnings("unchecked")
@@ -110,7 +111,7 @@ public class InterviewAiSingleFlightService {
         }
         flights.entrySet().removeIf(entry -> entry.getValue().expireAtMillis <= nowMillis);
     }
-
+    // CompletableFuture :异步任务结果
     private record FlightEntry(CompletableFuture<Object> resultFuture, long expireAtMillis) {
     }
 }
