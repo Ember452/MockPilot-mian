@@ -117,6 +117,9 @@ public class FlightCoordinatorRepository {
 
     private final StringRedisTemplate stringRedisTemplate;
 
+    /**
+     * 获取请求处理权，如果获取失败就加入等待队列
+     */
     public FlightAcquireResult acquireOrJoin(String stage, String requestKey, String ownerId, String sessionId,
                                              InterviewAiSingleFlightConfiguration.StageFlightPolicy policy) {
         long now = System.currentTimeMillis();
