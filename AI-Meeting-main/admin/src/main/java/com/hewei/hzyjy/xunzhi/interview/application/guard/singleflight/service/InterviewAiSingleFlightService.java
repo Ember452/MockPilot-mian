@@ -41,7 +41,7 @@ public class InterviewAiSingleFlightService {
         }
 
         long now = System.currentTimeMillis();
-        long ttlMillis = resolveTtlMillis();
+        long ttlMillis = resolveTtlMillis();  // 获取TTL
         AtomicBoolean newFlight = new AtomicBoolean(false);
         // compute 保证同 key 下“创建 flight + 复用 flight”原子化，避免瞬时并发下出现多个 leader。
         FlightEntry entry = flights.compute(key, (ignored, existing) -> {
