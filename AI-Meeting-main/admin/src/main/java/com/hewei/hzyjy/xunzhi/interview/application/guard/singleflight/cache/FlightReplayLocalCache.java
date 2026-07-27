@@ -25,6 +25,9 @@ public class FlightReplayLocalCache {
 
     private volatile int maxSize = 1000;
 
+    /**
+     * 刷新缓存最大容量
+     */
     public synchronized void refreshMaxSize(Integer configuredMaxSize) {
         this.maxSize = configuredMaxSize != null && configuredMaxSize > 0 ? configuredMaxSize : 1000;
     }
