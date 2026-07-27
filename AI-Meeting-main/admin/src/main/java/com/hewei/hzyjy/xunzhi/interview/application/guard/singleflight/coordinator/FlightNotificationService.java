@@ -43,6 +43,11 @@ public class FlightNotificationService {
         stringRedisTemplate.opsForStream().add(StreamRecords.mapBacked(body).withStreamKey(streamKey(requestKey)));
     }
 
+    /**
+     * 带优先时间的Redis阻塞等待直到收到状态消息
+     * -------------------------
+     * 调用Redis的opsForStream().read
+     */
     public FlightStatus waitForTerminalEvent(String requestKey, long blockTimeoutMillis) {
         List<MapRecord<String, Object, Object>> records = stringRedisTemplate.opsForStream().read(
                 StreamReadOptions.empty().count(1).block(Duration.ofMillis(Math.max(1L, blockTimeoutMillis))),
@@ -52,6 +57,7 @@ public class FlightNotificationService {
             return null;
         }
         Object status = records.get(0).getValue().get("status");
+        // form 方法，将字符串或者枚举安全的转换成FlightStatus
         return FlightStatus.from(status == null ? null : status.toString());
     }
 
