@@ -32,6 +32,9 @@ public class FlightReplayLocalCache {
         this.maxSize = configuredMaxSize != null && configuredMaxSize > 0 ? configuredMaxSize : 1000;
     }
 
+    /**
+     * 获取本地缓存
+     */
     public synchronized String get(String stage, String requestKey) {
         String cacheKey = cacheKey(stage, requestKey);
         CacheEntry entry = cache.get(cacheKey);
