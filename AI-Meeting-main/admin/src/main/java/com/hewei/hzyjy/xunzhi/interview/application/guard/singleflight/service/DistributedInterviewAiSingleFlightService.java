@@ -50,6 +50,7 @@ public class DistributedInterviewAiSingleFlightService {
      * 执行分布式 AI single-flight
      */
     public String execute(String stage, String requestKey, Supplier<String> supplier) {
+        // 刷新缓存最大容量
         flightReplayLocalCache.refreshMaxSize(configuration.getL1CacheMaxSize());
         FlightMode mode = FlightMode.from(configuration.normalizedMode());
         // 如果配置中没有开启的话，调用本地SingleFlight
@@ -68,15 +69,23 @@ public class DistributedInterviewAiSingleFlightService {
         }
     }
 
+    /**
+     * 执行分布式 AI single-flight
+     * @param stage 阶段
+     * @param requestKey 请求key
+     * @param supplier 待执行的函数
+     * @return 执行结果
+     */
     private String executeDistributed(String stage, String requestKey, Supplier<String> supplier) {
         String safeStage = StrUtil.blankToDefault(stage, "interview-default");
         String safeRequestKey = StrUtil.blankToDefault(requestKey, safeStage + "|no-key");
         InterviewAiSingleFlightConfiguration.StageFlightPolicy policy = configuration.resolveStagePolicy(safeStage);
+        // 如果本地缓存中有结果：复用
         String localReplay = flightReplayLocalCache.get(safeStage, safeRequestKey);
         if (localReplay != null) {
             return localReplay;
         }
-
+        // 设置follower的等待超时时间
         long deadline = System.currentTimeMillis() + resolveFollowerMaxWaitMillis();
         int attempts = 0;
         while (attempts < 3) {
@@ -116,15 +125,42 @@ public class DistributedInterviewAiSingleFlightService {
         throw new CompletionException(new RejectedExecutionException("distributed single-flight max attempts exceeded"));
     }
 
+    /**
+     * 以 owner（执行者）身份执行分布式 single-flight 请求。<p>
+     *
+     * 核心逻辑：<br>
+     * 1. 在协调器（Redis）中标记本节点为 running 状态，若标记失败则降级为 follower 等待；<br>
+     * 2. 启动定时心跳，维持 owner 身份避免被其它节点接管；<br>
+     * 3. 执行实际业务逻辑 {@code supplier.get()}；<br>
+     * 4. 序列化结果并写入协调器，同时将元数据状态标记为 SUCCEEDED；<br>
+     * 5. 通过通知服务发布成功事件，唤醒所有等待的 follower；<br>
+     * 6. 将结果缓存至本地 L1 缓存，加速同节点后续请求复用；<br>
+     * 7. 若业务执行或状态写入选入异常，则归类后写入失败状态并通知 follower，最后重新抛出异常；<br>
+     * 8. finally 中无论成功或失败，均停止心跳。<br>
+     *
+     * @param stage      阶段标识（如 interview-qa、interview-summary 等）
+     * @param requestKey 请求键，标识同一个需要折叠的请求
+     * @param ownerToken 当前 owner 持有的不重复令牌，用于防误写
+     * @param supplier   真正的业务逻辑提供者
+     * @param policy     该阶段对应的 single-flight 策略配置
+     * @return 业务执行结果
+     */
     private String ownerExecute(String stage, String requestKey, Long ownerToken,
                                 Supplier<String> supplier,
                                 InterviewAiSingleFlightConfiguration.StageFlightPolicy policy) {
+        // 从策略中获取 running 状态的 TTL，默认 15 秒；若超过此时间 owner 未心跳续期，其它节点可接管
         long runningTtlMillis = positive(policy.getRunningTtlMillis(), 15000L);
+
+        // 在协调器（Redis）中标记本节点为该请求的 running owner
+        // 使用 NX + 原子写入，只有首次成功才算数；若已存在则返回 false
         boolean markedRunning = flightCoordinatorRepository.markRunning(requestKey, nodeId(), ownerToken, runningTtlMillis);
+
+        // 标记失败 → 说明已有其它节点抢先成为 owner，本节点降级为 follower 等待其执行完成
         if (!markedRunning) {
             return followerWait(stage, requestKey, policy, System.currentTimeMillis() + resolveFollowerMaxWaitMillis());
         }
 
+        // 构造 owner 上下文，供心跳管理器使用
         FlightOwnerContext ownerContext = FlightOwnerContext.builder()
                 .stage(stage)
                 .requestKey(requestKey)
@@ -132,29 +168,53 @@ public class DistributedInterviewAiSingleFlightService {
                 .ownerToken(ownerToken)
                 .policy(policy)
                 .build();
+
+        // 启动定时心跳任务，在 runningTtlMillis 周期内持续续期，向协调器证明本节点仍存活
         String heartbeatTaskKey = flightHeartbeatManager.start(
                 ownerContext,
                 () -> flightCoordinatorRepository.heartbeat(requestKey, nodeId(), ownerToken, runningTtlMillis)
         );
+
         try {
+            // ==================== 成功路径 ====================
+            // 执行真正的 AI 调用（出题、评分、追问等）
             String result = supplier.get();
+
+            // 将业务执行结果序列化为可持久化的格式，同时携带 ownerToken 防误写
             FlightStoredResult storedResult = flightResultSerializer.serialize(result, ownerToken, policy);
-            long resultTtlMillis = positive(policy.getResultTtlMillis(), 600000L);
+            long resultTtlMillis = positive(policy.getResultTtlMillis(), 600000L); // 结果有效期默认 10 分钟
+
+            // 将序列化后的结果写入协调器（Redis），供后续的 follower 或其它节点复用
             if (!flightCoordinatorRepository.storeResult(requestKey, nodeId(), ownerToken, storedResult, resultTtlMillis)) {
+                // 写入失败 → 抛出异常，进入 catch 块清理 owner 状态
                 throw new IllegalStateException("failed to store distributed flight result");
             }
+
+            // 在协调器中将该请求的状态标记为 SUCCEEDED，同时保留结果数据 resultTtlMillis 时长
             if (!flightCoordinatorRepository.finishSuccess(requestKey, nodeId(), ownerToken, resultTtlMillis)) {
+                // 标记失败（可能协调器已被其它节点覆盖），尝试从协调器中读取已有成功结果
                 String replay = tryReadSuccessReplay(stage, requestKey, policy);
                 if (replay != null) {
-                    return replay;
+                    return replay; // 成功读到其它 owner 写的结果，直接返回
                 }
+                // 既无法标记成功又读不到任何成功结果 → 抛出异常
                 throw new IllegalStateException("failed to finish distributed flight success state");
             }
+
+            // 通知所有正在等待该请求的 follower：owner 已执行成功，它们可以读取结果继续处理了
             flightNotificationService.publish(requestKey, "owner_succeeded", FlightStatus.SUCCEEDED, ownerToken, null, false);
+
+            // 将结果放入本地 L1 缓存，下一次相同请求可在本节点直接命中，不必再走分布式协调
             flightReplayLocalCache.put(stage, requestKey, result, policy);
+
             return result;
+
         } catch (Throwable ex) {
+            // ==================== 失败路径 ====================
+            // 对捕获的异常进行分类，识别超时、过载、校验错误、未知异常等
             FlightFailure failure = classifyFailure(ex);
+
+            // 在协调器中写入失败状态，包含错误类型、错误码、是否可重试等信息
             flightCoordinatorRepository.finishFailure(
                     requestKey,
                     nodeId(),
@@ -162,11 +222,18 @@ public class DistributedInterviewAiSingleFlightService {
                     failure.errorType,
                     failure.errorCode,
                     failure.retryable,
-                    positive(policy.getFailedResultTtlMillis(), 60000L)
+                    positive(policy.getFailedResultTtlMillis(), 60000L) // 失败结果默认保留 60 秒
             );
+
+            // 通知所有 follower：owner 执行失败，它们根据失败信息决定重试或直接抛出
             flightNotificationService.publish(requestKey, "owner_failed", FlightStatus.FAILED, ownerToken, failure.errorType, failure.retryable);
+
+            // 重新抛出异常，由上层决定是否降级为本地 single-flight（HYBRID 模式）
             throw rethrow(ex);
+
         } finally {
+            // ==================== 最终清理 ====================
+            // 无论成功或失败，都停止心跳，释放定时器资源
             flightHeartbeatManager.stop(heartbeatTaskKey);
         }
     }
