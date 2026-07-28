@@ -8,7 +8,7 @@ import lombok.Value;
  * owner 节点执行 AI 请求时的上下文对象，
  * 汇总当前阶段、请求键、owner 身份以及对应的 stage 策略。
  *
- * @author 程序员牛肉
+ * @author solis
  */
 @Value
 @Builder
