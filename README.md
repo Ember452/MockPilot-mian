@@ -64,10 +64,11 @@ AI-Meeting-main/
 │       └── user/                   # 用户管理模块（注册、登录、个人信息）
 ├── skills/                         # Agent Skill 定义（开发辅助）
 ├── docs/assets/                    # 项目文档截图与演示素材
-├── docker-compose.yml              # Docker Compose 编排配置
 ├── Dockerfile                      # 多阶段 Docker 构建文件
 └── pom.xml                         # Maven 父 POM（统一依赖管理）
 ```
+
+> 仓库根目录另含全栈部署编排：`docker-compose.yml`、`.env.example`、`start.sh` / `start.bat`、`stop.sh` / `stop.bat`、`milvus/`。
 
 ### 数据流架构
 
@@ -189,28 +190,41 @@ java -jar admin/target/xunzhi-admin-*.jar
 
 服务默认运行在 `http://localhost:8002`。
 
-### Docker 部署
+### Docker 一键部署（推荐，本仓库即部署入口）
 
-项目提供完整的 Docker Compose 配置，可一键启动所有服务：
+只需克隆本仓库即可在任意装有 Docker 的机器（Linux / macOS / Windows）上启动**前端 + 后端 + 全部中间件**：
 
 ```bash
-# 构建并启动
-docker compose up -d --build
+git clone https://github.com/Ember452/MockPilot-mian.git
+cd MockPilot-mian
 
-# 查看服务状态
-docker compose ps
+# 生成环境变量文件并填入自己的密钥（DashScope / 讯飞）
+cp .env.example .env
 
-# 查看日志
-docker compose logs -f backend
+# 一键启动（Linux/macOS；Windows 双击 start.bat）
+./start.sh
+```
+
+启动完成后访问 `http://localhost`（前端），后端健康检查 `http://localhost:8002/actuator/health`。
+
+常用命令：
+
+```bash
+docker compose ps              # 查看服务状态
+docker compose logs -f backend # 查看后端日志
+./stop.sh                      # 停止（数据卷保留）
 ```
 
 Docker 部署的服务架构包括：
 
-- **MySQL 8.4** — 关系型数据库，自动执行初始化 SQL
+- **MySQL 8.0** — 关系型数据库，首次启动自动建库建表并灌入初始数据
 - **MongoDB 7.0** — 文档数据库
 - **Redis 7.2** — 缓存与分布式锁
-- **ElasticSearch 9.2.1** — 向量检索引擎（RAG）
-- **后端服务** — 多阶段构建，运行在 JRE 17 上
+- **ElasticSearch 9.2.1** — 向量检索引擎（RAG），可选切换 Milvus（`--profile milvus`）
+- **后端服务** — Maven 多阶段构建，运行在 JRE 17 上
+- **前端服务** — 默认直接以 GitHub 前端仓库（[MockPilot-Frontend](https://github.com/Ember452/MockPilot-Frontend)）为 Docker 构建上下文远程构建，Nginx 托管并反代 `/api`；本地开发前端时在 `.env` 中将 `FRONTEND_BUILD_CONTEXT` 改为本地前端目录即可
+
+注意：Linux 下 Elasticsearch 需要 `vm.max_map_count >= 262144`（`start.sh` 会自动检测并提示）。
 
 ---
 

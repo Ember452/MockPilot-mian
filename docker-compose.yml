@@ -1,0 +1,250 @@
+# ============================================================
+# MockPilot 全栈一键部署（本仓库即部署入口）
+#   cp .env.example .env  →  填入密钥  →  docker compose up -d --build
+#   或直接执行 ./start.sh（Linux/macOS）/ start.bat（Windows）
+# 首次启动自动完成：
+#   - MySQL 建库建表 + 初始化数据（挂载 sql/ 目录到 initdb）
+#   - MongoDB / Redis / Elasticsearch 就绪
+#   - 后端 Maven 镜像内构建
+#   - 前端默认直接从 GitHub 仓库远程构建（Vite 构建 + Nginx 托管并反代 /api），
+#     本地开发可在 .env 设 FRONTEND_BUILD_CONTEXT 指向本地前端目录
+# ============================================================
+
+name: mockpilot
+
+services:
+  # ---------- MySQL：首次启动自动建库建表并灌入初始数据 ----------
+  mysql:
+    image: ${MYSQL_IMAGE:-mysql:8.0}
+    container_name: mockpilot-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mainshi_agent}
+      TZ: ${APP_TIMEZONE:-Asia/Shanghai}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+08:00
+    ports:
+      - "${MYSQL_PORT_EXPOSE:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # 按文件名顺序执行：先建表，再灌数据（仅数据卷为空时执行一次）
+      - ./AI-Meeting-main/admin/src/main/resources/sql/table.sql:/docker-entrypoint-initdb.d/01-table.sql:ro
+      - ./AI-Meeting-main/admin/src/main/resources/sql/knowledge_base.sql:/docker-entrypoint-initdb.d/02-knowledge_base.sql:ro
+      - ./AI-Meeting-main/admin/src/main/resources/sql/t_user.sql:/docker-entrypoint-initdb.d/03-t_user.sql:ro
+      - ./AI-Meeting-main/admin/src/main/resources/sql/admin_permission.sql:/docker-entrypoint-initdb.d/04-admin_permission.sql:ro
+      - ./AI-Meeting-main/admin/src/main/resources/sql/agent_properties.sql:/docker-entrypoint-initdb.d/05-agent_properties.sql:ro
+      - ./AI-Meeting-main/admin/src/main/resources/sql/ai_properties.sql:/docker-entrypoint-initdb.d/06-ai_properties.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - mockpilot
+
+  # ---------- MongoDB ----------
+  mongo:
+    image: ${MONGO_IMAGE:-mongo:7.0}
+    container_name: mockpilot-mongo
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT_EXPOSE:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    networks:
+      - mockpilot
+
+  # ---------- Redis ----------
+  redis:
+    image: ${REDIS_IMAGE:-redis:7.2-alpine}
+    container_name: mockpilot-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT_EXPOSE:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - mockpilot
+
+  # ---------- Elasticsearch（RAG 向量检索） ----------
+  elasticsearch:
+    image: ${ES_IMAGE:-elasticsearch:9.2.1}
+    container_name: mockpilot-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "${ES_PORT_EXPOSE:-9200}:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 40s
+    networks:
+      - mockpilot
+
+  # ---------- Milvus（可选向量引擎，默认不启动） ----------
+  #   docker compose --profile milvus up -d 启动，并设 RAG_VECTOR_STORE=milvus
+  #   standalone 单容器：内嵌 etcd + 本地存储，不引入独立 etcd/minio
+  milvus:
+    image: ${MILVUS_IMAGE:-milvusdb/milvus:v2.5.11}
+    container_name: mockpilot-milvus
+    restart: unless-stopped
+    profiles: ["milvus"]
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      - ETCD_USE_EMBED=true
+      - ETCD_DATA_DIR=/var/lib/milvus/etcd
+      - ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml
+      - COMMON_STORAGETYPE=local
+    ports:
+      - "${MILVUS_PORT_EXPOSE:-19530}:19530"
+      - "${MILVUS_METRICS_PORT_EXPOSE:-9091}:9091"
+    volumes:
+      - milvus-data:/var/lib/milvus
+      - ./milvus/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9091/healthz || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+    networks:
+      - mockpilot
+
+  # ---------- 后端（Spring Boot，多阶段构建） ----------
+  backend:
+    image: ${BACKEND_IMAGE:-mockpilot-backend:latest}
+    build:
+      context: ./AI-Meeting-main
+      dockerfile: Dockerfile
+      args:
+        BUILDER_IMAGE: ${BUILDER_IMAGE:-maven:3.9-eclipse-temurin-17}
+        RUNTIME_IMAGE: ${RUNTIME_IMAGE:-eclipse-temurin:17-jre-jammy}
+    container_name: mockpilot-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8002
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Shanghai}
+      # MySQL
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mainshi_agent}
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-123456}
+      # MongoDB
+      MONGODB_HOST: mongo
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: ${MONGODB_DATABASE:-xunzhi_agent}
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # Elasticsearch
+      ES_HOST: elasticsearch
+      ES_PORT: 9200
+      # 向量引擎切换（elasticsearch | milvus，milvus 需 --profile milvus 启动）
+      RAG_VECTOR_STORE: ${RAG_VECTOR_STORE:-elasticsearch}
+      MILVUS_HOST: ${MILVUS_HOST:-milvus}
+      MILVUS_PORT: ${MILVUS_PORT:-19530}
+      # AI 大模型
+      SPRING_AI_OPENAI_API_KEY: ${SPRING_AI_OPENAI_API_KEY}
+      SPRING_AI_OPENAI_BASE_URL: ${SPRING_AI_OPENAI_BASE_URL}
+      SPRING_AI_OPENAI_MODEL: ${SPRING_AI_OPENAI_MODEL}
+      SPRING_AI_OPENAI_EMBEDDING_MODEL: ${SPRING_AI_OPENAI_EMBEDDING_MODEL}
+      # 讯飞
+      XUNFEI_APP_ID: ${XUNFEI_APP_ID}
+      XUNFEI_API_KEY: ${XUNFEI_API_KEY}
+      XUNFEI_API_SECRET: ${XUNFEI_API_SECRET}
+      XUNFEI_RTA_API_KEY: ${XUNFEI_RTA_API_KEY}
+      # JWT
+      SA_TOKEN_JWT_SECRET: ${SA_TOKEN_JWT_SECRET:-abcdefghijklmnopqrstuvwxyz}
+      # BYOK：用户自带 API Key 的 AES 加密密钥（Base64，16/24/32 字节）
+      BYOK_ENCRYPT_KEY: ${BYOK_ENCRYPT_KEY:-}
+      # 存储目录
+      XUNZHI_STORAGE_BASE_DIR: /app/data
+      XUNZHI_MULTIPART_TEMP_DIR: /app/data/temp/upload
+      XUNZHI_AUDIO_TEMP_DIR: /app/data/temp/audio
+      XUNZHI_LOG_DIR: /app/logs
+    ports:
+      - "${BACKEND_PORT:-8002}:8002"
+    volumes:
+      - backend-data:/app/data
+      - backend-logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8002/actuator/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 15
+      start_period: 90s
+    networks:
+      - mockpilot
+
+  # ---------- 前端（Vite 构建 + Nginx 托管，/api 反代到后端） ----------
+  #   默认直接以 GitHub 前端仓库为构建上下文，无需手动克隆；
+  #   本地开发在 .env 设 FRONTEND_BUILD_CONTEXT=../MockPilot-Frontend-main/AI-Meeting-Frontend-main
+  frontend:
+    image: ${FRONTEND_IMAGE:-mockpilot-frontend:latest}
+    build:
+      context: ${FRONTEND_BUILD_CONTEXT:-https://github.com/Ember452/MockPilot-Frontend.git#main:AI-Meeting-Frontend-main}
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: mockpilot-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      BACKEND_HOST: backend
+      BACKEND_PORT: 8002
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    networks:
+      - mockpilot
+
+networks:
+  mockpilot:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  mongo-data:
+  redis-data:
+  es-data:
+  milvus-data:
+  backend-data:
+  backend-logs:
