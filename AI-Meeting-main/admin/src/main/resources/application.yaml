@@ -96,12 +96,21 @@ elasticsearch:
   port: ${ES_PORT}
   index-prefix: xunzhi_kb_
 
+milvus:
+  host: ${MILVUS_HOST:localhost}
+  port: ${MILVUS_PORT:19530}
+  collection-prefix: xunzhi_kb_
+
 xunfei:
   lat-key:
     app-id: ${XUNFEI_APP_ID}
     api-key: ${XUNFEI_API_KEY}
     api-secret: ${XUNFEI_API_SECRET}
     rta-api-key: ${XUNFEI_RTA_API_KEY}
+
+# BYOK：用户自带 API Key 的 AES 加密密钥（Base64，16/24/32 字节）
+byok:
+  encrypt-key: ${BYOK_ENCRYPT_KEY:}
 
 xunzhi-agent:
   security:

@@ -18,6 +18,21 @@ public class KnowledgeBaseDO {
 
     private String description;
 
+    /**
+     * RAG 增强 Prompt 模板（占位符 {context}/{question}），空则用全局默认
+     */
+    private String promptTemplate;
+
+    /**
+     * 建库时绑定的 embedding 模型标识，空串为 legacy 库（首次新增文档时回填）
+     */
+    private String embeddingModel;
+
+    /**
+     * embedding 向量维度
+     */
+    private Integer embeddingDim;
+
     private String username;
 
     private Integer documentCount;

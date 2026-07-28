@@ -31,10 +31,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DocumentEtlPipeline {
 
-    private static final int MAX_CHUNK_SIZE = 800;
-    private static final int OVERLAP_SIZE = 100;
+    // 父子分块（Small-to-Big）：父块负责上下文完整性，子块负责检索精度
+    private static final int PARENT_CHUNK_SIZE = 1600;
+    private static final int PARENT_OVERLAP_SIZE = 0;
+    private static final int CHILD_CHUNK_SIZE = 400;
+    private static final int CHILD_OVERLAP_SIZE = 50;
 
-    private final ElasticsearchVectorStore vectorStore;
+    private final VectorStore vectorStore;
     private final EmbeddingService embeddingService;
     private final KnowledgeDocumentRepository documentRepository;
     private final KnowledgeBaseMapper knowledgeBaseMapper;
@@ -73,29 +76,37 @@ public class DocumentEtlPipeline {
         doc.setUpdateTime(LocalDateTime.now());
         documentRepository.save(doc);
 
-        List<String> chunks = smartChunk(text);
+        // 两级分块：父块 1600/0 提供完整上下文，子块 400/50 用于向量检索；embedding 仅对子块计算
+        List<String> parentChunks = chunkText(text, PARENT_CHUNK_SIZE, PARENT_OVERLAP_SIZE);
         List<Map<String, Object>> chunkDocs = new ArrayList<>();
 
-        for (int i = 0; i < chunks.size(); i++) {
-            String chunk = chunks.get(i);
-            String chunkId = docId + "_" + i;
-            List<Float> embedding = embeddingService.embed(chunk);
+        int childIndex = 0;
+        for (int p = 0; p < parentChunks.size(); p++) {
+            String parentContent = parentChunks.get(p);
+            String parentId = docId + "_p" + p;
+            for (String child : chunkText(parentContent, CHILD_CHUNK_SIZE, CHILD_OVERLAP_SIZE)) {
+                String chunkId = docId + "_" + childIndex;
+                List<Float> embedding = embeddingService.embed(child);
 
-            Map<String, Object> chunkDoc = new HashMap<>();
-            chunkDoc.put("chunk_id", chunkId);
-            chunkDoc.put("doc_id", docId);
-            chunkDoc.put("kb_id", kbId);
-            chunkDoc.put("content", chunk);
-            chunkDoc.put("file_name", fileName);
-            chunkDoc.put("chunk_index", i);
-            chunkDoc.put("embedding", embedding.stream().map(Float::doubleValue).toList());
-            chunkDoc.put("metadata", Map.of("char_count", chunk.length()));
-            chunkDocs.add(chunkDoc);
+                Map<String, Object> chunkDoc = new HashMap<>();
+                chunkDoc.put("chunk_id", chunkId);
+                chunkDoc.put("doc_id", docId);
+                chunkDoc.put("kb_id", kbId);
+                chunkDoc.put("content", child);
+                chunkDoc.put("file_name", fileName);
+                chunkDoc.put("chunk_index", childIndex);
+                chunkDoc.put("embedding", embedding.stream().map(Float::doubleValue).toList());
+                chunkDoc.put("parent_id", parentId);
+                chunkDoc.put("parent_content", parentContent);
+                chunkDoc.put("metadata", Map.of("char_count", child.length()));
+                chunkDocs.add(chunkDoc);
+                childIndex++;
+            }
         }
 
         vectorStore.indexChunks(kbId, chunkDocs);
 
-        doc.setChunkCount(chunks.size());
+        doc.setChunkCount(chunkDocs.size());
         doc.setStatus(2);
         doc.setUpdateTime(LocalDateTime.now());
         documentRepository.save(doc);
@@ -103,7 +114,7 @@ public class DocumentEtlPipeline {
         // 更新知识库的文档数和分块数
         updateKnowledgeBaseCounts(kbId);
 
-        log.info("ETL pipeline completed, kbId={}, docId={}, chunks={}", kbId, docId, chunks.size());
+        log.info("ETL pipeline completed, kbId={}, docId={}, parents={}, chunks={}", kbId, docId, parentChunks.size(), chunkDocs.size());
     }
 
     public void deleteDocument(Long kbId, String docId) {
@@ -165,7 +176,11 @@ public class DocumentEtlPipeline {
         }
     }
 
-    private List<String> smartChunk(String text) {
+    /**
+     * 参数化分段切块：按空行分段聚合，超长段落按句末切分。
+     * static 纯函数便于父/子两级复用与单测。
+     */
+    static List<String> chunkText(String text, int maxSize, int overlap) {
         List<String> chunks = new ArrayList<>();
         if (StrUtil.isBlank(text)) {
             return chunks;
@@ -180,11 +195,11 @@ public class DocumentEtlPipeline {
                 continue;
             }
 
-            if (currentChunk.length() + trimmed.length() > MAX_CHUNK_SIZE && currentChunk.length() > 0) {
+            if (currentChunk.length() + trimmed.length() > maxSize && currentChunk.length() > 0) {
                 chunks.add(currentChunk.toString().trim());
-                if (currentChunk.length() > OVERLAP_SIZE) {
-                    String overlap = currentChunk.substring(Math.max(0, currentChunk.length() - OVERLAP_SIZE));
-                    currentChunk = new StringBuilder(overlap);
+                if (overlap > 0 && currentChunk.length() > overlap) {
+                    String overlapText = currentChunk.substring(Math.max(0, currentChunk.length() - overlap));
+                    currentChunk = new StringBuilder(overlapText);
                 } else {
                     currentChunk = new StringBuilder();
                 }
@@ -194,14 +209,14 @@ public class DocumentEtlPipeline {
             }
             currentChunk.append(trimmed);
 
-            while (currentChunk.length() > MAX_CHUNK_SIZE * 2) {
-                int splitPos = MAX_CHUNK_SIZE;
-                int sentenceEnd = findSentenceEnd(currentChunk.toString(), MAX_CHUNK_SIZE);
-                if (sentenceEnd > 0 && sentenceEnd < MAX_CHUNK_SIZE + 200) {
+            while (currentChunk.length() > maxSize * 2) {
+                int splitPos = maxSize;
+                int sentenceEnd = findSentenceEnd(currentChunk.toString(), maxSize);
+                if (sentenceEnd > 0 && sentenceEnd < maxSize + 200) {
                     splitPos = sentenceEnd;
                 }
                 chunks.add(currentChunk.substring(0, splitPos).trim());
-                String remaining = currentChunk.substring(Math.max(0, splitPos - OVERLAP_SIZE));
+                String remaining = currentChunk.substring(Math.max(0, splitPos - overlap));
                 currentChunk = new StringBuilder(remaining);
             }
         }
@@ -213,7 +228,7 @@ public class DocumentEtlPipeline {
         return chunks;
     }
 
-    private int findSentenceEnd(String text, int startPos) {
+    private static int findSentenceEnd(String text, int startPos) {
         for (int i = startPos + 200; i > startPos - 100 && i > 0; i--) {
             if (i < text.length()) {
                 char c = text.charAt(i);

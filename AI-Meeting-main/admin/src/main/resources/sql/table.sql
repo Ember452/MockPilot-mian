@@ -128,7 +128,8 @@ create table ai_properties
     update_time            datetime                   null comment '修改时间',
     del_flag               tinyint(1)    default 0    null comment '删除标识 0：未删除 1：已删除',
     project_id             varchar(255)               null comment '项目ID',
-    organization_id        varchar(255)               null comment '组织ID'
+    organization_id        varchar(255)               null comment '组织ID',
+    owner_username         varchar(64)                null comment '归属用户名，NULL=系统公共'
 )
     comment 'AI配置表';
 
@@ -137,6 +138,9 @@ create index idx_ai_type
 
 create index idx_create_time
     on ai_properties (create_time);
+
+create index idx_owner_username
+    on ai_properties (owner_username);
 
 create table interview_record
 (

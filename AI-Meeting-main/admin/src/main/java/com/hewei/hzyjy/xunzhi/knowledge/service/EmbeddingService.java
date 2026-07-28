@@ -91,4 +91,25 @@ public class EmbeddingService {
     public int getEmbeddingDimension() {
         return 1536;
     }
+
+    public String getEmbeddingModel() {
+        return embeddingModel;
+    }
+
+    /**
+     * embedding 模型兼容性校验（static 纯函数供单测）：
+     * 不同模型的向量不可混用，kb 未绑定模型（legacy 空串）或与当前一致时放行，
+     * 不一致时抛 ClientException（上传入口直接报错，检索入口由上层 fail-open 降级）。
+     */
+    public static void validateEmbeddingCompatibility(String kbModel, String currentModel) {
+        if (kbModel == null || kbModel.isBlank()) {
+            return;
+        }
+        if (kbModel.equals(currentModel)) {
+            return;
+        }
+        throw new ClientException(String.format(
+                "知识库绑定的embedding模型(%s)与当前配置(%s)不一致，向量不可混用，请恢复模型配置或重建知识库",
+                kbModel, currentModel));
+    }
 }

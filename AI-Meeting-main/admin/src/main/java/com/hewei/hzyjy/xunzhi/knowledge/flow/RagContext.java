@@ -1,5 +1,6 @@
 package com.hewei.hzyjy.xunzhi.knowledge.flow;
 
+import com.hewei.hzyjy.xunzhi.ai.api.io.resp.AiMessageHistoryRespDTO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,6 +16,10 @@ public class RagContext implements Serializable {
 
     private String query;
 
+    private String rewrittenQuery;
+
+    private List<AiMessageHistoryRespDTO> historyMessages;
+
     private Long kbId;
 
     private int topK = 5;
@@ -24,6 +29,12 @@ public class RagContext implements Serializable {
     private boolean enableWebSearch = true;
 
     private List<Map<String, Object>> retrievedChunks;
+
+    private boolean rerankDegraded;
+
+    private boolean needWebSearch;
+
+    private List<Map<String, Object>> references;
 
     private String webSearchResult;
 

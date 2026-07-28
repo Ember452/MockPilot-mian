@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @LiteflowComponent("ragRetrieval")
@@ -19,7 +20,7 @@ public class RagRetrievalNode extends NodeComponent {
     @Override
     public void process() throws Exception {
         RagContext ctx = this.getContextBean(RagContext.class);
-        String query = ctx.getQuery();
+        String query = ctx.getRewrittenQuery() != null ? ctx.getRewrittenQuery() : ctx.getQuery();
         Long kbId = ctx.getKbId();
         int topK = ctx.getTopK();
         int rerankTopN = ctx.getRerankTopN();
@@ -32,6 +33,10 @@ public class RagRetrievalNode extends NodeComponent {
 
         List<Map<String, Object>> chunks = hybridSearchService.search(kbId, query, topK, rerankTopN);
         ctx.setRetrievedChunks(chunks);
+        if (CollUtil.isNotEmpty(chunks)) {
+            // 降级标记供后续检索质量评估节点判断分数语义
+            ctx.setRerankDegraded(!"dashscope".equals(Objects.toString(chunks.get(0).get("_rerank_provider"), null)));
+        }
         log.info("RAG retrieval: query_length={}, kbId={}, found={}", query.length(), kbId, chunks.size());
     }
 }

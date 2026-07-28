@@ -16,4 +16,10 @@ public interface KnowledgeBaseService {
     KnowledgeBaseDO getKnowledgeBase(Long kbId, String username);
 
     List<KnowledgeDocument> listDocuments(Long kbId, String username);
+
+    /**
+     * 上传前校验知识库与当前 embedding 模型兼容，不兼容抛 ClientException；
+     * legacy 库（未绑定模型）校验通过后回填当前模型标识。
+     */
+    void ensureEmbeddingCompatible(Long kbId, String username);
 }

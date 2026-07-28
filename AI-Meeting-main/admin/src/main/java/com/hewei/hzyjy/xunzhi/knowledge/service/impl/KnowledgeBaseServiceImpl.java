@@ -7,8 +7,9 @@ import com.hewei.hzyjy.xunzhi.knowledge.dao.entity.KnowledgeBaseDO;
 import com.hewei.hzyjy.xunzhi.knowledge.dao.entity.KnowledgeDocument;
 import com.hewei.hzyjy.xunzhi.knowledge.dao.mapper.KnowledgeBaseMapper;
 import com.hewei.hzyjy.xunzhi.knowledge.dao.repository.KnowledgeDocumentRepository;
-import com.hewei.hzyjy.xunzhi.knowledge.service.ElasticsearchVectorStore;
+import com.hewei.hzyjy.xunzhi.knowledge.service.EmbeddingService;
 import com.hewei.hzyjy.xunzhi.knowledge.service.KnowledgeBaseService;
+import com.hewei.hzyjy.xunzhi.knowledge.service.VectorStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     private final KnowledgeBaseMapper knowledgeBaseMapper;
     private final KnowledgeDocumentRepository documentRepository;
-    private final ElasticsearchVectorStore vectorStore;
+    private final VectorStore vectorStore;
+    private final EmbeddingService embeddingService;
 
     @Override
     @Transactional
@@ -40,6 +42,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         kb.setDocumentCount(0);
         kb.setChunkCount(0);
         kb.setIsEnabled(1);
+        // 建库时绑定当前 embedding 模型与维度，防止后续换模型导致向量混用
+        kb.setEmbeddingModel(embeddingService.getEmbeddingModel());
+        kb.setEmbeddingDim(embeddingService.getEmbeddingDimension());
         kb.setCreateTime(LocalDateTime.now());
         kb.setUpdateTime(LocalDateTime.now());
         kb.setDelFlag(0);
@@ -82,6 +87,22 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     public List<KnowledgeDocument> listDocuments(Long kbId, String username) {
         requireOwnKnowledgeBase(kbId, username);
         return documentRepository.findByKbIdAndUsername(kbId, username);
+    }
+
+    @Override
+    @Transactional
+    public void ensureEmbeddingCompatible(Long kbId, String username) {
+        KnowledgeBaseDO kb = requireOwnKnowledgeBase(kbId, username);
+        String currentModel = embeddingService.getEmbeddingModel();
+        EmbeddingService.validateEmbeddingCompatibility(kb.getEmbeddingModel(), currentModel);
+        // legacy 库首次新增文档时回填当前模型标识
+        if (StrUtil.isBlank(kb.getEmbeddingModel())) {
+            kb.setEmbeddingModel(currentModel);
+            kb.setEmbeddingDim(embeddingService.getEmbeddingDimension());
+            kb.setUpdateTime(LocalDateTime.now());
+            knowledgeBaseMapper.updateById(kb);
+            log.info("Backfilled embedding model for legacy kb: kbId={}, model={}", kbId, currentModel);
+        }
     }
 
     private KnowledgeBaseDO requireOwnKnowledgeBase(Long kbId, String username) {

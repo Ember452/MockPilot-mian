@@ -55,6 +55,9 @@ public class KnowledgeChatController {
             Long kbId = requestParam.getKbId();
             Long aiId = requestParam.getAiId();
             AIContentAccumulator accumulator = new AIContentAccumulator();
+            // 捕获本轮引用来源，流结束后随助手消息持久化
+            java.util.concurrent.atomic.AtomicReference<java.util.List<java.util.Map<String, Object>>> referencesRef =
+                    new java.util.concurrent.atomic.AtomicReference<>();
 
             conversationStreamingSupport.execute(ConversationStreamingSupport.ConversationStreamRequest
                     .<com.hewei.hzyjy.xunzhi.ai.api.io.resp.AiMessageHistoryRespDTO>builder()
@@ -64,15 +67,16 @@ public class KnowledgeChatController {
                     .historySupplier(() -> conversationMessageHistoryService.listAiHistory(sessionId))
                     .userMessageSaver(() -> conversationMessagePersistenceService.saveAiUserMessage(sessionId, userMessage))
                     .streamExecutor((historyMessages, contentAccumulator) -> {
-                        ragChatService.executeRagChat(
-                                sessionId, userMessage, kbId, aiId, historyMessages, sink, contentAccumulator);
+                        referencesRef.set(ragChatService.executeRagChat(
+                                sessionId, userMessage, kbId, aiId, username, historyMessages, sink, contentAccumulator));
                     })
                     .assistantMessageSaver(payload -> conversationMessagePersistenceService.saveAiAssistantMessage(
                             sessionId,
                             Objects.toString(payload.content(), ""),
                             null,
                             payload.responseTime(),
-                            payload.errorMessage()))
+                            payload.errorMessage(),
+                            referencesRef.get()))
                     .conversationUpdater(messageSeq -> aiConversationService.updateConversation(sessionId, messageSeq, null))
                     .successHandler(() -> {
                         if (!sink.isCancelled()) {

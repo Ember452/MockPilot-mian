@@ -3,11 +3,13 @@ package com.hewei.hzyjy.xunzhi.knowledge.config;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(name = "xunzhi-agent.rag.vector-store", havingValue = "elasticsearch", matchIfMissing = true)
 public class ElasticsearchConfig {
 
     @Value("${elasticsearch.host:192.168.100.129}")

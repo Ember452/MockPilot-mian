@@ -1,13 +1,18 @@
 package com.hewei.hzyjy.xunzhi.knowledge.service;
 
+import cn.hutool.core.util.StrUtil;
+import com.hewei.hzyjy.xunzhi.knowledge.config.RagProperties;
+import com.hewei.hzyjy.xunzhi.knowledge.dao.entity.KnowledgeBaseDO;
+import com.hewei.hzyjy.xunzhi.knowledge.dao.mapper.KnowledgeBaseMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -16,82 +21,95 @@ public class HybridSearchService {
 
     private static final double RRF_K = 60.0;
 
-    private final ElasticsearchVectorStore vectorStore;
+    private final VectorStore vectorStore;
     private final EmbeddingService embeddingService;
+    private final RagProperties ragProperties;
+    private final DashScopeRerankService dashScopeRerankService;
+    private final CosineRerankFallback cosineRerankFallback;
+    private final KnowledgeBaseMapper knowledgeBaseMapper;
 
     public List<Map<String, Object>> search(Long kbId, String query, int topK, int rerankTopN) {
-        List<Float> queryEmbedding = embeddingService.embed(query);
-
-        List<Map<String, Object>> esResults = vectorStore.hybridSearch(kbId, query, queryEmbedding, topK * 2);
-
-        if (esResults.isEmpty()) {
-            return esResults;
+        // embedding 模型不一致时抛异常，由上层既有 fail-open 捕获降级为普通对话
+        KnowledgeBaseDO kb = knowledgeBaseMapper.selectById(kbId);
+        if (kb != null) {
+            EmbeddingService.validateEmbeddingCompatibility(
+                    kb.getEmbeddingModel(), embeddingService.getEmbeddingModel());
         }
 
-        List<Map<String, Object>> reranked = rerankBySimilarity(esResults, queryEmbedding, rerankTopN);
+        List<Float> queryEmbedding = embeddingService.embed(query);
 
-        reranked.sort((a, b) -> {
-            double scoreA = ((Number) a.getOrDefault("_score", 0.0)).doubleValue();
-            double scoreB = ((Number) b.getOrDefault("_score", 0.0)).doubleValue();
-            return Double.compare(scoreB, scoreA);
-        });
+        int candidateSize = topK * 2;
+        VectorStore.DualRecallResult recall =
+                vectorStore.dualRecall(kbId, query, queryEmbedding, candidateSize);
 
-        return reranked;
+        List<Map<String, Object>> fused = fuseByRrf(recall.bm25Hits(), recall.knnHits(), candidateSize);
+        if (fused.isEmpty()) {
+            return fused;
+        }
+
+        return rerank(query, queryEmbedding, fused, rerankTopN);
     }
 
     public List<Map<String, Object>> search(Long kbId, String query, int topK) {
         return search(kbId, query, topK, Math.min(topK, 3));
     }
 
-    private List<Map<String, Object>> rerankBySimilarity(
-            List<Map<String, Object>> candidates,
-            List<Float> queryEmbedding,
-            int topN) {
+    /**
+     * 客户端标准 RRF：按 chunk_id 合并双路结果，以各自排名（从 1 起）计算融合分
+     * score = Σ 1/(RRF_K + rank_i)，降序取 limit。
+     */
+    static List<Map<String, Object>> fuseByRrf(List<Map<String, Object>> bm25Hits,
+                                               List<Map<String, Object>> knnHits,
+                                               int limit) {
+        Map<String, Map<String, Object>> merged = new LinkedHashMap<>();
+        Map<String, Double> rrfScores = new LinkedHashMap<>();
 
-        List<Map<String, Object>> scored = new ArrayList<>();
-        for (Map<String, Object> candidate : candidates) {
-            Object embObj = candidate.get("embedding");
-            if (embObj instanceof List<?> embList && !embList.isEmpty()) {
-                List<Float> docEmbedding = new ArrayList<>();
-                for (Object val : embList) {
-                    if (val instanceof Number num) {
-                        docEmbedding.add(num.floatValue());
-                    }
-                }
-                if (!docEmbedding.isEmpty()) {
-                    double similarity = cosineSimilarity(queryEmbedding, docEmbedding);
-                    double esScore = ((Number) candidate.getOrDefault("_score", 0.0)).doubleValue();
-                    double rrfScore = 1.0 / (RRF_K + esScore + 1);
-                    double finalScore = 0.7 * similarity + 0.3 * rrfScore;
-                    candidate.put("_rerank_score", finalScore);
-                    candidate.put("_similarity", similarity);
-                    scored.add(candidate);
-                }
-            }
-        }
+        accumulateRoute(bm25Hits, merged, rrfScores);
+        accumulateRoute(knnHits, merged, rrfScores);
 
-        scored.sort(Comparator.<Map<String, Object>, Double>comparing(
-                m -> ((Number) m.getOrDefault("_rerank_score", 0.0)).doubleValue()
-        ).reversed());
-
-        return scored.subList(0, Math.min(topN, scored.size()));
+        List<Map<String, Object>> fused = new ArrayList<>();
+        rrfScores.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(limit)
+                .forEach(entry -> {
+                    Map<String, Object> candidate = merged.get(entry.getKey());
+                    candidate.put("_rrf_score", entry.getValue());
+                    fused.add(candidate);
+                });
+        return fused;
     }
 
-    private double cosineSimilarity(List<Float> vecA, List<Float> vecB) {
-        if (vecA.size() != vecB.size()) {
-            return 0.0;
+    private static void accumulateRoute(List<Map<String, Object>> hits,
+                                        Map<String, Map<String, Object>> merged,
+                                        Map<String, Double> rrfScores) {
+        if (hits == null) {
+            return;
         }
-        double dotProduct = 0.0;
-        double normA = 0.0;
-        double normB = 0.0;
-        for (int i = 0; i < vecA.size(); i++) {
-            dotProduct += vecA.get(i) * vecB.get(i);
-            normA += vecA.get(i) * vecA.get(i);
-            normB += vecB.get(i) * vecB.get(i);
+        int rank = 1;
+        for (Map<String, Object> hit : hits) {
+            String chunkId = Objects.toString(hit.get("chunk_id"), null);
+            if (chunkId == null) {
+                continue;
+            }
+            merged.putIfAbsent(chunkId, hit);
+            rrfScores.merge(chunkId, 1.0 / (RRF_K + rank), Double::sum);
+            rank++;
         }
-        if (normA == 0.0 || normB == 0.0) {
-            return 0.0;
+    }
+
+    private List<Map<String, Object>> rerank(String query, List<Float> queryEmbedding,
+                                             List<Map<String, Object>> candidates, int topN) {
+        RagProperties.Rerank config = ragProperties.getRerank();
+        boolean dashScopeEnabled = "dashscope".equalsIgnoreCase(config.getProvider())
+                && StrUtil.isNotBlank(config.getApiKey());
+
+        if (dashScopeEnabled) {
+            try {
+                return dashScopeRerankService.rerank(query, queryEmbedding, candidates, topN);
+            } catch (Exception e) {
+                log.warn("DashScope rerank failed, fallback to cosine: {}", e.getMessage());
+            }
         }
-        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+        return cosineRerankFallback.rerank(query, queryEmbedding, candidates, topN);
     }
 }

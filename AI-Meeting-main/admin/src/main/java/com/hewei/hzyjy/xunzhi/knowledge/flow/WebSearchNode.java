@@ -1,6 +1,5 @@
 package com.hewei.hzyjy.xunzhi.knowledge.flow;
 
-import cn.hutool.core.collection.CollUtil;
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,8 @@ public class WebSearchNode extends NodeComponent {
     public void process() throws Exception {
         RagContext ctx = this.getContextBean(RagContext.class);
 
-        if (!ctx.isEnableWebSearch() || CollUtil.isNotEmpty(ctx.getRetrievedChunks())) {
+        // CRAG：仅在检索质量评估判定不合格时降级联网
+        if (!ctx.isEnableWebSearch() || !ctx.isNeedWebSearch()) {
             return;
         }
 
