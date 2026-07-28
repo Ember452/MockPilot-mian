@@ -136,6 +136,19 @@ public class UniversalAiChatHandler implements AiChatHandler {
         }
     }
 
+    /**
+     * 非流式一次性调用（内部场景复用用户模型，如复习弱项抽取）
+     */
+    public String completeOnce(AiPropertiesDO aiProperties, String systemPrompt, String userPrompt) {
+        ChatClient chatClient = createChatClient(aiProperties);
+        List<Message> messages = new ArrayList<>();
+        if (StrUtil.isNotBlank(systemPrompt)) {
+            messages.add(new SystemMessage(systemPrompt));
+        }
+        messages.add(new UserMessage(userPrompt));
+        return chatClient.prompt().messages(messages).call().content();
+    }
+
     private ChatClient createChatClient(AiPropertiesDO aiProperties) {
         String baseUrl = aiProperties.getApiUrl();
         // 用户私有配置的 Key 为 enc:v1: 前缀密文，使用前解密；存量明文原样返回
