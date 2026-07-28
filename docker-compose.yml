@@ -37,6 +37,8 @@ services:
       - ./AI-Meeting-main/admin/src/main/resources/sql/admin_permission.sql:/docker-entrypoint-initdb.d/04-admin_permission.sql:ro
       - ./AI-Meeting-main/admin/src/main/resources/sql/agent_properties.sql:/docker-entrypoint-initdb.d/05-agent_properties.sql:ro
       - ./AI-Meeting-main/admin/src/main/resources/sql/ai_properties.sql:/docker-entrypoint-initdb.d/06-ai_properties.sql:ro
+      - ./AI-Meeting-main/admin/src/main/resources/sql/review_item.sql:/docker-entrypoint-initdb.d/07-review_item.sql:ro
+      - ./AI-Meeting-main/admin/src/main/resources/sql/user_model_preference.sql:/docker-entrypoint-initdb.d/08-user_model_preference.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
@@ -219,7 +221,7 @@ services:
   frontend:
     image: ${FRONTEND_IMAGE:-mockpilot-frontend:latest}
     build:
-      context: ${FRONTEND_BUILD_CONTEXT:-https://github.com/Ember452/MockPilot-Frontend.git#main:AI-Meeting-Frontend-main}
+      context: ${FRONTEND_BUILD_CONTEXT:-https://github.com/Ember452/MockPilot-Frontend.git#main}
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: /api
