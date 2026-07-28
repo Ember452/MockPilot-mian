@@ -10,6 +10,8 @@ import java.io.IOException;
 public class AIContentAccumulator {
     private final StringBuilder contentBuilder = new StringBuilder();
     private final StringBuilder reasoningBuilder = new StringBuilder();
+    /** SSE 帧携带的 usage.total_tokens 真值；-1 表示未收到 usage 帧 */
+    private long usageTotalTokens = -1;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -47,6 +49,11 @@ public class AIContentAccumulator {
                     }
                 }
             }
+            // OpenAI 兼容协议末帧携带 usage，取真值优先于字符估算
+            JsonNode totalTokens = root.path("usage").path("total_tokens");
+            if (totalTokens.isNumber()) {
+                usageTotalTokens = totalTokens.asLong();
+            }
         } catch (IOException e) {
             // 记录解析错误（用于调试）
             System.err.println("JSON解析错误: " + e.getMessage() + ", 数据: " + new String(chunk));
@@ -82,6 +89,42 @@ public class AIContentAccumulator {
     public void reset() {
         contentBuilder.setLength(0);
         reasoningBuilder.setLength(0);
+        usageTotalTokens = -1;
+    }
+
+    /**
+     * 本轮 token 用量：有 usage 帧取真值；否则按累积字符估算（含思考内容）。
+     */
+    public long getTotalTokens() {
+        if (usageTotalTokens >= 0) {
+            return usageTotalTokens;
+        }
+        return estimateTokens(contentBuilder.toString()) + estimateTokens(reasoningBuilder.toString());
+    }
+
+    /** 未收到 usage 帧时 getTotalTokens 为估算值 */
+    public boolean isTokenEstimated() {
+        return usageTotalTokens < 0;
+    }
+
+    /**
+     * 字符估算（静态纯函数，供单测）：CJK ≈ 1 字/token，ASCII 等其他 ≈ 4 字符/token。
+     */
+    public static long estimateTokens(String text) {
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+        long cjkCount = 0;
+        long otherCount = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c >= 0x4E00 && c <= 0x9FFF) {
+                cjkCount++;
+            } else {
+                otherCount++;
+            }
+        }
+        return cjkCount + (otherCount + 3) / 4;
     }
 
     /**

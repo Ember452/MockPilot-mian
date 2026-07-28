@@ -1,5 +1,6 @@
 package com.hewei.hzyjy.xunzhi.knowledge.flow;
 
+import com.hewei.hzyjy.xunzhi.knowledge.service.RagMetricsRecorder;
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,22 @@ public class WebSearchNode extends NodeComponent {
             .readTimeout(15, TimeUnit.SECONDS)
             .build();
 
+    private final RagMetricsRecorder ragMetricsRecorder;
+
     @Override
     public void process() throws Exception {
         RagContext ctx = this.getContextBean(RagContext.class);
+        long start = System.currentTimeMillis();
+        try {
+            doProcess(ctx);
+        } finally {
+            long elapsed = System.currentTimeMillis() - start;
+            ctx.getStageTimings().put("webSearch", elapsed);
+            ragMetricsRecorder.recordStage("webSearch", elapsed);
+        }
+    }
 
+    private void doProcess(RagContext ctx) {
         // CRAG：仅在检索质量评估判定不合格时降级联网
         if (!ctx.isEnableWebSearch() || !ctx.isNeedWebSearch()) {
             return;

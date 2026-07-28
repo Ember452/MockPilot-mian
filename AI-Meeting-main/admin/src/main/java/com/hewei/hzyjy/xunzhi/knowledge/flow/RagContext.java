@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,4 +44,7 @@ public class RagContext implements Serializable {
     private String generatedAnswer;
 
     private List<Map<String, String>> citations;
+
+    /** 各节点耗时（毫秒），按执行顺序记录，供埋点与 trace 留档 */
+    private Map<String, Long> stageTimings = new LinkedHashMap<>();
 }

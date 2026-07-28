@@ -1,6 +1,6 @@
 # 复习闭环 / RAG 可观测性 / 索引重建 改造方案
 
-> 版本：v1.0 ｜ 范围：`interview` + `knowledge` 包及配套前端 ｜ 状态：待实施
+> 版本：v1.1（复核修订：A.2 同步重载、A.3 重建期写保护、C.1 建表落地、配置默认值统一）｜ 范围：`interview` + `knowledge` 包及配套前端 ｜ 状态：已实施
 >
 > 前置：knowledge-module-refactor.md（v1.3）已全部落地。本方案为其后续三项扩展，
 > 按依赖关系排期为 Phase A（索引重建，含文件留存前置）→ Phase B（可观测性）→ Phase C（复习闭环）。
@@ -29,12 +29,13 @@
 - `KnowledgeDocument` 新增 `file_path` 字段（相对路径 `{kbId}/{docId}.{ext}`）；
 - `DocumentEtlPipeline#process` 在解析前先把 fileBytes 落盘（落盘失败仅 log.warn，不阻断 ETL——留存是增强，fail-open）；
 - `deleteDocument` 同步删除留存文件；`deleteKnowledgeBase` 级联删除 `{kbId}/` 目录；
-- docker-compose 为后端容器补数据卷挂载（storage baseDir 已有卷则无需改动，确认即可）；
+- docker-compose 无需改动（已确认：`XUNZHI_STORAGE_BASE_DIR=/app/data` 挂 `backend-data` 卷，knowledge-docs 跟随 baseDir 落在卷内）；
 - **存量兼容**：旧文档 `file_path` 为空，重建时跳过并标记（见 A.3）。
 
 ### A.2 ETL 支持复用 docId + 失败态
 
 - `process` 抽出重载 `process(kbId, username, fileBytes, fileName, docId)`：docId 非空时不新建 Mongo 文档，复用既有记录（status 置 1，重灌 chunk 后置 2）；原公开签名不变，内部委托；
+- **重载必须是同步方法（不加 `@Async`）**，原 `@Async process` 委托它。原因：A.3 重建循环需串行逐个处理文档——若沿用 @Async 会 fire-and-forget，进度计数失真、并发 embed 触发限流、`updateKnowledgeBaseCounts` 并发写竞态；
 - 解析失败/文本为空/索引写入异常时，将文档 status 置 3（失败）并写回——同时修复现状"失败无痕"问题（属本需求必需，非顺手重构）。
 
 ### A.3 重建接口
@@ -43,10 +44,11 @@
   1. 权限校验（复用 `getKnowledgeBase(kbId, username)`）；
   2. Redisson 锁 `kb:rebuild:{kbId}`（tryLock，已在重建中返回 ClientException）；
   3. 请求参数 `force`（默认 false）：false 时走 `ensureEmbeddingCompatible` 校验；true 时允许换 embedding 模型——重建前把 `knowledge_base.embedding_model/embedding_dim` 更新为当前配置（这正是 §4.11 预留的换模型通道）；
-  4. 异步执行（`threadPoolTaskExecutor`）：`vectorStore.deleteIndex(kbId)` → `createIndexIfNotExists(kbId)` → 遍历该库文档：有 `file_path` 且文件存在 → 读字节按原 docId 重跑 ETL；无留存文件 → status 置 3 并计入 skipped；
+  4. 异步执行（`threadPoolTaskExecutor`，整个重建任务一个异步任务）：`vectorStore.deleteIndex(kbId)` → `createIndexIfNotExists(kbId)` → **串行**遍历该库文档（调 A.2 同步重载）：有 `file_path` 且文件存在 → 读字节按原 docId 重跑 ETL；无留存文件 → status 置 3 并计入 skipped；
   5. 进度写 Redis：`kb:rebuild:progress:{kbId}` = `{total, done, skipped}`，TTL 1h；
 - `GET /{kbId}/rebuild-status`：返回 rebuilding（锁是否持有）+ 进度 JSON；
-- 重建期间检索：索引已删时双路召回返回空 → 既有 CRAG/webSearch fail-open 链路自然兜底，无需特判。
+- **重建期写保护**：`uploadDocument` / `deleteDocument` 入口检查 `kb:rebuild:{kbId}` 锁被持有则拒绝（ClientException "重建中，请稍后"）——否则并发写索引会与 deleteIndex 竞争丢 chunk；
+- 重建期间检索（已核实两引擎行为）：deleteIndex 后立即 createIndexIfNotExists，无索引窗口仅毫秒级；重灌过程中索引存在只是内容渐增，检索不报错仅命中变少。极端时序下 ES 侧索引缺失为 msearch item-failure 返回空列表（无感走 CRAG/webSearch 兜底）；Milvus 侧 collection 缺失会抛异常，走既有"检索出错→通用对话"降级提示，均不崩溃。
 
 ### A.4 前端
 
@@ -107,6 +109,11 @@ CREATE TABLE review_item (
 );
 ```
 
+**建表落地（三件套，缺一存量部署即 500）**：
+1. 新增 `admin/src/main/resources/sql/review_item.sql`；
+2. 根目录 `docker-compose.yml` mysql 服务追加挂载 `07-review_item.sql`（仅首次初始化生效）;
+3. `interview` 包内新增 `InterviewSchemaMigrationRunner`（模式同 `KnowledgeSchemaMigrationRunner`）：启动时 `CREATE TABLE IF NOT EXISTS review_item ...`，失败仅告警不阻断——覆盖数据卷非空、initdb 不再执行的存量库。
+
 ### C.2 复习清单生成（手动触发，幂等）
 
 - `POST /api/xunzhi/v1/interview/review/generate/{sessionId}`：
@@ -140,7 +147,7 @@ CREATE TABLE review_item (
 ```yaml
 xunzhi-agent:
   storage:
-    knowledge-doc-dir: ${KNOWLEDGE_DOC_DIR:./data/knowledge-docs}
+    knowledge-doc-dir: ${KNOWLEDGE_DOC_DIR:}   # 空则代码内取 ${baseDir}/knowledge-docs，docker 下自动落 backend-data 卷
   rag:
     metrics:
       trace-enabled: true          # rag_trace 明细留档开关
@@ -155,7 +162,7 @@ xunzhi-agent:
 | 项 | 验收方式 |
 |---|---|
 | 文件留存 | 上传文档后磁盘存在 `{kbId}/{docId}.{ext}`；删除文档/知识库时文件同步清理 |
-| 索引重建 | rebuild 后 chunk 数与重建前一致且检索可命中；`force=true` 换 embedding 模型后 kb 元数据更新且检索正常；无留存文件的存量文档标记失败并计入 skipped；重建中重复调用被锁拒绝 |
+| 索引重建 | rebuild 后 chunk 数与重建前一致且检索可命中；`force=true` 换 embedding 模型后 kb 元数据更新且检索正常；无留存文件的存量文档标记失败并计入 skipped；重建中重复调用被锁拒绝；重建中上传/删除文档被拒绝 |
 | 重建容错 | 重建过程中发起 RAG 对话不报错（走 webSearch/通用对话降级） |
 | 耗时埋点 | actuator `/actuator/metrics/xunzhi_rag_stage_seconds` 可查各阶段分布；单测验证 stageTimings 五阶段齐全 |
 | token 统计 | 有 usage 帧时取真值；无 usage 帧时 estimated=true 且估算值非零 |
@@ -167,7 +174,7 @@ xunzhi-agent:
 
 ## 7. 风险与注意事项
 
-1. **文件留存磁盘增长**：文档留存无上限，需在文档上传处沿用现有大小限制；Docker 部署确认 storage 目录在数据卷内，否则容器重建即丢文件（重建能力随之失效）。
+1. **文件留存磁盘增长**：文档留存无上限，需在文档上传处沿用现有大小限制；Docker 部署已确认 storage baseDir（/app/data）在 backend-data 数据卷内，容器重建不丢文件。
 2. **重建原子性**：deleteIndex 后进程崩溃会留下空索引——文档 status 仍为 2 但检索无结果；rebuild-status 的 Redis 进度可判断中断，重新触发 rebuild 即可自愈，不做事务补偿。
 3. **LLM 抽取质量**：弱项抽取依赖报告文本质量，建议串为空的旧报告可能抽不出条目——返回空清单并前端提示，不视为错误。
 4. **token 估算误差**：无 usage 帧时估算值仅用于成本量级参考，看板需展示"估算占比"避免误读。

@@ -2,6 +2,7 @@ package com.hewei.hzyjy.xunzhi.knowledge.flow;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.hewei.hzyjy.xunzhi.knowledge.service.RagMetricsRecorder;
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,22 @@ public class ContextCompressionNode extends NodeComponent {
     // 父块注入后单条体量变大，上限提高避免 3 条父块被过早截断
     private static final int MAX_CONTEXT_LENGTH = 6000;
 
+    private final RagMetricsRecorder ragMetricsRecorder;
+
     @Override
     public void process() throws Exception {
         RagContext ctx = this.getContextBean(RagContext.class);
+        long start = System.currentTimeMillis();
+        try {
+            doProcess(ctx);
+        } finally {
+            long elapsed = System.currentTimeMillis() - start;
+            ctx.getStageTimings().put("contextCompression", elapsed);
+            ragMetricsRecorder.recordStage("contextCompression", elapsed);
+        }
+    }
 
+    private void doProcess(RagContext ctx) {
         StringBuilder context = new StringBuilder();
 
         if (CollUtil.isNotEmpty(ctx.getRetrievedChunks())) {

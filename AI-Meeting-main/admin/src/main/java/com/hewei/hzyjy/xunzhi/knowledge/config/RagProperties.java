@@ -23,6 +23,8 @@ public class RagProperties {
 
     private Prompt prompt = new Prompt();
 
+    private Metrics metrics = new Metrics();
+
     @Data
     public static class RuleEngine {
 
@@ -67,6 +69,20 @@ public class RagProperties {
         private String model = "gte-rerank-v2";
 
         private Integer timeoutMs = 1500;
+    }
+
+    @Data
+    public static class Metrics {
+
+        /**
+         * rag_trace 明细留档开关
+         */
+        private Boolean traceEnabled = true;
+
+        /**
+         * rag_trace TTL 自动过期天数
+         */
+        private Integer traceTtlDays = 30;
     }
 
     @Data

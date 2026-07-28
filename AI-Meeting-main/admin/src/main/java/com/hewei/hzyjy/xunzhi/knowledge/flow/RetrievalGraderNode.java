@@ -3,6 +3,7 @@ package com.hewei.hzyjy.xunzhi.knowledge.flow;
 import cn.hutool.core.util.StrUtil;
 import com.hewei.hzyjy.xunzhi.knowledge.config.RagProperties;
 import com.hewei.hzyjy.xunzhi.knowledge.service.QueryRewriteService;
+import com.hewei.hzyjy.xunzhi.knowledge.service.RagMetricsRecorder;
 import com.yomahub.liteflow.annotation.LiteflowComponent;
 import com.yomahub.liteflow.core.NodeComponent;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class RetrievalGraderNode extends NodeComponent {
 
     private final RagProperties ragProperties;
     private final QueryRewriteService queryRewriteService;
+    private final RagMetricsRecorder ragMetricsRecorder;
 
     /** 规则判定结果 */
     enum RuleDecision {
@@ -41,6 +43,17 @@ public class RetrievalGraderNode extends NodeComponent {
     @Override
     public void process() throws Exception {
         RagContext ctx = this.getContextBean(RagContext.class);
+        long start = System.currentTimeMillis();
+        try {
+            doProcess(ctx);
+        } finally {
+            long elapsed = System.currentTimeMillis() - start;
+            ctx.getStageTimings().put("retrievalGrader", elapsed);
+            ragMetricsRecorder.recordStage("retrievalGrader", elapsed);
+        }
+    }
+
+    private void doProcess(RagContext ctx) {
         double threshold = ragProperties.getRuleEngine().getGradePassThreshold();
         boolean llmGraderEnabled = Boolean.TRUE.equals(ragProperties.getRuleEngine().getEnableLlmGrader());
 
@@ -50,6 +63,7 @@ public class RetrievalGraderNode extends NodeComponent {
         }
 
         ctx.setNeedWebSearch(decision == RuleDecision.WEB_SEARCH);
+        ragMetricsRecorder.recordGrader(ctx.isNeedWebSearch() ? "web_search" : "pass");
         log.info("Retrieval grading: kbId={}, degraded={}, needWebSearch={}",
                 ctx.getKbId(), ctx.isRerankDegraded(), ctx.isNeedWebSearch());
     }

@@ -7,6 +7,7 @@ import com.hewei.hzyjy.xunzhi.ai.dao.entity.AiPropertiesDO;
 import com.hewei.hzyjy.xunzhi.ai.service.chat.AiChatHandler;
 import com.hewei.hzyjy.xunzhi.ai.service.chat.AiChatHandlerFactory;
 import com.hewei.hzyjy.xunzhi.ai.service.AiPropertiesService;
+import com.hewei.hzyjy.xunzhi.ai.service.UserModelPreferenceService;
 import com.hewei.hzyjy.xunzhi.common.convention.exception.ClientException;
 import com.hewei.hzyjy.xunzhi.knowledge.config.RagProperties;
 import com.hewei.hzyjy.xunzhi.knowledge.dao.entity.KnowledgeBaseDO;
@@ -32,9 +33,11 @@ public class RagChatService {
 
     private final FlowExecutor flowExecutor;
     private final AiPropertiesService aiPropertiesService;
+    private final UserModelPreferenceService userModelPreferenceService;
     private final AiChatHandlerFactory aiChatHandlerFactory;
     private final RagProperties ragProperties;
     private final KnowledgeBaseMapper knowledgeBaseMapper;
+    private final RagTraceService ragTraceService;
 
     /**
      * @return 本轮推送给前端的引用来源列表（联网降级时为空），供调用方随助手消息持久化
@@ -82,6 +85,7 @@ public class RagChatService {
         if (handler == null) {
             sink.next("当前 AI 类型不支持");
             sink.complete();
+            recordTrace(ragCtx, username, accumulator);
             return references;
         }
 
@@ -93,7 +97,17 @@ public class RagChatService {
             log.error("RAG chat stream failed", e);
             sink.error(e);
         }
+        // 流式结束后 token 已累积完整，异步留档本轮链路明细
+        recordTrace(ragCtx, username, accumulator);
         return references;
+    }
+
+    private void recordTrace(RagContext ragCtx, String username, AIContentAccumulator accumulator) {
+        try {
+            ragTraceService.record(ragCtx, username, accumulator.getTotalTokens(), accumulator.isTokenEstimated());
+        } catch (Exception e) {
+            log.warn("Record rag trace failed: {}", e.getMessage());
+        }
     }
 
     /**
@@ -171,7 +185,11 @@ public class RagChatService {
     private AiPropertiesDO resolveAiProperties(Long aiId, String username) {
         AiPropertiesDO aiProperties;
         if (aiId == null) {
-            aiProperties = aiPropertiesService.getDefaultDoubaoConfig();
+            // 未显式指定：优先用户绑定的功能默认模型，再回退平台默认
+            aiProperties = userModelPreferenceService.resolvePreferred(username, UserModelPreferenceService.FEATURE_KB_CHAT);
+            if (aiProperties == null) {
+                aiProperties = aiPropertiesService.getDefaultDoubaoConfig();
+            }
             if (aiProperties == null) {
                 throw new ClientException("默认 AI 配置不存在");
             }
