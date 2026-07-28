@@ -10,6 +10,7 @@ import com.hewei.hzyjy.xunzhi.ai.dao.entity.AiPropertiesDO;
 import com.hewei.hzyjy.xunzhi.ai.service.AiConversationService;
 import com.hewei.hzyjy.xunzhi.ai.service.AiMessageService;
 import com.hewei.hzyjy.xunzhi.ai.service.AiPropertiesService;
+import com.hewei.hzyjy.xunzhi.ai.service.UserModelPreferenceService;
 import com.hewei.hzyjy.xunzhi.ai.service.chat.AiChatHandler;
 import com.hewei.hzyjy.xunzhi.ai.service.chat.AiChatHandlerFactory;
 import com.hewei.hzyjy.xunzhi.auth.application.CurrentUserService;
@@ -37,6 +38,7 @@ public class AiMessageServiceImpl implements AiMessageService {
     private static final String UNSUPPORTED_AI_TYPE = "Current AI type is not supported";
 
     private final AiPropertiesService aiPropertiesService;
+    private final UserModelPreferenceService userModelPreferenceService;
     private final AiConversationService aiConversationService;
     private final CurrentUserService currentUserService;
     private final AiChatHandlerFactory aiChatHandlerFactory;
@@ -136,7 +138,11 @@ public class AiMessageServiceImpl implements AiMessageService {
     private AiPropertiesDO resolveAiProperties(Long aiId, String username) {
         AiPropertiesDO aiProperties;
         if (aiId == null) {
-            aiProperties = aiPropertiesService.getDefaultDoubaoConfig();
+            // 未显式指定：优先用户绑定的功能默认模型，再回退平台默认
+            aiProperties = userModelPreferenceService.resolvePreferred(username, UserModelPreferenceService.FEATURE_CHAT);
+            if (aiProperties == null) {
+                aiProperties = aiPropertiesService.getDefaultDoubaoConfig();
+            }
             if (aiProperties == null) {
                 throw new ClientException("Default AI config does not exist");
             }
