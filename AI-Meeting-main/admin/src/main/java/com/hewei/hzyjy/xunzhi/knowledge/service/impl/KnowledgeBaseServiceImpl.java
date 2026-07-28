@@ -9,6 +9,7 @@ import com.hewei.hzyjy.xunzhi.knowledge.dao.mapper.KnowledgeBaseMapper;
 import com.hewei.hzyjy.xunzhi.knowledge.dao.repository.KnowledgeDocumentRepository;
 import com.hewei.hzyjy.xunzhi.knowledge.service.EmbeddingService;
 import com.hewei.hzyjy.xunzhi.knowledge.service.KnowledgeBaseService;
+import com.hewei.hzyjy.xunzhi.knowledge.service.KnowledgeFileStore;
 import com.hewei.hzyjy.xunzhi.knowledge.service.VectorStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     private final KnowledgeDocumentRepository documentRepository;
     private final VectorStore vectorStore;
     private final EmbeddingService embeddingService;
+    private final KnowledgeFileStore fileStore;
 
     @Override
     @Transactional
@@ -65,6 +67,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseMapper.updateById(kb);
 
         vectorStore.deleteIndex(kbId);
+        // 级联清理留存的原始文件目录
+        fileStore.deleteKbDir(kbId);
     }
 
     @Override

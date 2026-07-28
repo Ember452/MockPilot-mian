@@ -22,6 +22,8 @@ public class ApplicationStorageProperties {
 
     private String logDir;
 
+    private String knowledgeDocDir;
+
     public Path getBasePath() {
         return Path.of(baseDir).toAbsolutePath().normalize();
     }
@@ -36,5 +38,11 @@ public class ApplicationStorageProperties {
 
     public Path getLogPath() {
         return Path.of(logDir).toAbsolutePath().normalize();
+    }
+
+    public Path getKnowledgeDocPath() {
+        String dir = (knowledgeDocDir == null || knowledgeDocDir.isBlank())
+                ? baseDir + "/knowledge-docs" : knowledgeDocDir;
+        return Path.of(dir).toAbsolutePath().normalize();
     }
 }

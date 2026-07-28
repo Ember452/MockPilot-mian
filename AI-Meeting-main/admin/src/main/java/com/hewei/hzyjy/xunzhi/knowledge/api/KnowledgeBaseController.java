@@ -13,6 +13,7 @@ import com.hewei.hzyjy.xunzhi.knowledge.dao.entity.KnowledgeDocument;
 import com.hewei.hzyjy.xunzhi.knowledge.service.DocumentEtlPipeline;
 import com.hewei.hzyjy.xunzhi.knowledge.service.HybridSearchService;
 import com.hewei.hzyjy.xunzhi.knowledge.service.KnowledgeBaseService;
+import com.hewei.hzyjy.xunzhi.knowledge.service.KnowledgeRebuildService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ public class KnowledgeBaseController {
     private final KnowledgeBaseService knowledgeBaseService;
     private final DocumentEtlPipeline documentEtlPipeline;
     private final HybridSearchService hybridSearchService;
+    private final KnowledgeRebuildService knowledgeRebuildService;
 
     @PostMapping
     public Result<KnowledgeBaseRespDTO> create(@RequestBody KnowledgeBaseCreateReqDTO requestParam,
@@ -73,6 +75,10 @@ public class KnowledgeBaseController {
         if (!DocumentEtlPipeline.isSupportedFileType(fileName)) {
             return Results.failure(new ClientException("不支持的文件类型，仅支持 txt, md, pdf, doc, docx"));
         }
+        // 重建期写保护：并发写索引会与 deleteIndex 竞争丢 chunk
+        if (knowledgeRebuildService.isRebuilding(kbId)) {
+            return Results.failure(new ClientException("知识库索引重建中，请稍后再试"));
+        }
         // 同步校验 embedding 模型兼容性，不兼容时用户直接看到报错（不进入异步 ETL）
         knowledgeBaseService.ensureEmbeddingCompatible(kbId, username);
         // 在主请求线程中同步读取字节，避免异步线程中 MultipartFile 临时文件被清理
@@ -98,8 +104,28 @@ public class KnowledgeBaseController {
     public Result<Void> deleteDocument(@PathVariable Long kbId,
                                         @PathVariable String docId,
                                         @CurrentUser String username) {
+        if (knowledgeRebuildService.isRebuilding(kbId)) {
+            throw new ClientException("知识库索引重建中，请稍后再试");
+        }
         documentEtlPipeline.deleteDocument(kbId, docId);
         return Results.success();
+    }
+
+    /**
+     * 触发索引重建（异步）：force=true 为换 embedding 模型通道，重建前更新库元数据为当前配置
+     */
+    @PostMapping("/{kbId}/rebuild")
+    public Result<Void> rebuild(@PathVariable Long kbId,
+                                 @RequestParam(defaultValue = "false") boolean force,
+                                 @CurrentUser String username) {
+        knowledgeRebuildService.startRebuild(kbId, username, force);
+        return Results.success();
+    }
+
+    @GetMapping("/{kbId}/rebuild-status")
+    public Result<Map<String, Object>> rebuildStatus(@PathVariable Long kbId,
+                                                      @CurrentUser String username) {
+        return Results.success(knowledgeRebuildService.getStatus(kbId, username));
     }
 
     /**

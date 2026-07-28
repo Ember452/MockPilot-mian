@@ -35,6 +35,10 @@ public class KnowledgeDocument {
     @Field("status")
     private Integer status;
 
+    /** 原始文件留存相对路径 {kbId}/{docId}.{ext}，空为未留存（存量文档） */
+    @Field("file_path")
+    private String filePath;
+
     @Field("chunk_count")
     private Integer chunkCount;
 
