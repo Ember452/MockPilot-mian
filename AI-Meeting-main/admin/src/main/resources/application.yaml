@@ -120,6 +120,16 @@ xunzhi-agent:
     upload-temp-dir: ${XUNZHI_MULTIPART_TEMP_DIR:${xunzhi-agent.storage.base-dir}/temp/upload}
     audio-temp-dir: ${XUNZHI_AUDIO_TEMP_DIR:${xunzhi-agent.storage.base-dir}/temp/audio}
     log-dir: ${XUNZHI_LOG_DIR:${xunzhi-agent.storage.base-dir}/logs}
+    knowledge-doc-dir: ${KNOWLEDGE_DOC_DIR:${xunzhi-agent.storage.base-dir}/knowledge-docs}
+  rag:
+    metrics:
+      # rag_trace 明细留档开关与 TTL 天数（看板数据源）
+      trace-enabled: ${RAG_TRACE_ENABLED:true}
+      trace-ttl-days: ${RAG_TRACE_TTL_DAYS:30}
+  review:
+    # 弱项抽取 LLM 调用超时（毫秒）与单场面试最大条目数
+    extract-timeout-ms: ${REVIEW_EXTRACT_TIMEOUT_MS:5000}
+    max-items-per-session: ${REVIEW_MAX_ITEMS_PER_SESSION:8}
   thread-pool:
     general:
       core-pool-size: 50
