@@ -119,8 +119,8 @@ AI-Meeting-main/
 #### 1. 克隆项目
 
 ```bash
-(https://github.com/Ember452/MockPilot-mian.git)
-cd MockPilot-main
+git clone https://github.com/Ember452/MockPilot-mian.git
+cd MockPilot-mian
 ```
 
 #### 2. 初始化数据库
@@ -192,39 +192,156 @@ java -jar admin/target/xunzhi-admin-*.jar
 
 ### Docker 一键部署（推荐，本仓库即部署入口）
 
-只需克隆本仓库即可在任意装有 Docker 的机器（Linux / macOS / Windows）上启动**前端 + 后端 + 全部中间件**：
+只需克隆本仓库即可在任意装有 Docker 的机器（Linux / macOS / Windows）上启动**前端 + 后端 + 全部中间件**。下文以 **Ubuntu 22.04 / 24.04** 为例给出从零到可用的完整流程。
+
+#### 第 0 步：准备服务器环境
+
+**硬件要求**：内存 ≥ 4 GB（建议 8 GB），磁盘可用空间 ≥ 10 GB。
+
+**安装 Docker Engine + Compose 插件**（已安装可跳过）：
+
+```bash
+# 官方一键安装脚本
+curl -fsSL https://get.docker.com | sudo sh
+
+# 将当前用户加入 docker 组（免 sudo），重新登录 shell 生效
+sudo usermod -aG docker $USER
+newgrp docker
+
+# 验证安装
+docker --version          # 需要 Docker 20.10+
+docker compose version    # 需要 Compose v2
+```
+
+**调整内核参数**（Elasticsearch 必需，`start.sh` 也会自动检测并提示）：
+
+```bash
+sudo sysctl -w vm.max_map_count=262144
+# 持久化，重启后仍生效
+echo 'vm.max_map_count=262144' | sudo tee -a /etc/sysctl.conf
+```
+
+#### 第 1 步：克隆仓库
 
 ```bash
 git clone https://github.com/Ember452/MockPilot-mian.git
 cd MockPilot-mian
+```
 
-# 生成环境变量文件并填入自己的密钥（DashScope / 讯飞）
+> 无需克隆前端仓库 —— 前端默认直接以 GitHub 前端仓库（[MockPilot-Frontend](https://github.com/Ember452/MockPilot-Frontend)）为 Docker 构建上下文远程构建。
+
+#### 第 2 步：配置 .env（填入密钥）
+
+```bash
 cp .env.example .env
+nano .env   # 或 vim .env
+```
 
-# 一键启动（Linux/macOS；Windows 双击 start.bat）
+**必填项（5 项，缺一则对应 AI / 语音功能不可用）**：
+
+| 变量 | 说明 | 获取方式 |
+|------|------|---------|
+| `SPRING_AI_OPENAI_API_KEY` | 阿里云百炼（DashScope）API Key，驱动 AI 对话、面试出题评分、向量嵌入、RAG 重排 | [百炼控制台](https://bailian.console.aliyun.com/) → API-KEY 管理 |
+| `XUNFEI_APP_ID` | 讯飞开放平台 AppID | [讯飞控制台](https://console.xfyun.cn/) 创建应用 |
+| `XUNFEI_API_KEY` | 讯飞 API Key（语音识别 / 合成） | 同上，应用详情页 |
+| `XUNFEI_API_SECRET` | 讯飞 API Secret | 同上 |
+| `XUNFEI_RTA_API_KEY` | 讯飞实时转写 API Key | 同上，需开通「实时语音转写」服务 |
+
+**强烈建议修改（安全）**：
+
+| 变量 | 说明 |
+|------|------|
+| `MYSQL_PASSWORD` | 数据库密码，改为强密码 |
+| `SA_TOKEN_JWT_SECRET` | JWT 签名密钥，改为随机长字符串：`openssl rand -hex 32` |
+
+**可选但推荐配置**：
+
+| 变量 | 说明 |
+|------|------|
+| `BYOK_ENCRYPT_KEY` | 用户自带 API Key 的 AES 加密密钥。生成：`openssl rand -base64 32`。**不配置则用户无法在「模型设置」中保存自己的自定义模型 API Key**；配置后请妥善备份，一旦有用户存了 Key 就不可更换 |
+
+其余配置项（镜像版本、端口、`FRONTEND_BUILD_CONTEXT` 等）均有可用默认值，无需修改。
+
+#### 第 3 步：一键启动
+
+```bash
 ./start.sh
 ```
 
-启动完成后访问 `http://localhost`（前端），后端健康检查 `http://localhost:8002/actuator/health`。
+首次启动需 **5～15 分钟**（拉取镜像 + Maven 镜像内构建后端 + 从 GitHub 远程构建前端），期间会自动完成：
 
-常用命令：
+- **MySQL 8.0** — 首次启动自动建库建表并灌入初始数据（知识库、AI 模型配置、初始用户等）
+- **MongoDB 7.0** — 文档数据库（会话消息、文档元数据）
+- **Redis 7.2** — 缓存与分布式锁
+- **ElasticSearch 9.2.1** — 向量检索引擎（RAG），可选切换 Milvus（见下文）
+- **后端服务** — Maven 多阶段构建，运行在 JRE 17，监听 8002
+- **前端服务** — Vite 构建 + Nginx 托管并反代 `/api`，监听 80
+
+#### 第 4 步：验证部署
 
 ```bash
-docker compose ps              # 查看服务状态
-docker compose logs -f backend # 查看后端日志
-./stop.sh                      # 停止（数据卷保留）
+# 全部服务应为 running / healthy 状态
+docker compose ps
+
+# 后端健康检查，返回 {"status":"UP"} 即成功
+curl http://localhost:8002/actuator/health
 ```
 
-Docker 部署的服务架构包括：
+浏览器访问 `http://<服务器IP>`（本机为 `http://localhost`）即可打开前端。
 
-- **MySQL 8.0** — 关系型数据库，首次启动自动建库建表并灌入初始数据
-- **MongoDB 7.0** — 文档数据库
-- **Redis 7.2** — 缓存与分布式锁
-- **ElasticSearch 9.2.1** — 向量检索引擎（RAG），可选切换 Milvus（`--profile milvus`）
-- **后端服务** — Maven 多阶段构建，运行在 JRE 17 上
-- **前端服务** — 默认直接以 GitHub 前端仓库（[MockPilot-Frontend](https://github.com/Ember452/MockPilot-Frontend)）为 Docker 构建上下文远程构建，Nginx 托管并反代 `/api`；本地开发前端时在 `.env` 中将 `FRONTEND_BUILD_CONTEXT` 改为本地前端目录即可
+> ☁️ 云服务器（阿里云 / 腾讯云等）需在安全组放行 **80** 端口（前端）；8002 端口仅调试需要，生产环境建议不对公网开放。
 
-注意：Linux 下 Elasticsearch 需要 `vm.max_map_count >= 262144`（`start.sh` 会自动检测并提示）。
+#### 第 5 步：开始使用（完整功能清单）
+
+1. **注册 / 登录**：首页注册新账号后登录
+2. **AI 模拟面试**：上传 PDF 简历 → AI 解析并出题 → 逐题作答（支持语音回答）→ 实时评分与追问 → 面试复盘报告（雷达图 + 逐题回放）
+3. **RAG 知识库**：创建知识库 → 上传技术文档（txt/md/pdf/doc/docx）→ 基于文档内容与 AI 精准问答
+4. **通用 AI 对话**：多模型流式对话，支持思维链展示
+5. **实时语音**：面试中实时语音转写（ASR）、AI 回复语音播报（TTS），需第 2 步的讯飞密钥
+6. **自定义模型（BYOK）**：设置 → 模型设置 → 添加自己的模型（模型名 + OpenAI 兼容 API 地址 + 自己的 API Key），每个用户的配置相互隔离，需第 2 步的 `BYOK_ENCRYPT_KEY`
+
+#### 常用运维命令
+
+```bash
+docker compose ps                  # 查看服务状态
+docker compose logs -f backend     # 跟踪后端日志
+docker compose restart backend     # 重启后端
+./stop.sh                          # 停止全部服务（数据卷保留，数据不丢）
+
+# 更新到最新版本
+git pull
+docker compose up -d --build
+
+# 彻底清除（含所有数据卷，慎用）
+docker compose down -v
+```
+
+#### 可选：切换 Milvus 向量引擎
+
+默认使用 Elasticsearch 做向量检索。如需切换 Milvus：
+
+```bash
+# 1. .env 中设置
+RAG_VECTOR_STORE=milvus
+
+# 2. 带 milvus profile 启动
+docker compose --profile milvus up -d
+```
+
+> 注意：双引擎为部署期静态切换，存量 ES 索引不会迁移，切换后旧知识库需重新上传文档。
+
+#### 常见问题（FAQ）
+
+| 现象 | 原因与解决 |
+|------|-----------|
+| elasticsearch 容器反复重启 | `vm.max_map_count` 未调整，按第 0 步执行 sysctl 命令 |
+| backend 长时间 unhealthy | 首次启动需等 MySQL 初始化完成，约 1-2 分钟；超过 5 分钟看 `docker compose logs backend` |
+| 80 或 8002 端口被占用 | 修改 `.env` 中 `FRONTEND_PORT` / `BACKEND_PORT` 后重新 `docker compose up -d` |
+| 前端镜像构建失败（网络超时） | 服务器访问 GitHub 不稳定所致；可手动克隆前端仓库，并将 `.env` 的 `FRONTEND_BUILD_CONTEXT` 指向本地目录 |
+| 界面保存自定义 API Key 报错 | 未配置 `BYOK_ENCRYPT_KEY`，按第 2 步生成并填入后执行 `docker compose up -d backend` |
+| AI 对话 / 面试无响应 | `SPRING_AI_OPENAI_API_KEY` 未填或额度耗尽，查看 `docker compose logs backend` 确认 |
+| 语音识别 / 播报不工作 | 讯飞 4 项密钥未填全，或对应服务未在讯飞控制台开通 |
+| 旧版本升级后模型设置页"功能默认模型"报错 | 存量数据库缺 `user_model_preference` 表（initdb 只在首次建库时执行），手动执行一次：`docker compose exec -T mysql mysql -uroot -p123456 mainshi_agent < AI-Meeting-main/admin/src/main/resources/sql/user_model_preference.sql` |
 
 ---
 
