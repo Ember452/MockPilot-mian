@@ -31,6 +31,7 @@ public class FlightCoordinatorRepository {
     private static final String RESULT_KEY_PREFIX = "ai:flight:result:";
     private static final String OWNER_SEQ_KEY = "ai:flight:owner-seq";
 
+    // 分布式的完整生命周期管理
     private static final String ACQUIRE_OR_JOIN_SCRIPT_TEXT =
             "local status = redis.call('HGET', KEYS[1], 'status') "
                     + "if not status then "
@@ -169,6 +170,9 @@ public class FlightCoordinatorRepository {
         return Long.valueOf(1L).equals(result);
     }
 
+    /**
+     * 将序列化后的结果写入Redis，供后续follower使用
+     */
     public boolean storeResult(String requestKey, String ownerId, Long ownerToken, FlightStoredResult storedResult, long resultTtlMillis) {
         if (storedResult == null) {
             return false;
@@ -223,6 +227,9 @@ public class FlightCoordinatorRepository {
         return Long.valueOf(1L).equals(result);
     }
 
+    /**
+     * 尝试读取序列化的结果
+     */
     public FlightStoredResult getStoredResult(String requestKey) {
         Map<Object, Object> raw = stringRedisTemplate.opsForHash().entries(resultKey(requestKey));
         if (raw == null || raw.isEmpty()) {
@@ -241,6 +248,10 @@ public class FlightCoordinatorRepository {
                 .build();
     }
 
+    /**
+     * 获取元数据快照
+     * 根据Key去Redis获取节点元数据。
+     */
     public FlightMetaSnapshot getMeta(String requestKey) {
         Map<Object, Object> raw = stringRedisTemplate.opsForHash().entries(metaKey(requestKey));
         if (raw == null || raw.isEmpty()) {

@@ -13,6 +13,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * AI消息表
@@ -73,6 +75,11 @@ public class AiMessage {
      * 错误信息（如果处理失败）
      */
     private String errorMessage;
+
+    /**
+     * RAG 引用来源（仅知识库对话助手消息，可空）
+     */
+    private List<Map<String, Object>> references;
     
     /**
      * 创建时间

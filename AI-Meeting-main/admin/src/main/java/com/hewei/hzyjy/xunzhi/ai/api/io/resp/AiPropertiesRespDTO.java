@@ -64,6 +64,11 @@ public class AiPropertiesRespDTO {
     private Integer isEnabled;
     
     /**
+     * 归属用户名，NULL=系统公共
+     */
+    private String ownerUsername;
+    
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

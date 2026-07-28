@@ -83,6 +83,11 @@ public class AiPropertiesDO {
     private Integer isEnabled;
     
     /**
+     * 归属用户名，NULL=系统公共
+     */
+    private String ownerUsername;
+    
+    /**
      * 创建时间
      */
     private Date createTime;

@@ -238,6 +238,9 @@ public class DistributedInterviewAiSingleFlightService {
         }
     }
 
+    /**
+     * 等待分布式 single-flight 请求执行完成，并返回结果。
+     */
     private String followerWait(String stage, String requestKey,
                                 InterviewAiSingleFlightConfiguration.StageFlightPolicy policy,
                                 long deadlineMillis) {
@@ -245,10 +248,12 @@ public class DistributedInterviewAiSingleFlightService {
         long pollIntervalMillis = positive(configuration.getPollFallbackIntervalMillis(), 2000L);
         long nextPollAt = System.currentTimeMillis();
         while (System.currentTimeMillis() < deadlineMillis) {
+            //尝试获取成功结果
             String replay = tryReadSuccessReplay(stage, requestKey, policy);
             if (replay != null) {
                 return replay;
             }
+            // 获取元数据快照，检查是否失败且不可重试
             FlightMetaSnapshot metaSnapshot = flightCoordinatorRepository.getMeta(requestKey);
             if (metaSnapshot != null && metaSnapshot.getStatus() == FlightStatus.FAILED && !Boolean.TRUE.equals(metaSnapshot.getRetryable())) {
                 throw new IllegalStateException("distributed single-flight previous failure: "
@@ -258,18 +263,29 @@ public class DistributedInterviewAiSingleFlightService {
             if (remainingMillis <= 0) {
                 return null;
             }
+
             flightNotificationService.waitForTerminalEvent(requestKey, Math.min(streamBlockTimeoutMillis, remainingMillis));
             if (System.currentTimeMillis() >= nextPollAt) {
+                // 尝试轮询获取成功结果
                 String polledReplay = tryReadSuccessReplay(stage, requestKey, policy);
                 if (polledReplay != null) {
                     return polledReplay;
                 }
+                // 更新下次轮询时间，当前时间加上轮询间隔
                 nextPollAt = System.currentTimeMillis() + pollIntervalMillis;
             }
         }
         return null;
     }
 
+    /**
+     * 尝试读取成功回放结果
+     * 1. 从本地L1缓存中查询读取
+     * 2. 如果本地缓存中不存在，尝试从协调器中获取metadata
+     * 3. 如果metadata中状态为成功，则从协调器中获取结果数据
+     * 4. 如果结果数据存在，则从结果数据中反序列化结果并返回并存到本地缓存中
+     * 5. 如果结果数据不存在，则返回null
+     */
     private String tryReadSuccessReplay(String stage, String requestKey,
                                         InterviewAiSingleFlightConfiguration.StageFlightPolicy policy) {
         String localReplay = flightReplayLocalCache.get(stage, requestKey);
@@ -336,6 +352,9 @@ public class DistributedInterviewAiSingleFlightService {
         return positive(configuration.getFollowerMaxWaitMillis(), 20000L);
     }
 
+    /**
+     * 返回非负值，优先使用传入的值，如果传入的值为负数则使用默认值。
+     */
     private long positive(Long value, long defaultValue) {
         return value != null && value > 0 ? value : defaultValue;
     }

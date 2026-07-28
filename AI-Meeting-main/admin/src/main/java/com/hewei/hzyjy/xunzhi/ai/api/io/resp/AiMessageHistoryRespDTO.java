@@ -4,6 +4,8 @@ import com.hewei.hzyjy.xunzhi.ai.api.io.BaseMessageHistoryRespDTO;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * AI消息历史响应DTO
@@ -51,6 +53,11 @@ public class AiMessageHistoryRespDTO implements BaseMessageHistoryRespDTO {
      * 错误信息
      */
     private String errorMessage;
+
+    /**
+     * RAG 引用来源（仅知识库对话助手消息，可空）
+     */
+    private List<Map<String, Object>> references;
     
     /**
      * 创建时间

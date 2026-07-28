@@ -22,4 +22,9 @@ public class AiSessionCreateReqDTO {
      * 第一条消息
      */
     private String firstMessage;
+
+    /**
+     * 知识库ID（可选，非空时创建知识库会话并绑定）
+     */
+    private Long kbId;
 }

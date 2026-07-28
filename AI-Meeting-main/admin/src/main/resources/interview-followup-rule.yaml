@@ -11,6 +11,7 @@ xunzhi-agent:
       default-max-follow-up: 2
       default-low-score-threshold: 60
   rag:
+    vector-store: ${RAG_VECTOR_STORE:elasticsearch}   # elasticsearch | milvus
     rule-engine:
       enable: true
       default-chain-id: default_rag_chain
@@ -18,3 +19,14 @@ xunzhi-agent:
       default-top-k: 5
       default-rerank-top-n: 3
       enable-web-search: true
+      enable-query-rewrite: true
+      query-rewrite-timeout-ms: 2500
+      query-rewrite-model: qwen-turbo
+      grade-pass-threshold: 0.5      # CRAG 合格阈值（仅对 DashScope relevance_score 有效）
+      enable-llm-grader: false
+    rerank:
+      provider: dashscope            # dashscope（阿里云百炼） | cosine（降级实现）
+      base-url: https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank
+      api-key: ${SPRING_AI_OPENAI_API_KEY:}   # 与 embedding 复用同一百炼 Key
+      model: gte-rerank-v2
+      timeout-ms: 1500

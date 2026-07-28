@@ -9,7 +9,11 @@ public interface AiConversationService {
 
     String createConversation(String username, Long aiId, String firstMessage);
 
+    String createConversation(String username, Long aiId, String firstMessage, Long kbId);
+
     AiSessionCreateRespDTO createConversationWithTitle(String username, Long aiId, String firstMessage);
+
+    AiSessionCreateRespDTO createConversationWithTitle(String username, Long aiId, String firstMessage, Long kbId);
 
     IPage<AiConversationRespDTO> pageConversations(String username, AiConversationPageReqDTO requestParam);
 

@@ -36,6 +36,16 @@ public class AiConversationRespDTO {
      * 会话标题
      */
     private String title;
+
+    /**
+     * 对话模式：normal-普通对话，rag-知识库对话（存量会话为 null，视为 normal）
+     */
+    private String chatMode;
+
+    /**
+     * 绑定的知识库ID（仅 rag 模式，可空）
+     */
+    private Long kbId;
     
     /**
      * 会话状态：1-进行中，2-已结束

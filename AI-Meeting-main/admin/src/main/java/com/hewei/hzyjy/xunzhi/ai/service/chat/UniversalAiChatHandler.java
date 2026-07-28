@@ -7,9 +7,11 @@ import com.hewei.hzyjy.xunzhi.ai.api.io.resp.AiChatStreamRespDTO;
 import com.hewei.hzyjy.xunzhi.ai.api.io.resp.AiMessageHistoryRespDTO;
 import com.hewei.hzyjy.xunzhi.ai.dao.entity.AiPropertiesDO;
 import com.hewei.hzyjy.xunzhi.ai.enums.AiPropritiesType;
+import com.hewei.hzyjy.xunzhi.ai.service.ApiKeyCryptoService;
 import com.hewei.hzyjy.xunzhi.common.convention.exception.ClientException;
 import com.hewei.hzyjy.xunzhi.toolkit.xunfei.AIContentAccumulator;
 import io.micrometer.observation.ObservationRegistry;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.Generation;
@@ -41,7 +43,10 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class UniversalAiChatHandler implements AiChatHandler {
+
+    private final ApiKeyCryptoService apiKeyCryptoService;
 
     @Override
     public String getType() {
@@ -133,7 +138,8 @@ public class UniversalAiChatHandler implements AiChatHandler {
 
     private ChatClient createChatClient(AiPropertiesDO aiProperties) {
         String baseUrl = aiProperties.getApiUrl();
-        String apiKey = aiProperties.getApiKey();
+        // 用户私有配置的 Key 为 enc:v1: 前缀密文，使用前解密；存量明文原样返回
+        String apiKey = apiKeyCryptoService.decryptIfNeeded(aiProperties.getApiKey());
 
         if (StrUtil.isBlank(baseUrl)) {
             baseUrl = AiPropritiesType.getByType(aiProperties.getAiType()).getDefaultBaseUrl();

@@ -80,9 +80,10 @@ public class AiMessageServiceImpl implements AiMessageService {
         return Flux.create(sink -> {
             String userMessage = StrUtil.blankToDefault(requestParam.getInputMessage(), "No input");
             Long aiId = requestParam.getAiId();
+            String username = requestParam.getUserName();
             AIContentAccumulator accumulator = new AIContentAccumulator();
 
-            threadPoolTaskExecutor.submit(() -> processChat(sessionId, aiId, userMessage, sink, accumulator));
+            threadPoolTaskExecutor.submit(() -> processChat(sessionId, aiId, username, userMessage, sink, accumulator));
             sink.onCancel(() -> log.warn("AI chat flux cancelled, sessionId={}", sessionId));
             sink.onDispose(() -> log.info("AI chat flux disposed, sessionId={}", sessionId));
         });
@@ -91,6 +92,7 @@ public class AiMessageServiceImpl implements AiMessageService {
     private void processChat(
             String sessionId,
             Long aiId,
+            String username,
             String userMessage,
             FluxSink<String> sink,
             AIContentAccumulator accumulator) {
@@ -102,7 +104,7 @@ public class AiMessageServiceImpl implements AiMessageService {
                 .historySupplier(() -> conversationMessageHistoryService.listAiHistory(sessionId))
                 .userMessageSaver(() -> conversationMessagePersistenceService.saveAiUserMessage(sessionId, userMessage))
                 .streamExecutor((historyMessages, contentAccumulator) -> {
-                    AiPropertiesDO aiProperties = resolveAiProperties(aiId);
+                    AiPropertiesDO aiProperties = resolveAiProperties(aiId, username);
                     AiChatHandler handler = aiChatHandlerFactory.getHandler(aiProperties.getAiType());
                     if (handler == null) {
                         sendUnsupportedSink(sink, contentAccumulator);
@@ -131,7 +133,7 @@ public class AiMessageServiceImpl implements AiMessageService {
                 .build());
     }
 
-    private AiPropertiesDO resolveAiProperties(Long aiId) {
+    private AiPropertiesDO resolveAiProperties(Long aiId, String username) {
         AiPropertiesDO aiProperties;
         if (aiId == null) {
             aiProperties = aiPropertiesService.getDefaultDoubaoConfig();
@@ -139,10 +141,8 @@ public class AiMessageServiceImpl implements AiMessageService {
                 throw new ClientException("Default AI config does not exist");
             }
         } else {
-            aiProperties = aiPropertiesService.getById(aiId);
-            if (aiProperties == null || aiProperties.getDelFlag() == 1 || aiProperties.getIsEnabled() == 0) {
-                throw new ClientException("AI config does not exist or is disabled");
-            }
+            // 含归属校验：公共或本人私有配置才可用
+            aiProperties = aiPropertiesService.getUsableById(aiId, username);
         }
         return aiProperties;
     }

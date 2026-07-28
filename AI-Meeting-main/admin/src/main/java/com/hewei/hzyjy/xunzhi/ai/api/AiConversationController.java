@@ -34,7 +34,8 @@ public class AiConversationController {
         AiSessionCreateRespDTO result = aiConversationService.createConversationWithTitle(
                 username,
                 requestParam.getAiId(),
-                requestParam.getFirstMessage()
+                requestParam.getFirstMessage(),
+                requestParam.getKbId()
         );
         return Results.success(result);
     }

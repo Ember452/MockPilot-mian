@@ -36,6 +36,16 @@ public class ConversationMessagePersistenceService {
             String reasoningContent,
             int responseTime,
             String errorMessage) {
+        return saveAiAssistantMessage(sessionId, content, reasoningContent, responseTime, errorMessage, null);
+    }
+
+    public int saveAiAssistantMessage(
+            String sessionId,
+            String content,
+            String reasoningContent,
+            int responseTime,
+            String errorMessage,
+            java.util.List<java.util.Map<String, Object>> references) {
         int messageSeq = messageSequenceService.nextAiMessageSeq(sessionId);
         AiMessage message = new AiMessage();
         message.setSessionId(sessionId);
@@ -45,6 +55,7 @@ public class ConversationMessagePersistenceService {
         message.setMessageSeq(messageSeq);
         message.setResponseTime(responseTime);
         message.setErrorMessage(errorMessage);
+        message.setReferences(references);
         message.setCreateTime(new Date());
         message.setDelFlag(0);
         aiMessagePersistencePort.save(message);

@@ -17,6 +17,9 @@ import com.hewei.hzyjy.xunzhi.common.convention.exception.ClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -30,13 +33,17 @@ public class AiConversationServiceImpl implements AiConversationService {
 
     private final AiConversationRepository aiConversationRepository;
     private final AiPropertiesService aiPropertiesService;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public String createConversation(String username, Long aiId, String firstMessage) {
-        AiPropertiesDO aiProperties = aiPropertiesService.getById(aiId);
-        if (aiProperties == null || aiProperties.getDelFlag() == 1 || aiProperties.getIsEnabled() == 0) {
-            throw new ClientException("AI config does not exist or is disabled");
-        }
+        return createConversation(username, aiId, firstMessage, null);
+    }
+
+    @Override
+    public String createConversation(String username, Long aiId, String firstMessage, Long kbId) {
+        // 含归属校验：公共或本人私有配置才可用
+        aiPropertiesService.getUsableById(aiId, username);
 
         String sessionId = IdUtil.getSnowflakeNextIdStr();
         String title = generateTitle(firstMessage);
@@ -46,6 +53,8 @@ public class AiConversationServiceImpl implements AiConversationService {
         conversation.setUsername(username);
         conversation.setAiId(aiId);
         conversation.setTitle(title);
+        conversation.setChatMode(kbId != null ? "rag" : "normal");
+        conversation.setKbId(kbId);
         conversation.setStatus(1);
         conversation.setMessageCount(0);
         conversation.setLastMessageTime(new Date());
@@ -59,7 +68,12 @@ public class AiConversationServiceImpl implements AiConversationService {
 
     @Override
     public AiSessionCreateRespDTO createConversationWithTitle(String username, Long aiId, String firstMessage) {
-        String sessionId = createConversation(username, aiId, firstMessage);
+        return createConversationWithTitle(username, aiId, firstMessage, null);
+    }
+
+    @Override
+    public AiSessionCreateRespDTO createConversationWithTitle(String username, Long aiId, String firstMessage, Long kbId) {
+        String sessionId = createConversation(username, aiId, firstMessage, kbId);
         AiSessionCreateRespDTO respDTO = new AiSessionCreateRespDTO();
         respDTO.setSessionId(sessionId);
         respDTO.setConversationTitle(generateTitle(firstMessage));
@@ -71,7 +85,10 @@ public class AiConversationServiceImpl implements AiConversationService {
         Pageable pageable = PageRequest.of(requestParam.getCurrent() - 1, requestParam.getSize());
         org.springframework.data.domain.Page<AiConversation> conversationPage;
 
-        if (requestParam.getAiId() != null) {
+        if (StrUtil.isNotBlank(requestParam.getChatMode())) {
+            // 按对话模式过滤需要 or/exists 条件，派生查询无法表达，改走 MongoTemplate
+            conversationPage = pageByChatMode(username, requestParam, pageable);
+        } else if (requestParam.getAiId() != null) {
             conversationPage = aiConversationRepository
                     .findByUsernameAndAiIdAndDelFlagOrderByCreateTimeDesc(username, requestParam.getAiId(), 0, pageable);
         } else {
@@ -96,6 +113,36 @@ public class AiConversationServiceImpl implements AiConversationService {
 
         resultPage.setRecords(records);
         return resultPage;
+    }
+
+    /**
+     * 按对话模式分页：normal 需兼容存量无 chatMode 字段的会话，rag 可附加 kbId 过滤。
+     */
+    private org.springframework.data.domain.Page<AiConversation> pageByChatMode(
+            String username, AiConversationPageReqDTO requestParam, Pageable pageable) {
+        Criteria criteria = Criteria.where("username").is(username).and("delFlag").is(0);
+        if ("rag".equals(requestParam.getChatMode())) {
+            criteria = criteria.and("chatMode").is("rag");
+            if (requestParam.getKbId() != null) {
+                criteria = criteria.and("kbId").is(requestParam.getKbId());
+            }
+        } else {
+            // 存量会话无 chatMode 字段，必须一并视为 normal，否则历史会话在列表中消失
+            criteria = criteria.andOperator(new Criteria().orOperator(
+                    Criteria.where("chatMode").is("normal"),
+                    Criteria.where("chatMode").is(null)));
+        }
+        if (requestParam.getAiId() != null) {
+            criteria = criteria.and("aiId").is(requestParam.getAiId());
+        }
+
+        Query query = Query.query(criteria);
+        long total = mongoTemplate.count(query, AiConversation.class);
+        List<AiConversation> content = mongoTemplate.find(
+                query.with(pageable).with(org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Direction.DESC, "createTime")),
+                AiConversation.class);
+        return new org.springframework.data.domain.PageImpl<>(content, pageable, total);
     }
 
     @Override
