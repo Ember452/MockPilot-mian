@@ -85,8 +85,13 @@ services:
       - mockpilot
 
   # ---------- Elasticsearch（RAG 向量检索） ----------
+  #   基于官方镜像构建，自动安装 IK 中文分词插件（见 elasticsearch/Dockerfile）
   elasticsearch:
-    image: ${ES_IMAGE:-elasticsearch:9.2.1}
+    build:
+      context: ./elasticsearch
+      args:
+        ES_VERSION: ${ES_VERSION:-9.2.1}
+    image: mockpilot-elasticsearch:${ES_VERSION:-9.2.1}-ik
     container_name: mockpilot-elasticsearch
     restart: unless-stopped
     environment:
