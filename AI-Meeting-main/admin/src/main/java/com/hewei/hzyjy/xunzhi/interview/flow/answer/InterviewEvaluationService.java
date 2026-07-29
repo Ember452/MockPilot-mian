@@ -32,6 +32,13 @@ public class InterviewEvaluationService {
     private static final String KEY_FOLLOW_UP_NEEDED = "follow_up_needed";
     private static final String KEY_FOLLOW_UP_QUESTION = "follow_up_question";
 
+    /** 评分工作流“拒评”输出的特征词（来自 prompt 示例2），命中且答案非空时视为无效评分 */
+    private static final String[] REFUSAL_MARKERS = new String[]{
+            "缺少评分所需",
+            "无法完成维度评估",
+            "未提供需要评分"
+    };
+
     private static final String[] RESUME_SUMMARY_KEYS = new String[]{
             "resume_context",
             "resume_summary",
@@ -62,6 +69,13 @@ public class InterviewEvaluationService {
         // 1) 先走评分工作流（带参数化上下文），拿标准结构化评分。
         Map<String, Object> evaluationResult = evaluateAnswerByScorerAgent(
                 sessionId, requestId, questionNumber, questionContent, answerContent, scorerAgent);
+        // 拒评输出是合法 JSON（score=0），会被当成有效评分直接落库；
+        // 答案非空却被拒评时置空，交给下方 prompt 直评降级重评。
+        if (isScorerRefusal(evaluationResult, answerContent)) {
+            log.warn("Scorer workflow refused to grade a non-blank answer, fallback to direct prompt, sessionId: {}, questionNumber: {}",
+                    sessionId, questionNumber);
+            evaluationResult = null;
+        }
         // Fallback when scorer workflow parsing fails.
         if (evaluationResult == null || evaluationResult.isEmpty()) {
             // 2) 工作流解析失败时降级到 prompt 直评，保证主链路可继续。
@@ -235,6 +249,36 @@ public class InterviewEvaluationService {
         if (!result.containsKey(KEY_FOLLOW_UP_QUESTION)) {
             result.put(KEY_FOLLOW_UP_QUESTION, "");
         }
+    }
+
+    /**
+     * 识别工作流拒评：答案非空但 score=0 且 feedback/missing_points 命中拒评特征词。
+     * 答案本身为空时拒评合理，不视为无效。
+     */
+    private boolean isScorerRefusal(Map<String, Object> result, String answerContent) {
+        if (result == null || result.isEmpty() || StrUtil.isBlank(answerContent)) {
+            return false;
+        }
+        Integer score = interviewResponseParser.parseScoreFromResponse(result, KEY_SCORE);
+        if (score == null || score != 0) {
+            return false;
+        }
+        StringBuilder textToCheck = new StringBuilder();
+        String feedback = interviewResponseParser.asString(result.get(KEY_FEEDBACK));
+        if (feedback != null) {
+            textToCheck.append(feedback);
+        }
+        List<String> missingPoints = interviewResponseParser.asStringList(result.get(KEY_MISSING_POINTS));
+        if (missingPoints != null) {
+            missingPoints.forEach(textToCheck::append);
+        }
+        String joined = textToCheck.toString();
+        for (String marker : REFUSAL_MARKERS) {
+            if (joined.contains(marker)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Map<String, Object> normalizeScorerResult(Map<String, Object> rawResult) {
