@@ -54,34 +54,50 @@ public class ElasticsearchVectorStore implements VectorStore {
                 return;
             }
 
-            DenseVectorProperty denseVectorProperty = DenseVectorProperty.of(d -> d
-                    .dims(1536)
-                    .similarity(DenseVectorSimilarity.Cosine)
-                    .index(true)
-            );
-            Map<String, Property> properties = new java.util.LinkedHashMap<>();
-            properties.put("chunk_id", Property.of(p -> p.keyword(k -> k)));
-            properties.put("doc_id", Property.of(p -> p.keyword(k -> k)));
-            properties.put("kb_id", Property.of(p -> p.long_(k -> k)));
-            properties.put("content", Property.of(p -> p.text(t -> t.analyzer("ik_max_word").searchAnalyzer("ik_smart"))));
-            properties.put("file_name", Property.of(p -> p.keyword(k -> k)));
-            properties.put("chunk_index", Property.of(p -> p.integer(k -> k)));
-            properties.put("embedding", Property.of(p -> p.denseVector(denseVectorProperty)));
-            // 父子分块：父块内容仅存储不参与检索（BM25 只查 content），命中后随 _source 回传
-            properties.put("parent_id", Property.of(p -> p.keyword(k -> k)));
-            properties.put("parent_content", Property.of(p -> p.text(t -> t.index(false))));
-            properties.put("metadata", Property.of(p -> p.object(o -> o.enabled(true))));
-
-            CreateIndexRequest createRequest = CreateIndexRequest.of(c -> c
-                    .index(indexName)
-                    .mappings(TypeMapping.of(m -> m.properties(properties)))
-            );
-            esClient.indices().create(createRequest);
+            try {
+                esClient.indices().create(buildCreateRequest(indexName, true));
+            } catch (co.elastic.clients.elasticsearch._types.ElasticsearchException e) {
+                // 官方 ES 镜像未预装 IK 插件时回退 standard 分词，保证建库可用（中文分词质量会降级）
+                if (e.getMessage() != null && e.getMessage().contains("analyzer")) {
+                    log.warn("IK analyzer not available, falling back to standard analyzer for index {}. " +
+                            "Install the analysis-ik plugin for better Chinese tokenization.", indexName);
+                    esClient.indices().create(buildCreateRequest(indexName, false));
+                } else {
+                    throw e;
+                }
+            }
             log.info("Created ES index: {}", indexName);
         } catch (IOException e) {
             log.error("Failed to create ES index: {}", indexName, e);
             throw new RuntimeException("Failed to create ES index", e);
         }
+    }
+
+    private CreateIndexRequest buildCreateRequest(String indexName, boolean useIk) {
+        DenseVectorProperty denseVectorProperty = DenseVectorProperty.of(d -> d
+                .dims(1536)
+                .similarity(DenseVectorSimilarity.Cosine)
+                .index(true)
+        );
+        Map<String, Property> properties = new java.util.LinkedHashMap<>();
+        properties.put("chunk_id", Property.of(p -> p.keyword(k -> k)));
+        properties.put("doc_id", Property.of(p -> p.keyword(k -> k)));
+        properties.put("kb_id", Property.of(p -> p.long_(k -> k)));
+        properties.put("content", useIk
+                ? Property.of(p -> p.text(t -> t.analyzer("ik_max_word").searchAnalyzer("ik_smart")))
+                : Property.of(p -> p.text(t -> t)));
+        properties.put("file_name", Property.of(p -> p.keyword(k -> k)));
+        properties.put("chunk_index", Property.of(p -> p.integer(k -> k)));
+        properties.put("embedding", Property.of(p -> p.denseVector(denseVectorProperty)));
+        // 父子分块：父块内容仅存储不参与检索（BM25 只查 content），命中后随 _source 回传
+        properties.put("parent_id", Property.of(p -> p.keyword(k -> k)));
+        properties.put("parent_content", Property.of(p -> p.text(t -> t.index(false))));
+        properties.put("metadata", Property.of(p -> p.object(o -> o.enabled(true))));
+
+        return CreateIndexRequest.of(c -> c
+                .index(indexName)
+                .mappings(TypeMapping.of(m -> m.properties(properties)))
+        );
     }
 
     @Override
