@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Real-time speech-to-text WebSocket endpoint.
+ * 实时语音转写WebSocket端点
  */
 @Slf4j
 @Component
@@ -65,6 +66,10 @@ public class AudioTranscriptionWebSocketHandler {
     private static final ConcurrentMap<String, TranscriptionSessionContext> TRANSCRIPTION_CONTEXTS = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, ScheduledFuture<?>> HEARTBEAT_TASKS = new ConcurrentHashMap<>();
 
+    /**
+     * WebSocket建立连接入口
+     * 鉴权，记录会话，启动心跳。
+     */
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String userId) {
         if (!isAuthorizedUser(session, userId)) {
@@ -103,6 +108,9 @@ public class AudioTranscriptionWebSocketHandler {
         }
     }
 
+    /**
+     * 前端通过已经建立的WebSocket发送json文本
+     */
     @OnMessage
     public void onMessage(Session session, String message) {
         String userId = SESSION_USER_MAP.get(session.getId());
@@ -116,6 +124,11 @@ public class AudioTranscriptionWebSocketHandler {
         }
     }
 
+    /**
+     * 生产者端：WebSocket接收音频写入管道
+     * 前端通过WebSocket发送二进制音频帧
+     * PCM 16kHz 16bit单声道原始音频
+     */
     @OnMessage
     public void onMessage(Session session, ByteBuffer byteBuffer) {
         String sessionId = session.getId();
@@ -254,6 +267,9 @@ public class AudioTranscriptionWebSocketHandler {
         }
     }
 
+    /**
+     * 创建管道并启动推流
+     */
     private TranscriptionSessionContext createAndStartTranscriptionSession(Session session, String userId) {
         String sessionId = session.getId();
         try {
@@ -522,9 +538,12 @@ public class AudioTranscriptionWebSocketHandler {
         private String type;
     }
 
+    /**
+     * 会话上下文
+     */
     private static class TranscriptionSessionContext {
-        private final PipedInputStream audioInputStream;
-        private final PipedOutputStream audioOutputStream;
+        private final PipedInputStream audioInputStream;  //消费端：讯飞推流线程读取
+        private final PipedOutputStream audioOutputStream;  // 生产端：WebSocket接收线程写入
         private final AtomicBoolean active;
         private final AtomicBoolean stopRequested = new AtomicBoolean(false);
         private final AtomicReference<RealtimeTranscriptionUpdate> lastUpdate = new AtomicReference<>();
