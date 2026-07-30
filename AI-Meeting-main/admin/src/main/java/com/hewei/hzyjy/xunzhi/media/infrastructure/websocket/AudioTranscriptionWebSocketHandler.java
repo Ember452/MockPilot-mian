@@ -69,6 +69,8 @@ public class AudioTranscriptionWebSocketHandler {
     /**
      * WebSocket建立连接入口
      * 鉴权，记录会话，启动心跳。
+     * @ OnOpen 这个注解是java WebSocket规范中定义的一个注解，作用是标记一个方法，当新的
+     *          WebSocket建立连接时，该方法自动被调用。
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String userId) {
@@ -110,6 +112,8 @@ public class AudioTranscriptionWebSocketHandler {
 
     /**
      * 前端通过已经建立的WebSocket发送json文本
+     * @ OnMessage 这个注解是java WebSocket规范中定义的一个注解
+     *              当客户端通过WebSocket协议发送消息，传输数据时，该方法自动被调用。
      */
     @OnMessage
     public void onMessage(Session session, String message) {
@@ -187,6 +191,9 @@ public class AudioTranscriptionWebSocketHandler {
         sendMessage(session, createResponse("error", "WebSocket error: " + error.getMessage(), null));
     }
 
+    /**
+     * 根据客户端指令中的type类型路由不同的服务。
+     */
     private void handleControlMessage(Session session, String userId, WebSocketMessage message) {
         String type = message != null ? message.getType() : null;
         if (type == null) {
@@ -196,10 +203,13 @@ public class AudioTranscriptionWebSocketHandler {
 
         switch (type) {
             case "ping" -> sendMessage(session, createResponse("pong", "pong", String.valueOf(System.currentTimeMillis())));
+            // 启动实时音频转录
             case "start_transcription" -> startTranscriptionSession(session, userId);
             case "stop_transcription" -> {
+                // 停止实时音频转录
                 boolean stopped = stopTranscriptionSession(session.getId());
                 if (stopped) {
+                    // 向客户端WebSocket发送消息，前端监听WebSocket的onmessage事件，处理消息。
                     sendMessage(session, createResponse("transcription_stopped", "Transcription stopped", null));
                 } else {
                     sendMessage(session, createResponse("transcription_already_stopped",
@@ -237,6 +247,9 @@ public class AudioTranscriptionWebSocketHandler {
         }
     }
 
+    /**
+     *
+     */
     private void startTranscriptionSession(Session session, String userId) {
         String sessionId = session.getId();
         TranscriptionSessionContext existing = TRANSCRIPTION_CONTEXTS.get(sessionId);
