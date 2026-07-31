@@ -3,11 +3,11 @@
 本文档给出三组量化测试的完整操作步骤，产出的数字直接回填简历对应条目。
 所有指标名、接口路径、配置项均来自当前代码，无需新增业务代码。
 
-| # | 测试 | 产出指标 | 回填简历条目 |
-|---|------|---------|-------------|
-| 1 | RAG 检索质量评测 | recall@3、检索延迟 P50/P95、ES vs Milvus 对比 | RAG 知识库 |
-| 2 | 分布式 Single-flight 去重 | 去重率 = hit/(hit+miss)、LLM 调用次数收敛 | 分布式 Single-flight |
-| 3 | 答题主链路并发一致性 | N 并发重复提交 → 1 次评分、幂等回放命中数、锁竞争数 | 答题主链路 |
+| #   | 测试                   | 产出指标                                  | 回填简历条目            |
+| --- | -------------------- | ------------------------------------- | ----------------- |
+| 1   | RAG 检索质量评测           | recall@3、检索延迟 P50/P95、ES vs Milvus 对比 | RAG 知识库           |
+| 2   | 分布式 Single-flight 去重 | 去重率 = hit/(hit+miss)、LLM 调用次数收敛       | 分布式 Single-flight |
+| 3   | 答题主链路并发一致性           | N 并发重复提交 → 1 次评分、幂等回放命中数、锁竞争数         | 答题主链路             |
 
 ---
 
@@ -110,6 +110,7 @@ curl http://localhost:8003/actuator/health   # 确认实例 2 就绪
    复制 `queries.example.json` 为 `queries.json`，写约 20 条查询，每条填 `expected_doc_id`。
    查询要覆盖两类：与文档标题字面接近的（考关键词路）、换了说法的语义改写（考向量路）。
 2. **ES 基线**：
+   
    ```powershell
    cd d:\DEVELOP\java\MockPilot-project\scripts\rag-eval
    python eval.py --base-url http://localhost:8002 --token <token> --kb-id <kbId> --queries queries.json --label elasticsearch
@@ -286,16 +287,16 @@ python scripts\bench\answer_bench.py `
 
 ## 4. 数据记录模板
 
-| 测试 | 参数 | 指标 | 第1轮 | 第2轮 | 第3轮 | 取值 |
-|------|------|------|-------|-------|-------|------|
-| RAG-ES | 20 queries, top5 | recall@3 | | | | |
-| RAG-ES | | 服务端 P50/P95 (ms) | | | | |
-| RAG-Milvus | 同上 | recall@3 / P95 | | | | |
-| Single-flight | 2实例×10并发 | Δmiss（LLM 真实调用） | | | | |
-| Single-flight | | Δhit（回放命中） | | | | |
-| Single-flight | | 去重率 | | | | |
-| 答题链路 | 1实例×20并发同 requestId | 评分次数（期望1） | | | | |
-| 答题链路 | | idempotency_replay_hit 增量 | | | | |
+| 测试            | 参数                  | 指标                        | 第1轮 | 第2轮 | 第3轮 | 取值  |
+| ------------- | ------------------- | ------------------------- | --- | --- | --- | --- |
+| RAG-ES        | 20 queries, top5    | recall@3                  |     |     |     |     |
+| RAG-ES        |                     | 服务端 P50/P95 (ms)          |     |     |     |     |
+| RAG-Milvus    | 同上                  | recall@3 / P95            |     |     |     |     |
+| Single-flight | 2实例×10并发            | Δmiss（LLM 真实调用）           |     |     |     |     |
+| Single-flight |                     | Δhit（回放命中）                |     |     |     |     |
+| Single-flight |                     | 去重率                       |     |     |     |     |
+| 答题链路          | 1实例×20并发同 requestId | 评分次数（期望1）                 |     |     |     |     |
+| 答题链路          |                     | idempotency_replay_hit 增量 |     |     |     |     |
 
 ## 5. 注意事项
 
@@ -318,11 +319,11 @@ python scripts\bench\answer_bench.py `
 
 ### 6.1 压测对象选择（关键：控制成本）
 
-| 接口 | 路径 | 触发的外部调用 | 适合产出 |
-|------|------|---------------|---------|
-| RAG 检索调试 | `POST /api/xunzhi/v1/knowledge-bases/{kbId}/search-debug` | embedding + rerank API（单价低，但有限流） | RAG 检索链路持续负载 P95 |
-| 会话恢复 | `GET /api/xunzhi/v1/interview/sessions/{sessionId}/restore` | 无 LLM，纯 Redis/Mongo（懒加载恢复链路） | 会话恢复 P95，佐证"会话状态治理"条目 |
-| 答题提交 | `POST .../interview/answer-json` | LLM 评分 | **不要持续压**（烧钱），只用测试 2/3 的瞬时突发 |
+| 接口       | 路径                                                          | 触发的外部调用                          | 适合产出                         |
+| -------- | ----------------------------------------------------------- | -------------------------------- | ---------------------------- |
+| RAG 检索调试 | `POST /api/xunzhi/v1/knowledge-bases/{kbId}/search-debug`   | embedding + rerank API（单价低，但有限流） | RAG 检索链路持续负载 P95             |
+| 会话恢复     | `GET /api/xunzhi/v1/interview/sessions/{sessionId}/restore` | 无 LLM，纯 Redis/Mongo（懒加载恢复链路）     | 会话恢复 P95，佐证"会话状态治理"条目        |
+| 答题提交     | `POST .../interview/answer-json`                            | LLM 评分                           | **不要持续压**（烧钱），只用测试 2/3 的瞬时突发 |
 
 > 压 restore 接口还能顺带观察 `flow_restore_source_total`（tag: flow_cache / turn_finished /
 > turn_recovered / flow_reinit）各来源的分布，即热冷分层命中情况——面试讲"会话状态治理"时是现成证据。
