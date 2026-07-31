@@ -63,7 +63,8 @@ public class AudioTranscriptionWebSocketHandler {
 
     private static final ConcurrentMap<String, Session> USER_SESSIONS = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, String> SESSION_USER_MAP = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<String, TranscriptionSessionContext> TRANSCRIPTION_CONTEXTS = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, TranscriptionSessionContext> TRANSCRIPTION_CONTEXTS =
+            new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, ScheduledFuture<?>> HEARTBEAT_TASKS = new ConcurrentHashMap<>();
 
     /**
@@ -248,21 +249,25 @@ public class AudioTranscriptionWebSocketHandler {
     }
 
     /**
-     *
+     * 启动实时音频转录
+     * WebSocket是并发的，同一个session可能收到多个请求指令
+     * 两个线程都创建了自己的Context，导致重复创建，相互覆盖，冲突。
      */
     private void startTranscriptionSession(Session session, String userId) {
         String sessionId = session.getId();
+        // 从concurrentMap中以sessionId为key查询实时音频转录会话上下文，如果已经存在，说明开启成功，直接返回。
         TranscriptionSessionContext existing = TRANSCRIPTION_CONTEXTS.get(sessionId);
         if (existing != null && existing.active.get() && !existing.stopRequested.get()) {
             sendMessage(session, createResponse("transcription_already_started",
                     "Transcription is already started", null));
             return;
         }
-
+        // 停止当前会话转录:开启新的之前，把之前的转录资源停止并释放。防止残留资源造成内存冲突或泄露
         stopTranscriptionSession(sessionId);
-
+        // 创建新的转录会话
         TranscriptionSessionContext context = createAndStartTranscriptionSession(session, userId);
         if (context != null) {
+            // putIfAbsent：原子性放入Map，防止并发下
             TranscriptionSessionContext raced = TRANSCRIPTION_CONTEXTS.putIfAbsent(sessionId, context);
             if (raced != null && raced.active.get() && !raced.stopRequested.get()) {
                 context.active.set(false);
@@ -282,6 +287,7 @@ public class AudioTranscriptionWebSocketHandler {
 
     /**
      * 创建管道并启动推流
+     * 后台创建一个持续运行的转录会话
      */
     private TranscriptionSessionContext createAndStartTranscriptionSession(Session session, String userId) {
         String sessionId = session.getId();
@@ -295,6 +301,7 @@ public class AudioTranscriptionWebSocketHandler {
             AtomicBoolean active = new AtomicBoolean(true);
             TranscriptionSessionContext context = new TranscriptionSessionContext(audioInputStream, audioOutputStream, active);
 
+            // 创建一个异步任务调用讯飞实时音频转文字方法。
             CompletableFuture<String> future = xunfeiAudioService.realTimeAudioToText(audioInputStream, update ->
                     {
                         context.lastUpdate.set(update);
@@ -355,6 +362,9 @@ public class AudioTranscriptionWebSocketHandler {
         return false;
     }
 
+    /**
+     * 安全的关闭Closeable对象
+     */
     private void closeQuietly(Closeable closeable) {
         if (closeable == null) {
             return;

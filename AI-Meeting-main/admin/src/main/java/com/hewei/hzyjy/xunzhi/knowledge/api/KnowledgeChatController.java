@@ -14,6 +14,7 @@ import com.hewei.hzyjy.xunzhi.toolkit.xunfei.AIContentAccumulator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
@@ -33,6 +34,7 @@ public class KnowledgeChatController {
     private final ConversationMessageHistoryService conversationMessageHistoryService;
     private final ConversationMessagePersistenceService conversationMessagePersistenceService;
     private final ConversationStreamingSupport conversationStreamingSupport;
+    private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     @PostMapping(value = "/sessions/{sessionId}/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chat(@PathVariable String sessionId,
@@ -59,7 +61,8 @@ public class KnowledgeChatController {
             java.util.concurrent.atomic.AtomicReference<java.util.List<java.util.Map<String, Object>>> referencesRef =
                     new java.util.concurrent.atomic.AtomicReference<>();
 
-            conversationStreamingSupport.execute(ConversationStreamingSupport.ConversationStreamRequest
+            // 阻塞式 RAG+流式调用必须脱离请求线程，否则 MVC 异步分发前 sink.next 全部被缓冲，前端表现为非流式
+            threadPoolTaskExecutor.submit(() -> conversationStreamingSupport.execute(ConversationStreamingSupport.ConversationStreamRequest
                     .<com.hewei.hzyjy.xunzhi.ai.api.io.resp.AiMessageHistoryRespDTO>builder()
                     .sessionId(sessionId)
                     .defaultErrorContent(DEFAULT_ERROR_CONTENT)
@@ -89,7 +92,7 @@ public class KnowledgeChatController {
                             sink.error(ex);
                         }
                     })
-                    .build());
+                    .build()));
         });
     }
 }

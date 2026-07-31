@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Application service for websocket session status and server-side push.
+ * 服务端主动推送消息的应用层服务
  */
 @Slf4j
 @Service

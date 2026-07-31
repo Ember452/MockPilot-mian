@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Xunfei speech recognition service.
  * Supports file transcription and real-time large-model transcription.
+ * 讯飞 AST 大模型实时 ASR 推流服务
  */
 @Slf4j
 @Service
@@ -650,6 +651,9 @@ public class XunfeiAudioService {
         return result.toString();
     }
 
+    /**
+     * 消费者端：讯飞推流线程从管道读取
+     */
     private void sendAudioStream(WebSocket webSocket,
                                  InputStream audioInputStream,
                                  String sessionId,
@@ -904,6 +908,9 @@ public class XunfeiAudioService {
         void onResult(RealtimeTranscriptionUpdate result);
     }
 
+    /**
+     * 实时识别结果更新
+     */
     public record RealtimeTranscriptionUpdate(String fullText,
                                               String committedText,
                                               String liveText,
