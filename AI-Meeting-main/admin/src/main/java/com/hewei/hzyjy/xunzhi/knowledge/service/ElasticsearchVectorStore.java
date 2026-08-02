@@ -132,8 +132,9 @@ public class ElasticsearchVectorStore implements VectorStore {
     public DualRecallResult dualRecall(Long kbId, String query, List<Float> queryEmbedding, int candidateSize) {
         String indexName = getIndexName(kbId);
         try {
+            // BM2.5 关键词检索
             RequestItem bm25Route = RequestItem.of(r -> r
-                    .header(h -> h.index(indexName))
+                    .header(h -> h.index(indexName)) // 指定索引
                     .body(b -> b
                             .query(q -> q
                                     .bool(bl -> bl
@@ -145,6 +146,7 @@ public class ElasticsearchVectorStore implements VectorStore {
                             .source(sc -> sc.filter(f -> f.excludes("embedding")))
                     )
             );
+            // KNN 向量检索
             RequestItem knnRoute = RequestItem.of(r -> r
                     .header(h -> h.index(indexName))
                     .body(b -> b
@@ -161,7 +163,7 @@ public class ElasticsearchVectorStore implements VectorStore {
 
             MsearchRequest request = MsearchRequest.of(m -> m.searches(bm25Route).searches(knnRoute));
             MsearchResponse<Map> response = esClient.msearch(request, Map.class);
-
+            // 结果提取封装，将结果封装成List,里面每一条都是一个Map，里面有文档name和内容
             List<Map<String, Object>> bm25Hits = extractHits(response.responses().get(0), indexName, "bm25");
             List<Map<String, Object>> knnHits = extractHits(response.responses().get(1), indexName, "knn");
             return new DualRecallResult(bm25Hits, knnHits);

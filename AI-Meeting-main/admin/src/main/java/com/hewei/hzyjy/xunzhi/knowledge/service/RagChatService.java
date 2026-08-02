@@ -40,15 +40,17 @@ public class RagChatService {
     private final RagTraceService ragTraceService;
 
     /**
+     * 链路入口
      * @return 本轮推送给前端的引用来源列表（联网降级时为空），供调用方随助手消息持久化
      */
     public List<Map<String, Object>> executeRagChat(
             String sessionId,
             String userMessage,
-            Long kbId,
-            Long aiId,
+            Long kbId,  // 知识库 ID
+            Long aiId,  // AI 模型 ID
             String username,
-            List<AiMessageHistoryRespDTO> historyMessages,
+            List<AiMessageHistoryRespDTO> historyMessages, // 历史消息
+            // 一个可以把数据推送到响应式流Flux的管道口
             FluxSink<String> sink,
             AIContentAccumulator accumulator) {
 
@@ -57,19 +59,24 @@ public class RagChatService {
                 .setQuery(userMessage)
                 .setKbId(kbId)
                 .setHistoryMessages(historyMessages);
-
+        //----------------------------------RAG检索链路
+        // 进行检索增强生成
         try {
+            // 执行RAG检索链路，进行查询改写，检索重排，上下文压缩
             flowExecutor.execute2Resp("default_rag_chain", null, ragCtx);
         } catch (Exception e) {
             log.error("LiteFlow RAG chain execution failed", e);
             sink.next("RAG 检索过程出错，将使用通用对话模式回复。");
         }
-
+        //---------------------------引用构建，用户可以先看到引用的参考材料
         // 流式输出前先推送结构化引用来源事件（旧前端对未知 type 静默忽略）
+        // 判断是否触发了联网搜索，用于区分参考资料来源
         boolean webSearchTriggered = ragCtx.getWebSearchResult() != null && !ragCtx.getWebSearchResult().isBlank();
+        // 构建引用来源
         List<Map<String, Object>> references = buildReferences(ragCtx.getRetrievedChunks(), webSearchTriggered);
         ragCtx.setReferences(references);
         try {
+            // 构建SSE事件推送到前端
             Map<String, Object> referencesEvent = new HashMap<>();
             referencesEvent.put("type", "references");
             referencesEvent.put("data", references);
@@ -78,20 +85,27 @@ public class RagChatService {
             log.warn("Push references event failed: {}", e.getMessage());
         }
 
+        // 构建检索增强后的Prompt，优先使用知识库的专属模版，没有使用默认模版
         String augmentedPrompt = buildAugmentedPrompt(userMessage, ragCtx.getCompressedContext(), kbId);
 
+        // AI 模型配置类
         AiPropertiesDO aiProperties = resolveAiProperties(aiId, username);
+        // 获取AI模型对应的处理器
         AiChatHandler handler = aiChatHandlerFactory.getHandler(aiProperties.getAiType());
         if (handler == null) {
             sink.next("当前 AI 类型不支持");
-            sink.complete();
+            // 通知订阅者数据流发送完毕，可以关闭连接，前端收到后释放资源停止等待
+            sink.complete();   // 结束
+            // 记录链路明细，留档
             recordTrace(ragCtx, username, accumulator);
             return references;
         }
 
+        // 构建包含系统提示词的历史消息列表
         List<AiMessageHistoryRespDTO> augmentedHistory = buildAugmentedHistory(historyMessages, userMessage);
 
         try {
+            // 构建并流式输出对话
             handler.streamToSink(aiProperties, augmentedPrompt, augmentedHistory, sink, accumulator);
         } catch (Exception e) {
             log.error("RAG chat stream failed", e);
@@ -102,6 +116,12 @@ public class RagChatService {
         return references;
     }
 
+    /**
+     * 记录链路明细
+     * @param ragCtx RAG 链路上下文
+     * @param username  用户名字
+     * @param accumulator 累计的 token 数量
+     */
     private void recordTrace(RagContext ragCtx, String username, AIContentAccumulator accumulator) {
         try {
             ragTraceService.record(ragCtx, username, accumulator.getTotalTokens(), accumulator.isTokenEstimated());
@@ -140,6 +160,8 @@ public class RagChatService {
 
     /**
      * 模板优先级：knowledge_base.prompt_template（非空白）→ 全局配置默认模板。
+     * 优先使用自定义的知识库专属模版，没有就用默认模版
+     * ----
      */
     private String resolvePromptTemplate(Long kbId) {
         try {
@@ -164,6 +186,15 @@ public class RagChatService {
                 .replace("{question}", question == null ? "" : question);
     }
 
+    /**
+     * 构建包含系统提示词的历史消息列表，为AI对话提供角色设定和上下文背景
+     * @param historyMessages 历史消息
+     * @param userMessage 用户消息
+     * @return 构建后的历史消息列表
+     * 如果有历史消息，这系统提示词作为第一个历史消息，用户消息作为后面的历史消息。没有返回提示词
+     * --------------
+     * 确保AI在开始对话时，明确自己定位和规范，同时保留完整对话供RAG用
+     */
     private List<AiMessageHistoryRespDTO> buildAugmentedHistory(
             List<AiMessageHistoryRespDTO> historyMessages,
             String userMessage) {
@@ -182,6 +213,10 @@ public class RagChatService {
         return List.of(systemMsg);
     }
 
+    /**
+     * 解析用户使用哪个模型
+     * 优先使用指定模型，否则使用用户绑定的功能默认模型，再回退平台默认
+     */
     private AiPropertiesDO resolveAiProperties(Long aiId, String username) {
         AiPropertiesDO aiProperties;
         if (aiId == null) {

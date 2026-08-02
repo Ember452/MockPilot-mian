@@ -57,30 +57,39 @@ public class UniversalAiChatHandler implements AiChatHandler {
         return AiPropritiesType.isSupported(type);
     }
 
+    /**
+     * AI 流式对话的核心实现。
+     */
     @Override
     public void streamToSink(AiPropertiesDO aiProperties, String userMessage, List<AiMessageHistoryRespDTO> historyMessages,
                              FluxSink<String> sink, AIContentAccumulator accumulator) throws Exception {
+        // 初始化客户端和消息
         ChatClient chatClient = createChatClient(aiProperties);
         List<Message> messages = buildMessages(aiProperties, userMessage, historyMessages);
 
+        // 创建同步等待机制
         CountDownLatch latch = new CountDownLatch(1);
         final Throwable[] streamError = new Throwable[1];
-
+        // 发起流式请求并订阅
         chatClient.prompt()
                 .messages(messages)
                 .stream()
                 .chatResponse()
                 .subscribe(
+                        // onNext回调，每次收到数据块触发
                         chatResponse -> {
                             try {
                                 Generation generation = chatResponse.getResult();
                                 if (generation != null) {
+                                    // 提取文本片段
                                     String content = generation.getOutput().getText();
                                     if (StrUtil.isNotEmpty(content)) {
+                                        // 包装成SSE事件
                                         AiChatStreamRespDTO resp = AiChatStreamRespDTO.builder()
                                                 .type("content")
                                                 .content(content)
                                                 .build();
+                                        // 通过sink.next推送到前端
                                         sink.next(JSON.toJSONString(resp));
                                         accumulator.appendSimpleContent(content);
                                     }

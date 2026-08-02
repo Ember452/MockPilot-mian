@@ -16,6 +16,11 @@ public class AiChatHandlerFactory {
         this.universalAiChatHandler = universalAiChatHandler;
     }
 
+    /**
+     * 根据AI类型返回对应的处理器
+     * @param aiType  AI的类型（所有兼容openAI接口的都行）
+     * @return AI处理器接口的实现
+     */
     public AiChatHandler getHandler(String aiType) {
         if (StrUtil.isBlank(aiType)) {
             return null;

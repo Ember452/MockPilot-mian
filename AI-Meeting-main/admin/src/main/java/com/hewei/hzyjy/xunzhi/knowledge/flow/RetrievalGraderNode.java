@@ -79,6 +79,7 @@ public class RetrievalGraderNode extends NodeComponent {
         if (chunks == null || chunks.isEmpty()) {
             return RuleDecision.WEB_SEARCH;
         }
+        // todo 这里如果Rerank发生了降级，不在做质量评估，直接使用结果。
         if (rerankDegraded) {
             return RuleDecision.PASS;
         }

@@ -41,6 +41,7 @@ public class QueryRewriteNode extends NodeComponent {
         try {
             doProcess(ctx);
         } finally {
+            // 无论成功或者失败，都记录耗时，用于性能监控
             long elapsed = System.currentTimeMillis() - start;
             ctx.getStageTimings().put("queryRewrite", elapsed);
             ragMetricsRecorder.recordStage("queryRewrite", elapsed);
@@ -48,29 +49,34 @@ public class QueryRewriteNode extends NodeComponent {
     }
 
     private void doProcess(RagContext ctx) {
+        // 查看是否启用了改写
         if (!Boolean.TRUE.equals(ragProperties.getRuleEngine().getEnableQueryRewrite())) {
             ragMetricsRecorder.recordRewrite("skipped");
             return;
         }
+        // 查看是否有历史消息
         if (CollUtil.isEmpty(ctx.getHistoryMessages())) {
             ragMetricsRecorder.recordRewrite("skipped");
             return;
         }
+        // 查看查询是否触发了改写，如果问题本身够完整，跳过改写
         String query = ctx.getQuery();
         if (isSelfContained(query)) {
             log.debug("Query rewrite skipped by heuristic: query_length={}", query.length());
             ragMetricsRecorder.recordRewrite("skipped");
             return;
         }
-
+        // 调用AI去改写
         try {
             List<com.hewei.hzyjy.xunzhi.ai.api.io.resp.AiMessageHistoryRespDTO> history = ctx.getHistoryMessages();
             List<com.hewei.hzyjy.xunzhi.ai.api.io.resp.AiMessageHistoryRespDTO> recentHistory =
                     history.size() > MAX_HISTORY_MESSAGES
                             ? history.subList(history.size() - MAX_HISTORY_MESSAGES, history.size())
                             : history;
+            // 调用改写服务
             String rewritten = queryRewriteService.rewrite(query, recentHistory);
             if (StrUtil.isNotBlank(rewritten) && !rewritten.equals(query)) {
+                // 记录改写后的结果
                 ctx.setRewrittenQuery(rewritten);
                 log.info("Query rewritten: original_length={}, rewritten={}", query.length(), rewritten);
                 ragMetricsRecorder.recordRewrite("applied");

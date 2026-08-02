@@ -7,6 +7,9 @@ import reactor.core.publisher.FluxSink;
 
 import java.util.List;
 
+/**
+ * AI 聊天处理器接口
+ */
 public interface AiChatHandler {
     String getType();
 

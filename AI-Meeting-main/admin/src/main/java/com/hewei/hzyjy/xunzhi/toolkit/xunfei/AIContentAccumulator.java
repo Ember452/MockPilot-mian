@@ -6,6 +6,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * 用于累积 SSE 帧内容，并计算 token 用量
+ * ---
+ * 专门用来流式接收并拼接大模型返回的内容的累加器（缓冲区）
+ */
 @Component
 public class AIContentAccumulator {
     private final StringBuilder contentBuilder = new StringBuilder();

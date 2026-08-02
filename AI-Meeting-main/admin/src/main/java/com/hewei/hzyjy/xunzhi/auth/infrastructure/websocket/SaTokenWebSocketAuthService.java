@@ -41,6 +41,9 @@ public class SaTokenWebSocketAuthService implements WebSocketAuthService {
         }
     }
 
+    /**
+     * 尝试从会话的信息中获取 token
+     */
     private String resolveToken(Session session) {
         if (session == null) {
             return null;
@@ -70,6 +73,12 @@ public class SaTokenWebSocketAuthService implements WebSocketAuthService {
         return normalizeToken(token);
     }
 
+    /**
+     * 从请求信息中获取指定name的第一个参数
+     * @param requestParams
+     * @param name
+     * @return
+     */
     private String extractFirstParam(Map<String, List<String>> requestParams, String name) {
         List<String> values = requestParams.get(name);
         if (values == null || values.isEmpty()) {

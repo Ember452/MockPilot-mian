@@ -28,6 +28,9 @@ public class HybridSearchService {
     private final CosineRerankFallback cosineRerankFallback;
     private final KnowledgeBaseMapper knowledgeBaseMapper;
 
+    /**
+     * 搜索：双路召回 + RRF + 重排
+     */
     public List<Map<String, Object>> search(Long kbId, String query, int topK, int rerankTopN) {
         // embedding 模型不一致时抛异常，由上层既有 fail-open 捕获降级为普通对话
         KnowledgeBaseDO kb = knowledgeBaseMapper.selectById(kbId);
@@ -35,18 +38,22 @@ public class HybridSearchService {
             EmbeddingService.validateEmbeddingCompatibility(
                     kb.getEmbeddingModel(), embeddingService.getEmbeddingModel());
         }
-
+        // 将查询文本向量化
         List<Float> queryEmbedding = embeddingService.embed(query);
 
-        int candidateSize = topK * 2;
+        // 双路召回
+        int candidateSize = topK * 2;  // 召回候选数量，计划数量的2倍
         VectorStore.DualRecallResult recall =
+                // 执行双路召回
                 vectorStore.dualRecall(kbId, query, queryEmbedding, candidateSize);
 
+        // RRF融合重排。
         List<Map<String, Object>> fused = fuseByRrf(recall.bm25Hits(), recall.knnHits(), candidateSize);
         if (fused.isEmpty()) {
             return fused;
         }
 
+        // 重排序：调用更精细的模型，对候选结果进行打分
         return rerank(query, queryEmbedding, fused, rerankTopN);
     }
 
@@ -97,6 +104,14 @@ public class HybridSearchService {
         }
     }
 
+    /**
+     * 优先使用阿里云的Rerank模型，如果不满足条件或者调用异常，降级为本地余弦相似度重排
+     * @param query 用户原始文本
+     * @param queryEmbedding 对应的向量
+     * @param candidates RRF合并河道的文档列表
+     * @param topN  重排后返回多少条文档
+     * @return 重排后的文档列表
+     */
     private List<Map<String, Object>> rerank(String query, List<Float> queryEmbedding,
                                              List<Map<String, Object>> candidates, int topN) {
         RagProperties.Rerank config = ragProperties.getRerank();

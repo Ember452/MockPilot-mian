@@ -23,6 +23,7 @@ public interface VectorStore {
     /**
      * 双路召回：关键词（BM25）路 + 向量（ANN）路，两路均按各自引擎得分降序，
      * 且不回传 embedding 字段，供客户端按排名做标准 RRF 融合。
+     * TODO 当前只支持在一个知识库中进行双路召回。可考虑扩展为多个知识库进行双路召回。
      */
     DualRecallResult dualRecall(Long kbId, String query, List<Float> queryEmbedding, int candidateSize);
 

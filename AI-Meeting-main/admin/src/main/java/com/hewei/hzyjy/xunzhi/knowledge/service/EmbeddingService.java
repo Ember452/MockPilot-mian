@@ -44,6 +44,10 @@ public class EmbeddingService {
     public EmbeddingService() {
     }
 
+    /**
+     * 将文本转换成向量表示。用于语义检索
+     * 返回的是float组成的数组。因为float省内存。
+     */
     public List<Float> embed(String text) {
         String apiKey = defaultApiKey;
 
@@ -53,7 +57,7 @@ public class EmbeddingService {
 
         String url = defaultBaseUrl + EMBEDDINGS_PATH;
         Map<String, Object> requestBody = Map.of(
-                "model", embeddingModel,
+                "model", embeddingModel,  // 使用的模型
                 "input", text,
                 "encoding_format", "float"
         );

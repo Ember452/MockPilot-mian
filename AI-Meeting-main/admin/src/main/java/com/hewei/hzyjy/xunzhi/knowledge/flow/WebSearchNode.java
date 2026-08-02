@@ -43,6 +43,7 @@ public class WebSearchNode extends NodeComponent {
             return;
         }
 
+        // TODO 当前使用的是用户原始的query，可以使用查询改写后的
         String query = ctx.getQuery();
         String result = performWebSearch(query);
         ctx.setWebSearchResult(result);
