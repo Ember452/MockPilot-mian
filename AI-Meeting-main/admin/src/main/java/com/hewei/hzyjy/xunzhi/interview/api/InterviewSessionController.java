@@ -87,6 +87,9 @@ public class InterviewSessionController {
         return Results.success();
     }
 
+    /**
+     * 开始面试问题抽取
+     */
     @PostMapping("/sessions/{sessionId}/interview-questions")
     public Result<InterviewQuestionRespDTO> extractInterviewQuestions(
             @PathVariable String sessionId,

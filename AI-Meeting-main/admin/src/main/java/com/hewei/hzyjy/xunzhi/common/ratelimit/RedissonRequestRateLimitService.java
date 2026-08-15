@@ -26,6 +26,7 @@ public class RedissonRequestRateLimitService implements RequestRateLimitService 
         String bucketName = (effectivePolicy.bucketName() == null || effectivePolicy.bucketName().isBlank())
                 ? "default"
                 : effectivePolicy.bucketName().trim();
+        // 构建限流器
         String limiterKey = resolveKeyPrefix() + ":" + bucketName + ":" + key;
         RRateLimiter limiter = redissonClient.getRateLimiter(limiterKey);
         ensureLimiterConfigured(limiter, effectivePolicy);

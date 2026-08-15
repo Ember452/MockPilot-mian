@@ -61,6 +61,7 @@ public class InterviewTurnRepairService {
         if (!Boolean.TRUE.equals(configuration.getEnable())) {
             return;
         }
+        // batchSize ：单次最大执行数量
         int batchSize = resolveBatchSize();
         for (int i = 0; i < batchSize; i++) {
             String payload = stringRedisTemplate.opsForList().leftPop(TURN_REPAIR_QUEUE_KEY);

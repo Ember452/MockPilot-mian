@@ -120,6 +120,7 @@ public class InterviewAnswerPipeline {
             interviewAnswerIdempotencyService.markSucceeded(ctx.sessionId, ctx.requestId, ctx.response);
             ctx.idempotencyMarkedSucceeded = true;
             if (ctx.turnLog != null) {
+                // 刷新热快照
                 runtimeSnapshotService.refreshAfterAnswerCommitted(ctx.sessionId, ctx.requestId, ctx.turnLog);
             }
         }

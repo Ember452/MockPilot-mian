@@ -37,6 +37,9 @@ public class RagTraceService {
     private final RagProperties ragProperties;
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
+    /**
+     * 启动初始化索引
+     */
     @PostConstruct
     void ensureIndexes() {
         try {
@@ -44,7 +47,7 @@ public class RagTraceService {
             int ttlDays = ragProperties.getMetrics().getTraceTtlDays() == null
                     ? 30 : ragProperties.getMetrics().getTraceTtlDays();
             indexOps.ensureIndex(new Index().on("create_time", Sort.Direction.ASC)
-                    .named("idx_create_time_ttl")
+                    .named("idx_create_time_ttl")  // TTL 过期索引，文档达到配置天数自动删除，防止无限膨胀
                     .expire(Duration.ofDays(ttlDays)));
             indexOps.ensureIndex(new Index().on("username", Sort.Direction.ASC).named("idx_username"));
             indexOps.ensureIndex(new Index().on("kb_id", Sort.Direction.ASC).named("idx_kb_id"));
@@ -58,11 +61,16 @@ public class RagTraceService {
      * 异步留档一轮 RAG 调用；开关关闭时静默跳过。
      */
     public void record(RagContext ctx, String username, long tokenTotal, boolean tokenEstimated) {
+        // 配置关闭追踪时跳过，支持线上动态关闭，减少数据库压力
         if (!Boolean.TRUE.equals(ragProperties.getMetrics().getTraceEnabled())) {
             return;
         }
         try {
             RagTrace trace = buildTrace(ctx, username, tokenTotal, tokenEstimated);
+            // 提交任务到线程池，异步执行MongoDB保存，主rag链路立即返回，不受数据库慢IO影响
+            // 失败仅告警。
+            // 线程池满时，任务拒绝，告警丢失。用try-catch捕获异常。
+            // TODO 异步写入无丢失兜底，可以采用本地缓冲队列，消息队列
             threadPoolTaskExecutor.execute(() -> {
                 try {
                     mongoTemplate.save(trace);
@@ -77,6 +85,10 @@ public class RagTraceService {
 
     /**
      * 由链路上下文推导 trace 字段（静态纯函数，供单测）。
+     * 记录是否触发联网搜索
+     * 重排Rerank器的识别
+     * 检索评估器的执行结果
+     * 是否进行了query改写
      */
     static RagTrace buildTrace(RagContext ctx, String username, long tokenTotal, boolean tokenEstimated) {
         boolean webSearchTriggered = ctx.getWebSearchResult() != null && !ctx.getWebSearchResult().isBlank();
