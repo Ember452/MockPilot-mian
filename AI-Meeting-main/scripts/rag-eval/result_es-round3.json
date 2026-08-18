@@ -1,0 +1,33 @@
+{
+  "label": "es-round3",
+  "mode": "fake",
+  "total": 20,
+  "hit": 16,
+  "recall_at_3": 0.8,
+  "server_p50_ms": 143,
+  "server_p95_ms": 162,
+  "e2e_p50_ms": 195,
+  "e2e_p95_ms": 238,
+  "details": [
+    {"query": "Redis RDB 和 AOF 有什么区别", "expected": "doc_redis_001", "hit": true, "top3_docs": ["doc_redis_001", "doc_redis_001", "doc_mysql_004"], "server_ms": 136, "e2e_ms": 186, "error": false},
+    {"query": "Redis 重启后数据为什么还在", "expected": "doc_redis_001", "hit": true, "top3_docs": ["doc_redis_001", "doc_redis_001", "doc_docker_005"], "server_ms": 143, "e2e_ms": 193, "error": false},
+    {"query": "Redis 持久化策略有哪些", "expected": "doc_redis_001", "hit": true, "top3_docs": ["doc_redis_001", "doc_redis_001", "doc_java_002"], "server_ms": 129, "e2e_ms": 178, "error": false},
+    {"query": "数据断电后怎么恢复", "expected": "doc_redis_001", "hit": false, "top3_docs": ["doc_mysql_004", "doc_docker_005", "doc_java_002"], "server_ms": 155, "e2e_ms": 218, "error": false},
+    {"query": "synchronized 和 Lock 的区别", "expected": "doc_java_002", "hit": true, "top3_docs": ["doc_java_002", "doc_java_002", "doc_spring_003"], "server_ms": 140, "e2e_ms": 190, "error": false},
+    {"query": "Java 中可重入锁是什么意思", "expected": "doc_java_002", "hit": true, "top3_docs": ["doc_java_002", "doc_java_002", "doc_redis_001"], "server_ms": 133, "e2e_ms": 182, "error": false},
+    {"query": "多线程同步有哪几种方式", "expected": "doc_java_002", "hit": true, "top3_docs": ["doc_java_002", "doc_java_002", "doc_spring_003"], "server_ms": 151, "e2e_ms": 208, "error": false},
+    {"query": "线程安全有哪些实现手段", "expected": "doc_java_002", "hit": false, "top3_docs": ["doc_spring_003", "doc_redis_001", "doc_mysql_004"], "server_ms": 164, "e2e_ms": 228, "error": false},
+    {"query": "Spring Boot 自动配置原理", "expected": "doc_spring_003", "hit": true, "top3_docs": ["doc_spring_003", "doc_spring_003", "doc_java_002"], "server_ms": 128, "e2e_ms": 178, "error": false},
+    {"query": "Spring Boot 怎么自动装配 Bean", "expected": "doc_spring_003", "hit": true, "top3_docs": ["doc_spring_003", "doc_spring_003", "doc_java_002"], "server_ms": 132, "e2e_ms": 182, "error": false},
+    {"query": "Spring 框架怎么简化开发的", "expected": "doc_spring_003", "hit": false, "top3_docs": ["doc_java_002", "doc_docker_005", "doc_redis_001"], "server_ms": 159, "e2e_ms": 222, "error": false},
+    {"query": "Spring Boot 启动时干了什么", "expected": "doc_spring_003", "hit": true, "top3_docs": ["doc_spring_003", "doc_java_002", "doc_docker_005"], "server_ms": 138, "e2e_ms": 190, "error": false},
+    {"query": "MySQL 索引优化方法", "expected": "doc_mysql_004", "hit": true, "top3_docs": ["doc_mysql_004", "doc_mysql_004", "doc_redis_001"], "server_ms": 153, "e2e_ms": 212, "error": false},
+    {"query": "MySQL 慢查询怎么排查", "expected": "doc_mysql_004", "hit": true, "top3_docs": ["doc_mysql_004", "doc_mysql_004", "doc_spring_003"], "server_ms": 130, "e2e_ms": 182, "error": false},
+    {"query": "数据库查询太慢怎么办", "expected": "doc_mysql_004", "hit": false, "top3_docs": ["doc_redis_001", "doc_spring_003", "doc_java_002"], "server_ms": 162, "e2e_ms": 226, "error": false},
+    {"query": "MySQL 联合索引最左前缀原则", "expected": "doc_mysql_004", "hit": true, "top3_docs": ["doc_mysql_004", "doc_mysql_004", "doc_redis_001"], "server_ms": 141, "e2e_ms": 192, "error": false},
+    {"query": "Docker 容器化部署流程", "expected": "doc_docker_005", "hit": true, "top3_docs": ["doc_docker_005", "doc_docker_005", "doc_spring_003"], "server_ms": 148, "e2e_ms": 202, "error": false},
+    {"query": "Docker 怎么打包 Spring Boot 应用", "expected": "doc_docker_005", "hit": true, "top3_docs": ["doc_docker_005", "doc_spring_003", "doc_docker_005"], "server_ms": 135, "e2e_ms": 186, "error": false},
+    {"query": "容器镜像怎么构建", "expected": "doc_docker_005", "hit": false, "top3_docs": ["doc_spring_003", "doc_mysql_004", "doc_redis_001"], "server_ms": 163, "e2e_ms": 230, "error": false},
+    {"query": "Docker Compose 多容器编排", "expected": "doc_docker_005", "hit": true, "top3_docs": ["doc_docker_005", "doc_docker_005", "doc_mysql_004"], "server_ms": 140, "e2e_ms": 192, "error": false}
+  ]
+}

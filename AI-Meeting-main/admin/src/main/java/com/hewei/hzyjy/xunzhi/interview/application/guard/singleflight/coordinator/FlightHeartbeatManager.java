@@ -2,6 +2,7 @@ package com.hewei.hzyjy.xunzhi.interview.application.guard.singleflight.coordina
 
 import com.hewei.hzyjy.xunzhi.interview.application.guard.singleflight.model.FlightOwnerContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.function.BooleanSupplier;
  *
  * @author 程序员牛肉
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FlightHeartbeatManager {
@@ -31,7 +33,6 @@ public class FlightHeartbeatManager {
      * 启动心跳任务
      * @param ownerContext owner节点执行AI请求的上下文对象，汇总当前阶段、请求键、owner 身份以及对应的 stage 策略。
      * @param heartbeatAction BooleanSupplier：好处：延迟执行，值在每次调用时动态决定
-     * @return
      */
     public String start(FlightOwnerContext ownerContext, BooleanSupplier heartbeatAction) {
         long intervalMillis = ownerContext.getPolicy() == null || ownerContext.getPolicy().getHeartbeatIntervalMillis() == null
@@ -41,7 +42,13 @@ public class FlightHeartbeatManager {
         // ScheduledFuture<?> future : 延时任务句柄，用来控制和管理已提交的定时任务
         // scheduledExecutorService.scheduleAtFixedRate：创建一个定长线程池，支持定时及周期性任务执行
         ScheduledFuture<?> future = scheduledExecutorService.scheduleAtFixedRate(
-                () -> heartbeatAction.getAsBoolean(), // 任务内容（要执行的任务）
+                () -> {
+                    try {
+                        heartbeatAction.getAsBoolean();
+                    } catch (Exception e) {
+                        log.warn("Heartbeat execution failed for taskKey={}, will retry at next interval", taskKey, e);
+                    }
+                },
                 intervalMillis,    // 初始延迟
                 intervalMillis,    // 延迟时间
                 TimeUnit.MILLISECONDS  // 时间单位

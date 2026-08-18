@@ -1,0 +1,33 @@
+{
+  "label": "es-round2",
+  "mode": "fake",
+  "total": 20,
+  "hit": 17,
+  "recall_at_3": 0.85,
+  "server_p50_ms": 140,
+  "server_p95_ms": 161,
+  "e2e_p50_ms": 191,
+  "e2e_p95_ms": 235,
+  "details": [
+    {"query": "Redis RDB 和 AOF 有什么区别", "expected": "doc_redis_001", "hit": true, "top3_docs": ["doc_redis_001", "doc_redis_001", "doc_mysql_004"], "server_ms": 134, "e2e_ms": 182, "error": false},
+    {"query": "Redis 重启后数据为什么还在", "expected": "doc_redis_001", "hit": true, "top3_docs": ["doc_redis_001", "doc_redis_001", "doc_docker_005"], "server_ms": 141, "e2e_ms": 190, "error": false},
+    {"query": "Redis 持久化策略有哪些", "expected": "doc_redis_001", "hit": true, "top3_docs": ["doc_redis_001", "doc_redis_001", "doc_java_002"], "server_ms": 130, "e2e_ms": 178, "error": false},
+    {"query": "数据断电后怎么恢复", "expected": "doc_redis_001", "hit": false, "top3_docs": ["doc_mysql_004", "doc_docker_005", "doc_java_002"], "server_ms": 158, "e2e_ms": 220, "error": false},
+    {"query": "synchronized 和 Lock 的区别", "expected": "doc_java_002", "hit": true, "top3_docs": ["doc_java_002", "doc_java_002", "doc_spring_003"], "server_ms": 138, "e2e_ms": 188, "error": false},
+    {"query": "Java 中可重入锁是什么意思", "expected": "doc_java_002", "hit": true, "top3_docs": ["doc_java_002", "doc_java_002", "doc_redis_001"], "server_ms": 132, "e2e_ms": 180, "error": false},
+    {"query": "多线程同步有哪几种方式", "expected": "doc_java_002", "hit": true, "top3_docs": ["doc_java_002", "doc_java_002", "doc_spring_003"], "server_ms": 149, "e2e_ms": 205, "error": false},
+    {"query": "线程安全有哪些实现手段", "expected": "doc_java_002", "hit": false, "top3_docs": ["doc_spring_003", "doc_redis_001", "doc_mysql_004"], "server_ms": 162, "e2e_ms": 225, "error": false},
+    {"query": "Spring Boot 自动配置原理", "expected": "doc_spring_003", "hit": true, "top3_docs": ["doc_spring_003", "doc_spring_003", "doc_java_002"], "server_ms": 126, "e2e_ms": 175, "error": false},
+    {"query": "Spring Boot 怎么自动装配 Bean", "expected": "doc_spring_003", "hit": true, "top3_docs": ["doc_spring_003", "doc_spring_003", "doc_java_002"], "server_ms": 131, "e2e_ms": 180, "error": false},
+    {"query": "@SpringBootApplication 注解做了什么", "expected": "doc_spring_003", "hit": true, "top3_docs": ["doc_spring_003", "doc_spring_003", "doc_docker_005"], "server_ms": 143, "e2e_ms": 195, "error": false},
+    {"query": "Spring Boot 启动时干了什么", "expected": "doc_spring_003", "hit": true, "top3_docs": ["doc_spring_003", "doc_java_002", "doc_docker_005"], "server_ms": 137, "e2e_ms": 188, "error": false},
+    {"query": "MySQL 索引优化方法", "expected": "doc_mysql_004", "hit": true, "top3_docs": ["doc_mysql_004", "doc_mysql_004", "doc_redis_001"], "server_ms": 155, "e2e_ms": 215, "error": false},
+    {"query": "MySQL 慢查询怎么排查", "expected": "doc_mysql_004", "hit": true, "top3_docs": ["doc_mysql_004", "doc_mysql_004", "doc_spring_003"], "server_ms": 128, "e2e_ms": 178, "error": false},
+    {"query": "MySQL 索引失效的常见场景", "expected": "doc_mysql_004", "hit": true, "top3_docs": ["doc_mysql_004", "doc_mysql_004", "doc_java_002"], "server_ms": 144, "e2e_ms": 192, "error": false},
+    {"query": "MySQL 联合索引最左前缀原则", "expected": "doc_mysql_004", "hit": true, "top3_docs": ["doc_mysql_004", "doc_mysql_004", "doc_redis_001"], "server_ms": 139, "e2e_ms": 190, "error": false},
+    {"query": "Docker 容器化部署流程", "expected": "doc_docker_005", "hit": true, "top3_docs": ["doc_docker_005", "doc_docker_005", "doc_spring_003"], "server_ms": 150, "e2e_ms": 204, "error": false},
+    {"query": "应用容器化怎么做", "expected": "doc_docker_005", "hit": false, "top3_docs": ["doc_spring_003", "doc_mysql_004", "doc_java_002"], "server_ms": 167, "e2e_ms": 232, "error": false},
+    {"query": "Docker 镜像分层是什么意思", "expected": "doc_docker_005", "hit": true, "top3_docs": ["doc_docker_005", "doc_docker_005", "doc_redis_001"], "server_ms": 135, "e2e_ms": 185, "error": false},
+    {"query": "Docker Compose 多容器编排", "expected": "doc_docker_005", "hit": true, "top3_docs": ["doc_docker_005", "doc_docker_005", "doc_mysql_004"], "server_ms": 142, "e2e_ms": 195, "error": false}
+  ]
+}

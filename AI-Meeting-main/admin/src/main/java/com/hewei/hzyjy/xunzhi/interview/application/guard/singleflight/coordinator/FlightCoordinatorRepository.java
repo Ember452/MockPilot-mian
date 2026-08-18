@@ -158,6 +158,7 @@ public class FlightCoordinatorRepository {
 
     public boolean heartbeat(String requestKey, String ownerId, Long ownerToken, long runningTtlMillis) {
         long now = System.currentTimeMillis();
+        // 对ownerToken，id进行校验，更新heartBeadAt时间，刷新TTL，返回1
         Long result = stringRedisTemplate.execute(
                 HEARTBEAT_SCRIPT,
                 Collections.singletonList(metaKey(requestKey)),
@@ -167,6 +168,7 @@ public class FlightCoordinatorRepository {
                 String.valueOf(now + runningTtlMillis),
                 String.valueOf(runningTtlMillis)
         );
+        // 如果返回1，表示心跳成功
         return Long.valueOf(1L).equals(result);
     }
 
