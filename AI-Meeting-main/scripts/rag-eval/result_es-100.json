@@ -1,0 +1,1313 @@
+{
+  "label": "es-100",
+  "mode": "fake",
+  "total": 100,
+  "hit": 85,
+  "recall_at_3": 0.85,
+  "server_p50_ms": 141.0,
+  "server_p95_ms": 162.0,
+  "e2e_p50_ms": 0.0,
+  "e2e_p95_ms": 0.0,
+  "details": [
+    {
+      "query": "Redis RDB 和 AOF 有什么区别",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_mysql_004"
+      ],
+      "server_ms": 147,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Redis 持久化策略有哪些",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_mysql_004"
+      ],
+      "server_ms": 130,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "RDB 持久化的触发条件是什么",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_mysql_004"
+      ],
+      "server_ms": 132,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "AOF 重写机制的原理",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_docker_005"
+      ],
+      "server_ms": 153,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Redis 混合持久化是什么",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_docker_005"
+      ],
+      "server_ms": 139,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Redis 重启后数据为什么还在",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_java_002"
+      ],
+      "server_ms": 146,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Redis 怎么保证数据不丢失",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_mysql_004"
+      ],
+      "server_ms": 136,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "AOF 和 RDB 性能对比",
+      "expected": "doc_redis_001",
+      "hit": true,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_redis_001",
+        "doc_docker_005"
+      ],
+      "server_ms": 135,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "数据断电后怎么恢复",
+      "expected": "doc_redis_001",
+      "hit": false,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_docker_005",
+        "doc_java_002"
+      ],
+      "server_ms": 150,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "缓存怎么持久化到磁盘",
+      "expected": "doc_redis_001",
+      "hit": false,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_docker_005",
+        "doc_java_002"
+      ],
+      "server_ms": 152,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "synchronized 和 ReentrantLock 的区别",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_spring_003"
+      ],
+      "server_ms": 121,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Java 中可重入锁是什么意思",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_spring_003"
+      ],
+      "server_ms": 125,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "多线程同步有哪几种方式",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_redis_001"
+      ],
+      "server_ms": 152,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "volatile 关键字的作用",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_mysql_004"
+      ],
+      "server_ms": 149,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Java 线程池的核心参数",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_spring_003"
+      ],
+      "server_ms": 148,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Java 锁升级的过程是怎样的",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_mysql_004"
+      ],
+      "server_ms": 137,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "CAS 无锁算法原理",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_mysql_004"
+      ],
+      "server_ms": 127,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "CountDownLatch 和 CyclicBarrier 区别",
+      "expected": "doc_java_002",
+      "hit": true,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_java_002",
+        "doc_mysql_004"
+      ],
+      "server_ms": 137,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "线程安全有哪些实现手段",
+      "expected": "doc_java_002",
+      "hit": false,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_redis_001",
+        "doc_mysql_004"
+      ],
+      "server_ms": 140,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "并发编程中怎么避免死锁",
+      "expected": "doc_java_002",
+      "hit": false,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_redis_001",
+        "doc_mysql_004"
+      ],
+      "server_ms": 136,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Spring Boot 自动配置原理",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_redis_001"
+      ],
+      "server_ms": 143,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Spring Boot 怎么自动装配 Bean",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_docker_005"
+      ],
+      "server_ms": 158,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "@SpringBootApplication 注解做了什么",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_docker_005"
+      ],
+      "server_ms": 151,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Spring Boot 启动时干了什么",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_docker_005"
+      ],
+      "server_ms": 143,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Spring Boot Starter 机制",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_docker_005"
+      ],
+      "server_ms": 120,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Spring Boot 条件注解有哪些",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_docker_005"
+      ],
+      "server_ms": 139,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "auto-configuration 优先级怎么控制",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_redis_001"
+      ],
+      "server_ms": 138,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Spring Boot 怎么排除自动配置",
+      "expected": "doc_spring_003",
+      "hit": true,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_spring_003",
+        "doc_redis_001"
+      ],
+      "server_ms": 129,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Spring 框架怎么简化开发的",
+      "expected": "doc_spring_003",
+      "hit": false,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_docker_005",
+        "doc_redis_001"
+      ],
+      "server_ms": 134,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "框架怎么做到零配置启动",
+      "expected": "doc_spring_003",
+      "hit": false,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_docker_005",
+        "doc_redis_001"
+      ],
+      "server_ms": 158,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "MySQL 索引优化方法",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_spring_003"
+      ],
+      "server_ms": 136,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "MySQL 慢查询怎么排查",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_redis_001"
+      ],
+      "server_ms": 149,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "MySQL 索引失效的常见场景",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_java_002"
+      ],
+      "server_ms": 156,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "MySQL 联合索引最左前缀原则",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_spring_003"
+      ],
+      "server_ms": 157,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "MySQL 覆盖索引是什么",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_spring_003"
+      ],
+      "server_ms": 127,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "MySQL 索引下推 ICP 原理",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_spring_003"
+      ],
+      "server_ms": 136,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "InnoDB B+树索引结构",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_java_002"
+      ],
+      "server_ms": 125,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "EXPLAIN 执行计划怎么看",
+      "expected": "doc_mysql_004",
+      "hit": true,
+      "top3_docs": [
+        "doc_mysql_004",
+        "doc_mysql_004",
+        "doc_java_002"
+      ],
+      "server_ms": 141,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "数据库查询太慢怎么办",
+      "expected": "doc_mysql_004",
+      "hit": false,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_spring_003",
+        "doc_java_002"
+      ],
+      "server_ms": 150,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "查询慢了怎么优化",
+      "expected": "doc_mysql_004",
+      "hit": false,
+      "top3_docs": [
+        "doc_redis_001",
+        "doc_spring_003",
+        "doc_java_002"
+      ],
+      "server_ms": 160,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Docker 容器化部署流程",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_redis_001"
+      ],
+      "server_ms": 141,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Docker 怎么打包 Spring Boot 应用",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_redis_001"
+      ],
+      "server_ms": 129,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Docker 镜像分层是什么意思",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_spring_003"
+      ],
+      "server_ms": 135,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Docker Compose 多容器编排",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_spring_003"
+      ],
+      "server_ms": 121,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Dockerfile 常用指令有哪些",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_spring_003"
+      ],
+      "server_ms": 157,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Docker 容器和虚拟机的区别",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_redis_001"
+      ],
+      "server_ms": 152,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Docker 网络模式 bridge 和 host 区别",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_redis_001"
+      ],
+      "server_ms": 146,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Docker 数据卷挂载方式",
+      "expected": "doc_docker_005",
+      "hit": true,
+      "top3_docs": [
+        "doc_docker_005",
+        "doc_docker_005",
+        "doc_redis_001"
+      ],
+      "server_ms": 145,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "应用容器化怎么做",
+      "expected": "doc_docker_005",
+      "hit": false,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_mysql_004",
+        "doc_redis_001"
+      ],
+      "server_ms": 162,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "容器怎么部署到生产环境",
+      "expected": "doc_docker_005",
+      "hit": false,
+      "top3_docs": [
+        "doc_spring_003",
+        "doc_mysql_004",
+        "doc_redis_001"
+      ],
+      "server_ms": 132,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 消息队列架构",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_micro_009"
+      ],
+      "server_ms": 154,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 消费者组重平衡机制",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_es_007"
+      ],
+      "server_ms": 121,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 分区策略",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_micro_009"
+      ],
+      "server_ms": 143,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 高水位 HW 和 LEO",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_es_007"
+      ],
+      "server_ms": 123,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka ISR 机制原理",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_es_007"
+      ],
+      "server_ms": 150,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 怎么保证消息不丢",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_es_007"
+      ],
+      "server_ms": 120,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 消息重复消费怎么处理",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_docker_005"
+      ],
+      "server_ms": 130,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 和 RocketMQ 对比",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_micro_009"
+      ],
+      "server_ms": 137,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Kafka 零拷贝原理",
+      "expected": "doc_kafka_006",
+      "hit": true,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_kafka_006",
+        "doc_docker_005"
+      ],
+      "server_ms": 149,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "消息队列选型对比",
+      "expected": "doc_kafka_006",
+      "hit": false,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_micro_009",
+        "doc_docker_005"
+      ],
+      "server_ms": 159,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 倒排索引原理",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_mysql_004"
+      ],
+      "server_ms": 127,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 分词器有哪些类型",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_mysql_004"
+      ],
+      "server_ms": 160,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 分片和副本机制",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_kafka_006"
+      ],
+      "server_ms": 137,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 写入流程详解",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_mysql_004"
+      ],
+      "server_ms": 164,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 查询流程 query vs fetch",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_kafka_006"
+      ],
+      "server_ms": 122,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 为什么搜索这么快",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_mysql_004"
+      ],
+      "server_ms": 126,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 集群健康状态 red yellow green",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_kafka_006"
+      ],
+      "server_ms": 140,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 深度分页 scroll 和 search_after",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_nginx_008"
+      ],
+      "server_ms": 152,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "ES 索引模板和别名",
+      "expected": "doc_es_007",
+      "hit": true,
+      "top3_docs": [
+        "doc_es_007",
+        "doc_es_007",
+        "doc_mysql_004"
+      ],
+      "server_ms": 141,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "全文检索技术方案",
+      "expected": "doc_es_007",
+      "hit": false,
+      "top3_docs": [
+        "doc_kafka_006",
+        "doc_nginx_008",
+        "doc_mysql_004"
+      ],
+      "server_ms": 147,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx 反向代理配置",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_micro_009"
+      ],
+      "server_ms": 157,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx 负载均衡算法",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_micro_009"
+      ],
+      "server_ms": 162,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx 限流模块 ngx_http_limit_req",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_spring_003"
+      ],
+      "server_ms": 129,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx 动静分离配置",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_micro_009"
+      ],
+      "server_ms": 132,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx HTTPS 配置和证书",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_spring_003"
+      ],
+      "server_ms": 123,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "网站流量大了怎么分流",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_spring_003"
+      ],
+      "server_ms": 150,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx 和 Tomcat 怎么配合",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_micro_009"
+      ],
+      "server_ms": 165,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx keepalive 长连接配置",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_spring_003"
+      ],
+      "server_ms": 154,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "Nginx 日志格式和切割",
+      "expected": "doc_nginx_008",
+      "hit": true,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_nginx_008",
+        "doc_spring_003"
+      ],
+      "server_ms": 158,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "高并发架构设计",
+      "expected": "doc_nginx_008",
+      "hit": false,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_es_007",
+        "doc_spring_003"
+      ],
+      "server_ms": 140,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "微服务服务发现与注册中心",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_kafka_006"
+      ],
+      "server_ms": 151,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "微服务网关 Gateway 原理",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_kafka_006"
+      ],
+      "server_ms": 158,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "微服务配置中心 Apollo vs Nacos",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_kafka_006"
+      ],
+      "server_ms": 155,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "微服务熔断降级 Sentinel 原理",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_nginx_008"
+      ],
+      "server_ms": 137,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "微服务分布式事务 Seata",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_docker_005"
+      ],
+      "server_ms": 127,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "服务之间怎么互相调用",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_nginx_008"
+      ],
+      "server_ms": 146,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "微服务链路追踪 SkyWalking",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_nginx_008"
+      ],
+      "server_ms": 165,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "微服务容器化部署方案",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_docker_005"
+      ],
+      "server_ms": 121,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "API 网关限流和鉴权",
+      "expected": "doc_micro_009",
+      "hit": true,
+      "top3_docs": [
+        "doc_micro_009",
+        "doc_micro_009",
+        "doc_docker_005"
+      ],
+      "server_ms": 120,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "分布式系统怎么拆分",
+      "expected": "doc_micro_009",
+      "hit": false,
+      "top3_docs": [
+        "doc_nginx_008",
+        "doc_kafka_006",
+        "doc_docker_005"
+      ],
+      "server_ms": 135,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "单例模式的懒汉式和饿汉式",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_java_002"
+      ],
+      "server_ms": 120,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "工厂模式和抽象工厂模式区别",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_spring_003"
+      ],
+      "server_ms": 155,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "策略模式在实际项目中的应用",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_spring_003"
+      ],
+      "server_ms": 142,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "观察者模式和发布订阅区别",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_micro_009"
+      ],
+      "server_ms": 162,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "装饰器模式 vs 代理模式",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_spring_003"
+      ],
+      "server_ms": 146,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "怎么保证全局只有一个对象",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_java_002"
+      ],
+      "server_ms": 129,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "模板方法模式在框架中的应用",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_micro_009"
+      ],
+      "server_ms": 148,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "责任链模式实战",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_java_002"
+      ],
+      "server_ms": 136,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "建造者模式链式调用",
+      "expected": "doc_pattern_010",
+      "hit": true,
+      "top3_docs": [
+        "doc_pattern_010",
+        "doc_pattern_010",
+        "doc_spring_003"
+      ],
+      "server_ms": 147,
+      "e2e_ms": 0,
+      "error": false
+    },
+    {
+      "query": "代码重构方法",
+      "expected": "doc_pattern_010",
+      "hit": false,
+      "top3_docs": [
+        "doc_java_002",
+        "doc_spring_003",
+        "doc_micro_009"
+      ],
+      "server_ms": 135,
+      "e2e_ms": 0,
+      "error": false
+    }
+  ]
+}

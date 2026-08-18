@@ -1,0 +1,10 @@
+[
+  {
+    "query": "Redis RDB 和 AOF 有什么区别",
+    "expected_doc_id": "doc_redis_001"
+  },
+  {
+    "query": "Java 中可重入锁是什么意思",
+    "expected_doc_id": "doc_java_002"
+  }
+]

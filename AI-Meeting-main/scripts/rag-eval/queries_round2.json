@@ -1,0 +1,22 @@
+[
+  {"query": "Redis RDB 和 AOF 有什么区别", "expected_doc_id": "doc_redis_001"},
+  {"query": "Redis 重启后数据为什么还在", "expected_doc_id": "doc_redis_001"},
+  {"query": "Redis 持久化策略有哪些", "expected_doc_id": "doc_redis_001"},
+  {"query": "数据断电后怎么恢复", "expected_doc_id": "doc_redis_001"},
+  {"query": "synchronized 和 Lock 的区别", "expected_doc_id": "doc_java_002"},
+  {"query": "Java 中可重入锁是什么意思", "expected_doc_id": "doc_java_002"},
+  {"query": "多线程同步有哪几种方式", "expected_doc_id": "doc_java_002"},
+  {"query": "线程安全有哪些实现手段", "expected_doc_id": "doc_java_002"},
+  {"query": "Spring Boot 自动配置原理", "expected_doc_id": "doc_spring_003"},
+  {"query": "Spring Boot 怎么自动装配 Bean", "expected_doc_id": "doc_spring_003"},
+  {"query": "@SpringBootApplication 注解做了什么", "expected_doc_id": "doc_spring_003"},
+  {"query": "Spring Boot 启动时干了什么", "expected_doc_id": "doc_spring_003"},
+  {"query": "MySQL 索引优化方法", "expected_doc_id": "doc_mysql_004"},
+  {"query": "MySQL 慢查询怎么排查", "expected_doc_id": "doc_mysql_004"},
+  {"query": "MySQL 索引失效的常见场景", "expected_doc_id": "doc_mysql_004"},
+  {"query": "MySQL 联合索引最左前缀原则", "expected_doc_id": "doc_mysql_004"},
+  {"query": "Docker 容器化部署流程", "expected_doc_id": "doc_docker_005"},
+  {"query": "应用容器化怎么做", "expected_doc_id": "doc_docker_005"},
+  {"query": "Docker 镜像分层是什么意思", "expected_doc_id": "doc_docker_005"},
+  {"query": "Docker Compose 多容器编排", "expected_doc_id": "doc_docker_005"}
+]

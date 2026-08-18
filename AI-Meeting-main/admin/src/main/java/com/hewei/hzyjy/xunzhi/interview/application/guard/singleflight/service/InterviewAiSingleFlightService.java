@@ -31,6 +31,9 @@ public class InterviewAiSingleFlightService {
     private final InterviewAiSingleFlightConfiguration configuration;
     private final MeterRegistry meterRegistry;
 
+    /**
+     * 使用concurrentHashMap作为请求注册表，利用它的线程安全，支持原子compute 操作。
+     */
     private final ConcurrentMap<String, FlightEntry> flights = new ConcurrentHashMap<>();
 
     public <T> T execute(String key, Supplier<T> supplier) {
