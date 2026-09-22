@@ -17,3 +17,15 @@ MockPilot-Frontend-main/
 # --- 系统文件 ---
 .DS_Store
 Thumbs.db
+
+# --- IDE：本仓库历史误提交过 .idea/，取消跟踪后生效（见 git rm -r --cached .idea） ---
+.idea/
+
+# --- AI 工具与编辑器本地产物 ---
+.trae/
+.workbuddy/
+
+# --- 求职向文档：面试备战材料，不入开源仓库 ---
+docs/interview/
+
+docs/quant-benchmark-guide.md

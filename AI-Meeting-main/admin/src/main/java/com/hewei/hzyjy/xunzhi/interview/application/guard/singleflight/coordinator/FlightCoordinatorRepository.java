@@ -21,7 +21,7 @@ import java.util.Map;
  * 分布式 flight 的 Redis 访问层，负责通过 Lua/CAS 维护元数据状态机、
  * 持久化执行结果以及支撑 owner 心跳续租和 follower 查询。
  *
- * @author 程序员牛肉
+ * @author solis
  */
 @Repository
 @RequiredArgsConstructor
